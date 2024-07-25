@@ -41,6 +41,7 @@ class AssetResource extends Resource
                                     ->options([
                                         'hardware' => 'Hardware',
                                         'software' => 'Software',
+                                        'peripherals' => 'Peripherals',
                                     ])
                                     ->required()
                                     ->label('Asset Type')
@@ -49,6 +50,7 @@ class AssetResource extends Resource
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         $set('show_hardware', $state === 'hardware');
                                         $set('show_software', $state === 'software');
+                                        $set('show_peripherals', $state === 'peripherals');
                                     }),
                                 Select::make('asset_status')
                                     ->options([
@@ -70,10 +72,10 @@ class AssetResource extends Resource
                             ->hidden(fn (callable $get) => $get('show_hardware') !== true)
                             ->schema([
                                 TextArea::make('specifications')->label('Specifications')->required(),
-                                TextInput::make('serial_number')->label('Serial Number')->required(),
+                                TextInput::make('serial_number')->label('Serial No.')->required(),
                                 TextInput::make('manufacturer')->label('Manufacturer')->required(),
                                 DatePicker::make('warranty_expiration')
-                                    ->label('Warranty Expiration')
+                                    ->label('Warranty Expiration Date')
                                     ->displayFormat('m/d/Y')
                                     ->format('Y-m-d')
                                     ->seconds(false),
@@ -94,6 +96,18 @@ class AssetResource extends Resource
                                     ])
                                     ->required(),
                             ]),
+                        Fieldset::make('Peripherals Details')
+                            ->hidden(fn (callable $get) => $get('show_peripherals') !== true)
+                            ->schema([
+                                TextArea::make('specifications')->label('Specifications')->required(),
+                                TextInput::make('serial_number')->label('Serial No.')->required(),
+                                TextInput::make('manufacturer')->label('Manufacturer')->required(),
+                                DatePicker::make('warranty_expiration')
+                                    ->label('Warranty Expiration Date')
+                                    ->displayFormat('m/d/Y')
+                                    ->format('Y-m-d')
+                                    ->seconds(false),
+                            ]),
                         Fieldset::make('Lifecycle Information')
                             ->schema([
                                 DatePicker::make('acquisition_date')
@@ -105,9 +119,9 @@ class AssetResource extends Resource
                                 DatePicker::make('retirement_date')
                                     ->label('Retirement Date')
                                     ->minDate(fn ($get) => $get('acquisition_date'))
-                                ]),
+                                ])->reactive(),
                         Radio::make('add_purchase_information')
-                            ->label('Add Purchase Information?')
+                            ->label('Add Purchase Order Information?')
                             ->options([
                                 'yes' => 'Yes',
                                 'no' => 'No',
@@ -117,13 +131,24 @@ class AssetResource extends Resource
                             Fieldset::make('Purchase Information')
                                 ->hidden(fn (callable $get) => $get('add_purchase_information') !== 'yes')
                                 ->schema([
-                                    TextInput::make('receipt_no')
-                                        ->label('Receipt No.')
+                                    TextInput::make('purchase_order_no')
+                                        ->label('Purchase Order No.')
                                         ->required()
-                                        ->numeric(),
+                                        ->numeric()
+                                        ->columnSpan(1),
+                                    TextInput::make('sales_invoice_no')
+                                        ->label('Sales Invoice No.')
+                                        ->required()
+                                        ->numeric()
+                                        ->columnSpan(1),
                                     DatePicker::make('purchase_date')
-                                        ->label('Purchase Date')
+                                        ->label('Purchase Order Date')
                                         ->required(),
+                                    TextInput::make('asset_cost')
+                                        ->label('Purchase Order Amount')
+                                        ->required()
+                                        ->numeric()
+                                        ->columnSpan(1),
                                     Fieldset::make('Vendor Information')
                                         ->schema([
                                             Radio::make('vendor_option')
@@ -191,14 +216,10 @@ class AssetResource extends Resource
                                                 ]),
                                         ])
                                         ->columnSpanFull(),
-                                    TextInput::make('asset_cost')
-                                        ->label('Asset Cost')
-                                        ->required()
-                                        ->numeric()
-                                        ->columnSpan(1),
-                                ]),
+                                ])->label('Purchase Order Information'),
                         ])
                     ->createItemButtonLabel('Add Asset')
+                    ->label('Asset Information')
                     ->columnSpanFull()
                     ->required(),
         ]);
@@ -236,7 +257,8 @@ class AssetResource extends Resource
                     ->sortable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->orWhere('hardware.specifications', 'like', "%{$search}%")
-                            ->orWhere('software.version', 'like', "%{$search}%");
+                            ->orWhere('software.version', 'like', "%{$search}%")
+                            ->orWhere('peripherals.specifications', 'like', "%{$search}%");
                     })
                     ->getStateUsing(fn($record) => $record->details),
                 TextColumn::make('created_at')
@@ -259,17 +281,21 @@ class AssetResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
             ])
-            ->defaultSort('assets.id')
+            ->defaultSort('assets.id', 'desc')
             ->modifyQueryUsing(function (Builder $query) {
                 $query->leftJoin('hardware', 'assets.id', '=', 'hardware.asset_id')
                     ->leftJoin('software', 'assets.id', '=', 'software.asset_id')
+                    ->leftJoin('peripherals', 'assets.id', '=', 'peripherals.asset_id')
                     ->select('assets.*',
                         'hardware.specifications as hardware_specifications',
-                        'software.version as software_version');
+                        'software.version as software_version',
+                        'peripherals.specifications as peripherals_specifications',
+                    );
             });
     }
 
@@ -285,6 +311,7 @@ class AssetResource extends Resource
         return [
             'index' => Pages\ListAssets::route('/'),
             'create' => Pages\CreateAsset::route('/create'),
+            'view' => Pages\ViewAsset::route('/{record}'),
             'edit' => Pages\EditAsset::route('/{record}/edit'),
         ];
     }

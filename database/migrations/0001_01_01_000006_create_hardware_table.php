@@ -14,8 +14,6 @@ return new class extends Migration
         Schema::create('hardware', function (Blueprint $table) {
             $table->id();
             $table->foreignId('asset_id')->constrained('assets')->onDelete('cascade');
-            $table->string('brand');
-            $table->string('model');
             $table->string('specifications');
             $table->string('serial_number');
             $table->string('manufacturer');

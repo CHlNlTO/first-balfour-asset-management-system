@@ -19,7 +19,7 @@ class LifecycleResource extends Resource
 
     protected static ?string $navigationGroup = 'Manage Assets';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
     {

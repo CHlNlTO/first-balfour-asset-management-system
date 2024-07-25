@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // create_patients_table
-        Schema::create('patients', function (Blueprint $table) {
+        Schema::create('peripherals', function (Blueprint $table) {
             $table->id();
-            $table->date('date_of_birth');
-            $table->string('name');
-            $table->integer('owner_id')->unsigned();
-            $table->string('type');
+            $table->foreignId('asset_id')->constrained('assets')->onDelete('cascade');
+            $table->string('specifications');
+            $table->string('serial_number');
+            $table->string('manufacturer');
+            $table->timestamp('warranty_expiration')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('patients');
+        Schema::dropIfExists('peripherals');
     }
 };

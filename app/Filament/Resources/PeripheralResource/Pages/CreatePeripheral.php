@@ -1,28 +1,31 @@
 <?php
 
-namespace App\Filament\Resources\AssetResource\Pages;
+namespace App\Filament\Resources\PeripheralResource\Pages;
 
-use App\Filament\Resources\AssetResource;
+use App\Filament\Resources\PeripheralResource;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\DB;
 use App\Models\Asset;
-use App\Models\Hardware;
-use App\Models\Software;
 use App\Models\Peripheral;
 use App\Models\Purchase;
 use App\Models\Vendor;
-use App\Models\Lifecycle;
-use Illuminate\Support\Facades\Request;
-class CreateAsset extends CreateRecord
+use Illuminate\Support\Facades\Log;
+
+class CreatePeripheral extends CreateRecord
 {
-    protected static string $resource = AssetResource::class;
+    protected static string $resource = PeripheralResource::class;
 
     protected function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model
     {
-        if (isset($data['Asset Information'])) {
-            return $this->handleMultipleAssetCreation($data['Asset Information']);
+        // Log the entire data array
+        Log::info('Received data:', $data);
+
+        if (isset($data['assets']) && is_array($data['assets'])) {
+            Log::info('Handling multiple asset creation');
+            return $this->handleMultipleAssetCreation($data['assets']);
         }
 
+        Log::info('Handling single asset creation');
         return $this->handleSingleAssetCreation($data);
     }
 
@@ -31,7 +34,8 @@ class CreateAsset extends CreateRecord
         $createdAssets = [];
 
         DB::transaction(function () use ($assetsData, &$createdAssets) {
-            foreach ($assetsData as $assetData) {
+            foreach ($assetsData as $index => $assetData) {
+                Log::info("Creating asset {$index}:", $assetData);
                 $createdAssets[] = $this->createSingleAsset($assetData);
             }
         });
@@ -48,44 +52,22 @@ class CreateAsset extends CreateRecord
 
     protected function createSingleAsset(array $data): Asset
     {
+        Log::info('Creating single asset with data:', $data);
+
         $asset = Asset::create([
-            'asset_type' => $data['asset_type'],
+            'asset_type' => 'peripheral',
             'asset_status' => $data['asset_status'],
             'brand' => $data['brand'],
             'model' => $data['model'],
         ]);
 
-        Lifecycle::create([
+        Peripheral::create([
             'asset_id' => $asset->id,
-            'acquisition_date' => $data['acquisition_date'],
-            'retirement_date' => $data['retirement_date'] ?? null,
+            'specifications' => $data['specifications'] ?? null,
+            'serial_number' => $data['serial_number'] ?? null,
+            'manufacturer' => $data['manufacturer'] ?? null,
+            'warranty_expiration' => $data['warranty_expiration'] ?? null,
         ]);
-
-
-        if ($data['asset_type'] === 'hardware') {
-            Hardware::create([
-                'asset_id' => $asset->id,
-                'specifications' => $data['specifications'] ?? null,
-                'serial_number' => $data['serial_number'] ?? null,
-                'manufacturer' => $data['manufacturer'] ?? null,
-                'warranty_expiration' => $data['warranty_expiration'] ?? null,
-            ]);
-        } elseif ($data['asset_type'] === 'software') {
-            Software::create([
-                'asset_id' => $asset->id,
-                'version' => $data['version'] ?? null,
-                'license_key' => $data['license_key'] ?? null,
-                'license_type' => $data['license_type'] ?? null,
-            ]);
-        } else if ($data['asset_type'] === 'peripherals') {
-            Peripheral::create([
-                'asset_id' => $asset->id,
-                'specifications' => $data['specifications'] ?? null,
-                'serial_number' => $data['serial_number'] ?? null,
-                'manufacturer' => $data['manufacturer'] ?? null,
-                'warranty_expiration' => $data['warranty_expiration'] ?? null,
-            ]);
-        }
 
         if ($data['add_purchase_information'] === 'yes') {
             $vendorId = $this->handleVendor($data);

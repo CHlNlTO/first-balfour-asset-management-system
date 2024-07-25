@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\HardwareResource\Pages;
+namespace App\Filament\Resources\PeripheralResource\Pages;
 
-use App\Filament\Resources\HardwareResource;
+use App\Filament\Resources\PeripheralResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
@@ -12,9 +12,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 
-class EditHardware extends EditRecord
+class EditPeripheral extends EditRecord
 {
-    protected static string $resource = HardwareResource::class;
+    protected static string $resource = PeripheralResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -66,7 +66,7 @@ class EditHardware extends EditRecord
             ->schema([
                 Select::make('asset_type')
                     ->options([
-                        'hardware' => 'Hardware',
+                        'peripheral' => 'Peripheral',
                         'software' => 'Software',
                     ])
                     ->required()
@@ -89,7 +89,7 @@ class EditHardware extends EditRecord
                     ->default('active'),
                 TextInput::make('brand')->label('Brand')->required(),
                 TextInput::make('model')->label('Model')->required(),
-                Fieldset::make('Hardware Details')
+                Fieldset::make('Peripheral Details')
                     ->schema([
                         TextInput::make('specifications')->label('Specifications')->required(),
                         TextInput::make('serial_number')->label('Serial Number')->required(),
