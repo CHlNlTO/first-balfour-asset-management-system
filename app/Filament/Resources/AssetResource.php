@@ -15,6 +15,8 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Repeater;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Textarea;
 
 class AssetResource extends Resource
 {
@@ -24,11 +26,14 @@ class AssetResource extends Resource
 
     protected static ?string $navigationGroup = 'Manage Assets';
 
+    protected static ?int $navigationSort = 1;
+
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Repeater::make('assets')
+                Repeater::make('Asset Information')
                     ->schema([
                         Fieldset::make('Asset Details')
                             ->schema([
@@ -64,7 +69,7 @@ class AssetResource extends Resource
                         Fieldset::make('Hardware Details')
                             ->hidden(fn (callable $get) => $get('show_hardware') !== true)
                             ->schema([
-                                TextInput::make('specifications')->label('Specifications')->required(),
+                                TextArea::make('specifications')->label('Specifications')->required(),
                                 TextInput::make('serial_number')->label('Serial Number')->required(),
                                 TextInput::make('manufacturer')->label('Manufacturer')->required(),
                                 DatePicker::make('warranty_expiration')
@@ -78,13 +83,125 @@ class AssetResource extends Resource
                             ->schema([
                                 TextInput::make('version')->label('Version')->required(),
                                 TextInput::make('license_key')->label('License Key')->required(),
-                                TextInput::make('license_type')->label('License Type')->required(),
+                                Select::make('license_type')->label('License Type')
+                                    ->options([
+                                        'one_time'=> 'One-Time',
+                                        'monthly_subscription'=> 'Monthly Subscription',
+                                        'annual_subscription'=> 'Annual Subscription',
+                                        'open_source'=> 'Open Source',
+                                        'license_leasing'=> 'License Leasing',
+                                        'pay_as_you_go' => 'Pay As You Go',
+                                    ])
+                                    ->required(),
                             ]),
-                    ])
+                        Fieldset::make('Lifecycle Information')
+                            ->schema([
+                                DatePicker::make('acquisition_date')
+                                    ->label('Acquisition Date')
+                                    ->required()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        $set('retirement_date', null);
+                                    }),
+                                DatePicker::make('retirement_date')
+                                    ->label('Retirement Date')
+                                    ->minDate(fn ($get) => $get('acquisition_date'))
+                                ]),
+                        Radio::make('add_purchase_information')
+                            ->label('Add Purchase Information?')
+                            ->options([
+                                'yes' => 'Yes',
+                                'no' => 'No',
+                            ])
+                            ->default('no')
+                            ->reactive(),
+                            Fieldset::make('Purchase Information')
+                                ->hidden(fn (callable $get) => $get('add_purchase_information') !== 'yes')
+                                ->schema([
+                                    TextInput::make('receipt_no')
+                                        ->label('Receipt No.')
+                                        ->required()
+                                        ->numeric(),
+                                    DatePicker::make('purchase_date')
+                                        ->label('Purchase Date')
+                                        ->required(),
+                                    Fieldset::make('Vendor Information')
+                                        ->schema([
+                                            Radio::make('vendor_option')
+                                                ->label('Vendor Option')
+                                                ->options([
+                                                    'existing' => 'Choose from Existing Vendors',
+                                                    'new' => 'Create New Vendor',
+                                                ])
+                                                ->reactive()
+                                                ->default('existing'),
+                                            Select::make('vendor_id')
+                                                ->label('Existing Vendor')
+                                                ->options(function () {
+                                                    return \App\Models\Vendor::pluck('name', 'id');
+                                                })
+                                                ->preload()
+                                                ->searchable()
+                                                ->hidden(fn (callable $get) => $get('vendor_option') !== 'existing')
+                                                ->required(),
+                                            Fieldset::make('New Vendor Details')
+                                                ->hidden(fn (callable $get) => $get('vendor_option') !== 'new')
+                                                ->schema([
+                                                    TextInput::make('vendor.name')
+                                                        ->label('Vendor Name')
+                                                        ->required()
+                                                        ->maxLength(255),
+                                                    TextInput::make('vendor.address_1')
+                                                        ->label('Address 1')
+                                                        ->required()
+                                                        ->maxLength(255),
+                                                    TextInput::make('vendor.address_2')
+                                                        ->label('Address 2')
+                                                        ->maxLength(255),
+                                                    TextInput::make('vendor.city')
+                                                        ->label('City')
+                                                        ->required()
+                                                        ->maxLength(255),
+                                                    TextInput::make('vendor.tel_no_1')
+                                                        ->label('Telephone No. 1')
+                                                        ->tel()
+                                                        ->required()
+                                                        ->maxLength(255),
+                                                    TextInput::make('vendor.tel_no_2')
+                                                        ->label('Telephone No. 2')
+                                                        ->tel()
+                                                        ->maxLength(255),
+                                                    TextInput::make('vendor.contact_person')
+                                                        ->label('Contact Person')
+                                                        ->required()
+                                                        ->maxLength(255),
+                                                    TextInput::make('vendor.mobile_number')
+                                                        ->label('Mobile Number')
+                                                        ->required()
+                                                        ->numeric(),
+                                                    TextInput::make('vendor.email')
+                                                        ->label('Email')
+                                                        ->email()
+                                                        ->required()
+                                                        ->maxLength(255),
+                                                    TextInput::make('vendor.url')
+                                                        ->label('URL')
+                                                        ->maxLength(255),
+                                                    Textarea::make('vendor.remarks')
+                                                        ->label('Remarks'),
+                                                ]),
+                                        ])
+                                        ->columnSpanFull(),
+                                    TextInput::make('asset_cost')
+                                        ->label('Asset Cost')
+                                        ->required()
+                                        ->numeric()
+                                        ->columnSpan(1),
+                                ]),
+                        ])
                     ->createItemButtonLabel('Add Asset')
                     ->columnSpanFull()
                     ->required(),
-            ]);
+        ]);
     }
 
     public static function table(Table $table): Table

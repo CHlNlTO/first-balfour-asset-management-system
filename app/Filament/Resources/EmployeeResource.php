@@ -19,6 +19,8 @@ class EmployeeResource extends Resource
 
     protected static ?string $navigationGroup = 'Manage Employees';
 
+    protected static ?int $navigationSort = 1;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -31,20 +33,23 @@ class EmployeeResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('position')
-                    ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('rank')
-                    ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('project')
-                    ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('department')
-                    ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('employee_status')
+                Forms\Components\Select::make('employee_status')
                     ->required()
-                    ->maxLength(255),
+                    ->options([
+                        'regular'=> 'Regular',
+                        'part_time'=> 'Part-time',
+                        'probationary'=> 'Probationary',
+                        'intern'=> 'Intern',
+
+                    ])
+                    ->default('regular'),
             ]);
     }
 

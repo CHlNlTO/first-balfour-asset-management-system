@@ -98,8 +98,7 @@ class EditHardware extends EditRecord
                         DatePicker::make('warranty_expiration')
                             ->label('Warranty Expiration')
                             ->displayFormat('m/d/Y')
-                            ->format('Y-m-d')
-                            ->required(),
+                            ->format('Y-m-d'),
                     ]),
             ]);
     }

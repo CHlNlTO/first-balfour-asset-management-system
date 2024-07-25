@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Fieldset;
+use Illuminate\Support\Facades\Log;
 
 class EditSoftware extends EditRecord
 {
@@ -25,7 +26,8 @@ class EditSoftware extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $data['asset_type'] = $this->record->asset->asset_type;
+        Log::info('Initial Record Data: ', $this->record->toArray());
+
         $data['asset_status'] = $this->record->asset->asset_status;
         $data['brand'] = $this->record->asset->brand;
         $data['model'] = $this->record->asset->model;
@@ -34,11 +36,15 @@ class EditSoftware extends EditRecord
         $data['license_key'] = $this->record->license_key;
         $data['license_type'] = $this->record->license_type;
 
+        Log::info('Mutated Data Before Fill: ', $data);
+
         return $data;
     }
 
     protected function handleRecordUpdate(\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model
     {
+        Log::info('Update Data Before Processing: ', $data);
+
         $assetData = [
             'asset_status' => $data['asset_status'],
             'brand' => $data['brand'],
@@ -62,16 +68,6 @@ class EditSoftware extends EditRecord
     {
         return $form
             ->schema([
-                Select::make('asset_type')
-                    ->options([
-                        'hardware' => 'Hardware',
-                        'software' => 'Software',
-                    ])
-                    ->required()
-                    ->label('Asset Type')
-                    ->reactive()
-                    ->autofocus()
-                    ->disabled(),
                 Select::make('asset_status')
                     ->options([
                         'active' => 'Active',

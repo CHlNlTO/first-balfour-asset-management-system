@@ -13,7 +13,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\Hidden;
 use Illuminate\Support\Facades\Log;
 
 class EditAsset extends EditRecord
@@ -124,8 +123,7 @@ class EditAsset extends EditRecord
                     ->default('active'),
                 TextInput::make('brand')->label('Brand')->required(),
                 TextInput::make('model')->label('Model')->required(),
-                Fieldset::make('Hardware Details')
-                    ->hidden(fn (callable $get) => $get('asset_type') !== 'hardware')
+                Fieldset::make('Hardware Details')                    ->hidden(fn (callable $get) => $get('asset_type') !== 'hardware')
                     ->schema([
                         TextInput::make('hardware.specifications')->label('Specifications')->required(),
                         TextInput::make('hardware.serial_number')->label('Serial Number')->required(),

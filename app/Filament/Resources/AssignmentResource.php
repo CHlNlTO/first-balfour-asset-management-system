@@ -20,17 +20,39 @@ class AssignmentResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('asset_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('employee_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('assignment_status')
+                Forms\Components\Select::make('asset_id')
+                    ->label('Asset')
+                    ->placeholder('Select from existing assets')
+                    ->relationship('asset', 'id')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->id} {$record->brand} {$record->model}")
+                    ->preload()
+                    ->searchable()
                     ->required(),
-                Forms\Components\DateTimePicker::make('start_date')
+                Forms\Components\Select::make('employee_id')
+                    ->label('Employee')
+                    ->placeholder('Select from registered employees')
+                    ->relationship('employee', 'id')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->id} {$record->name}")
+                    ->preload()
+                    ->searchable()
                     ->required(),
-                Forms\Components\DateTimePicker::make('end_date'),
+                Forms\Components\Select::make('assignment_status')
+                    ->label('Assignment Status')
+                    ->options([
+                        'active'=> 'Active',
+                        'inactive'=> 'Inactive',
+                        'in_transfer'=> 'In Transfer',
+                    ])
+                    ->default('active')
+                    ->required(),
+                Forms\Components\DatePicker::make('start_date')
+                    ->label('Start Date')
+                    ->native()
+                    ->closeOnDateSelection()
+                    ->required(),
+                Forms\Components\DatePicker::make('end_date')
+                    ->native()
+                    ->closeOnDateSelection(),
             ]);
     }
 
@@ -38,18 +60,21 @@ class AssignmentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('asset_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('asset.brand')
+                    ->label('Brand')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('employee_id')
+                Tables\Columns\TextColumn::make('asset.model')
+                    ->label('Model')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('employee.name')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('assignment_status'),
                 Tables\Columns\TextColumn::make('start_date')
-                    ->dateTime()
+                    ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('end_date')
-                    ->dateTime()
+                    ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -87,5 +112,10 @@ class AssignmentResource extends Resource
             'create' => Pages\CreateAssignment::route('/create'),
             'edit' => Pages\EditAssignment::route('/{record}/edit'),
         ];
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('index');
     }
 }

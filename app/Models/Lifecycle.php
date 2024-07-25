@@ -5,19 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Software extends Model
+class Lifecycle extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['asset_id', 'version', 'license_key', 'license_type'];
+    protected $fillable = ['asset_id', 'acquisition_date', 'retirement_date'];
 
     public function asset()
     {
         return $this->belongsTo(Asset::class);
     }
-
-    public function vendor()
-{
-    return $this->belongsTo(Vendor::class);
-}
 }

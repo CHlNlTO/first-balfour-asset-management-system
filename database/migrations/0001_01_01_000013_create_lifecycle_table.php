@@ -4,21 +4,18 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateLifecycleTable extends Migration
 {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('purchases', function (Blueprint $table) {
+        Schema::create('lifecycles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('asset_id')->constrained('assets')->onDelete('cascade');
-            $table->bigInteger('receipt_no');
-            $table->decimal('purchase_cost', 10, 2);
-            $table->timestamp('purchase_date')->nullable();
-            $table->bigInteger('quantity')->nullable();
-            $table->foreignId('vendor_id')->constrained('vendors')->onDelete('cascade');
+            $table->timestamp('acquisition_date');
+            $table->timestamp('retirement_date')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('purchases');
+        Schema::dropIfExists('lifecycle');
     }
-};
+}
