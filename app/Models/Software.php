@@ -11,11 +11,21 @@ class Software extends Model
 
     protected $primaryKey = 'asset_id'; // Specify the primary key if it's not the default 'id'
 
-    protected $fillable = ['asset_id', 'version', 'license_key', 'license_type'];
+    protected $fillable = ['asset_id', 'version', 'license_key', 'software_type', 'license_type'];
 
     public function asset()
     {
         return $this->belongsTo(Asset::class);
+    }
+
+    public function softwareType()
+    {
+        return $this->belongsTo(SoftwareType::class, 'software_type', 'software_type');
+    }
+
+    public function licenseType()
+    {
+        return $this->belongsTo(LicenseType::class, 'license_type', 'license_type');
     }
 
     // Override the getRouteKeyName method

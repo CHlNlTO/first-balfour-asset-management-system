@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Hardware;
 use App\Models\Software;
 use App\Models\Peripheral;
+use App\Models\HardwareType;
+use App\Models\SoftwareType;
+use App\Models\LicenseType;
+use App\Models\PeripheralType;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -43,18 +47,22 @@ class EditAsset extends EditRecord
         if ($this->record->asset_type === 'hardware') {
             $hardware = Hardware::where('asset_id', $this->record->id)->first();
             $data['hardware'] = $hardware ? $hardware->toArray() : [];
+            $data['hardware_type'] = $hardware ? $hardware->hardware_type : null;
             Log::info('Hardware Data: ', $data['hardware']);
         }
 
         if ($this->record->asset_type === 'software') {
             $software = Software::where('asset_id', $this->record->id)->first();
             $data['software'] = $software ? $software->toArray() : [];
+            $data['software_type'] = $software ? $software->software_type : null;
+            $data['license_type'] = $software ? $software->license_type : null;
             Log::info('Software Data: ', $data['software']);
         }
 
         if ($this->record->asset_type === 'peripherals') {
-            $peripheral = Peripheral::where('asset_id', $this->record->id)->first();
-            $data['peripherals'] = $peripheral ? $peripheral->toArray() : [];
+            $peripherals = Peripheral::where('asset_id', $this->record->id)->first();
+            $data['peripherals'] = $peripherals ? $peripherals->toArray() : [];
+            $data['peripherals_type'] = $peripherals ? $peripherals->peripherals_type : null;
             Log::info('Peripheral Data: ', $data['peripherals']);
         }
 
@@ -80,8 +88,9 @@ class EditAsset extends EditRecord
                 $record->hardware()->updateOrCreate(
                     ['asset_id' => $record->id],
                     [
-                        'specifications' => $data['hardware']['specifications'],
+                        'hardware_type'=> $data['hardware_type'],
                         'serial_number' => $data['hardware']['serial_number'],
+                        'specifications' => $data['hardware']['specifications'],
                         'manufacturer' => $data['hardware']['manufacturer'],
                         'warranty_expiration' => $data['hardware']['warranty_expiration'],
                     ]
@@ -93,8 +102,9 @@ class EditAsset extends EditRecord
                     ['asset_id' => $record->id],
                     [
                         'version' => $data['software']['version'],
+                        'software_type'=> $data['software_type'],
+                        'license_type' => $data['license_type'],
                         'license_key' => $data['software']['license_key'],
-                        'license_type' => $data['software']['license_type'],
                     ]
                 );
             }
@@ -103,8 +113,9 @@ class EditAsset extends EditRecord
                 $record->peripherals()->updateOrCreate(
                     ['asset_id' => $record->id],
                     [
-                        'specifications' => $data['peripherals']['specifications'],
+                        'peripherals_type'=> $data['peripherals_type'],
                         'serial_number' => $data['peripherals']['serial_number'],
+                        'specifications' => $data['peripherals']['specifications'],
                         'manufacturer' => $data['peripherals']['manufacturer'],
                         'warranty_expiration' => $data['peripherals']['warranty_expiration'],
                     ]
@@ -156,8 +167,15 @@ class EditAsset extends EditRecord
                 Fieldset::make('Hardware Details')
                     ->hidden(fn (callable $get) => $get('asset_type') !== 'hardware')
                     ->schema([
-                        TextInput::make('hardware.specifications')->label('Specifications')->required(),
+                        Select::make('hardware_type')
+                            ->label('Hardware Type')
+                            ->options(HardwareType::all()->pluck('hardware_type', 'id')->toArray())
+                            ->required()
+                            ->default(function ($get) {
+                                return $get('hardware_type') ?? null;
+                            }),
                         TextInput::make('hardware.serial_number')->label('Serial Number')->required(),
+                        TextInput::make('hardware.specifications')->label('Specifications')->required(),
                         TextInput::make('hardware.manufacturer')->label('Manufacturer')->required(),
                         DatePicker::make('hardware.warranty_expiration')
                             ->label('Warranty Expiration')
@@ -170,13 +188,33 @@ class EditAsset extends EditRecord
                     ->schema([
                         TextInput::make('software.version')->label('Version')->required(),
                         TextInput::make('software.license_key')->label('License Key')->required(),
-                        TextInput::make('software.license_type')->label('License Type')->required(),
+                        Select::make('software_type')
+                            ->label('Software Type')
+                            ->options(SoftwareType::all()->pluck('software_type', 'id')->toArray())
+                            ->required()
+                            ->default(function ($get) {
+                                return $get('software_type') ?? null;
+                            }),
+                        Select::make('license_type')
+                            ->label('License Type')
+                            ->options(LicenseType::all()->pluck('license_type', 'id')->toArray())
+                            ->required()
+                            ->default(function ($get) {
+                                return $get('license_type') ?? null;
+                            }),
                     ]),
                 Fieldset::make('Peripherals Details')
                     ->hidden(fn (callable $get) => $get('asset_type') !== 'peripherals')
                     ->schema([
-                        TextInput::make('peripherals.specifications')->label('Specifications')->required(),
+                        Select::make('peripherals_type')
+                            ->label('Peripherals Type')
+                            ->options(PeripheralType::all()->pluck('peripherals_type', 'id')->toArray())
+                            ->required()
+                            ->default(function ($get) {
+                                return $get('peripherals_type') ?? null;
+                            }),
                         TextInput::make('peripherals.serial_number')->label('Serial Number')->required(),
+                        TextInput::make('peripherals.specifications')->label('Specifications')->required(),
                         TextInput::make('peripherals.manufacturer')->label('Manufacturer')->required(),
                         DatePicker::make('peripherals.warranty_expiration')
                             ->label('Warranty Expiration')

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\HardwareResource\Pages;
 use App\Models\Hardware;
+use App\Models\HardwareType;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -24,6 +25,12 @@ class HardwareResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('asset_id')->label('Asset ID')->sortable()->searchable(),
+                TextColumn::make('hardware_type')
+                    ->label('Hardware Type')
+                    ->getStateUsing(function (Hardware $record): string {
+                        $hardwareType = HardwareType::find($record->hardware_type);
+                        return $hardwareType ? $hardwareType->hardware_type : 'N/A';
+                    }),
                 TextColumn::make('asset.brand')->searchable()->label('Brand'),
                 TextColumn::make('asset.model')->searchable()->label('Model'),
                 TextColumn::make('specifications')->searchable(),

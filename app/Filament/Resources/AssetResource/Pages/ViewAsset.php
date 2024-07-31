@@ -3,6 +3,10 @@
 namespace App\Filament\Resources\AssetResource\Pages;
 
 use App\Filament\Resources\AssetResource;
+use App\Models\HardwareType;
+use App\Models\SoftwareType;
+use App\Models\LicenseType;
+use App\Models\PeripheralType;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Actions;
 use Filament\Infolists\Infolist;
@@ -43,10 +47,17 @@ class ViewAsset extends ViewRecord
 
                 Section::make('Hardware Details')
                     ->schema([
+                        TextEntry::make('hardware_type')
+                            ->label('Hardware Type')
+                            ->getStateUsing(function ($record): string {
+                                $hardware = $record->hardware;
+                                $hardwareType = HardwareType::find($hardware->hardware_type ?? null);
+                                return $hardwareType ? $hardwareType->hardware_type : 'N/A';
+                            }),
+                        TextEntry::make('hardware.serial_number')
+                        ->label('Serial No.'),
                         TextEntry::make('hardware.specifications')
                             ->label('Specifications'),
-                        TextEntry::make('hardware.serial_number')
-                            ->label('Serial No.'),
                         TextEntry::make('hardware.manufacturer')
                             ->label('Manufacturer'),
                         TextEntry::make('hardware.warranty_expiration')
@@ -62,18 +73,37 @@ class ViewAsset extends ViewRecord
                             ->label('Version'),
                         TextEntry::make('software.license_key')
                             ->label('License Key'),
-                        TextEntry::make('software.license_type')
-                            ->label('License Type'),
+                        TextEntry::make('software_type')
+                            ->label('Software Type')
+                            ->getStateUsing(function ($record): string {
+                                $software = $record->software;
+                                $softwareType = SoftwareType::find($software->software_type ?? null);
+                                return $softwareType ? $softwareType->software_type : 'N/A';
+                            }),
+                            TextEntry::make('license_type')
+                                ->label('License Type')
+                                ->getStateUsing(function ($record): string {
+                                    $software = $record->software;
+                                    $licenseType = LicenseType::find($software->license_type ?? null);
+                                    return $licenseType ? $licenseType->license_type : 'N/A';
+                                }),
                     ])
                     ->columns(2)
                     ->visible(fn ($record) => $record->asset_type === 'software'),
 
                 Section::make('Peripherals Details')
                     ->schema([
-                        TextEntry::make('peripherals.specifications')
-                            ->label('Specifications'),
+                        TextEntry::make('peripherals_type')
+                            ->label('Peripheral Type')
+                            ->getStateUsing(function ($record): string {
+                                $peripheral = $record->peripherals;
+                                $peripheralType = PeripheralType::find($peripheral->peripherals_type ?? null);
+                                return $peripheralType ? $peripheralType->peripherals_type : 'N/A';
+                            }),
                         TextEntry::make('peripherals.serial_number')
                             ->label('Serial No.'),
+                        TextEntry::make('peripherals.specifications')
+                                ->label('Specifications'),
                         TextEntry::make('peripherals.manufacturer')
                             ->label('Manufacturer'),
                         TextEntry::make('peripherals.warranty_expiration')
@@ -98,12 +128,12 @@ class ViewAsset extends ViewRecord
                     ->schema([
                         TextEntry::make('purchases.purchase_order_no')
                             ->label('Purchase Order No.'),
-                        TextEntry::make('purchases.receipt_no')
+                        TextEntry::make('purchases.sales_invoice_no')
                             ->label('Sales Invoice No.'),
-                        TextEntry::make('purchases.purchase_date')
+                        TextEntry::make('purchases.purchase_order_date')
                             ->label('Purchase Order Date')
                             ->date(),
-                        TextEntry::make('purchases.purchase_cost')
+                        TextEntry::make('purchases.purchase_order_amount')
                             ->label('Purchase Order Amount')
                             ->money('php'),
                     ])

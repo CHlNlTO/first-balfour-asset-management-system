@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PeripheralResource\Pages;
 use App\Models\Peripheral;
+use App\Models\PeripheralType;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -24,6 +25,12 @@ class PeripheralResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('asset_id')->label('Asset ID')->sortable()->searchable(),
+                TextColumn::make('peripherals_type')
+                    ->label('Peripherals Type')
+                    ->getStateUsing(function (Peripheral $record): string {
+                        $peripheralsType = PeripheralType::find($record->peripherals_type);
+                        return $peripheralsType ? $peripheralsType->peripherals_type : 'N/A';
+                    }),
                 TextColumn::make('asset.brand')->searchable()->label('Brand'),
                 TextColumn::make('asset.model')->searchable()->label('Model'),
                 TextColumn::make('specifications')->searchable(),

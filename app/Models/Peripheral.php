@@ -11,11 +11,16 @@ class Peripheral extends Model
 
     protected $primaryKey = 'asset_id'; // Specify the primary key if it's not the default 'id'
 
-    protected $fillable = ['asset_id', 'specifications', 'serial_number', 'manufacturer', 'warranty_expiration'];
+    protected $fillable = ['asset_id', 'peripherals_type', 'serial_number', 'specifications', 'manufacturer', 'warranty_expiration'];
 
     public function asset()
     {
         return $this->belongsTo(Asset::class);
+    }
+
+    public function peripheralsType()
+    {
+        return $this->belongsTo(PeripheralType::class, 'peripherals_type', 'peripherals_type');
     }
 
     // Override the getRouteKeyName method

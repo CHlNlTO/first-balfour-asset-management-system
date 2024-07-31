@@ -12,7 +12,8 @@ use App\Models\Peripheral;
 use App\Models\Purchase;
 use App\Models\Vendor;
 use App\Models\Lifecycle;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Log;
+
 class CreateAsset extends CreateRecord
 {
     protected static string $resource = AssetResource::class;
@@ -41,6 +42,7 @@ class CreateAsset extends CreateRecord
 
     protected function handleSingleAssetCreation(array $data): Asset
     {
+        Log::info("To Be Saved Data:", $data);
         return DB::transaction(function () use ($data) {
             return $this->createSingleAsset($data);
         });
@@ -65,8 +67,9 @@ class CreateAsset extends CreateRecord
         if ($data['asset_type'] === 'hardware') {
             Hardware::create([
                 'asset_id' => $asset->id,
-                'specifications' => $data['specifications'] ?? null,
+                'hardware_type' => $data['hardware_type'] ?? null,
                 'serial_number' => $data['serial_number'] ?? null,
+                'specifications' => $data['specifications'] ?? null,
                 'manufacturer' => $data['manufacturer'] ?? null,
                 'warranty_expiration' => $data['warranty_expiration'] ?? null,
             ]);
@@ -75,11 +78,13 @@ class CreateAsset extends CreateRecord
                 'asset_id' => $asset->id,
                 'version' => $data['version'] ?? null,
                 'license_key' => $data['license_key'] ?? null,
+                'software_type' => $data['software_type'] ?? null,
                 'license_type' => $data['license_type'] ?? null,
             ]);
         } else if ($data['asset_type'] === 'peripherals') {
             Peripheral::create([
                 'asset_id' => $asset->id,
+                'peripherals_type' => $data['peripherals_type'] ?? null,
                 'specifications' => $data['specifications'] ?? null,
                 'serial_number' => $data['serial_number'] ?? null,
                 'manufacturer' => $data['manufacturer'] ?? null,
@@ -89,13 +94,13 @@ class CreateAsset extends CreateRecord
 
         if ($data['add_purchase_information'] === 'yes') {
             $vendorId = $this->handleVendor($data);
-
             Purchase::create([
                 'asset_id' => $asset->id,
-                'receipt_no' => $data['receipt_no'],
-                'purchase_date' => $data['purchase_date'],
+                'purchase_order_no' => $data['purchase_order_no'],
+                'sales_invoice_no' => $data['sales_invoice_no'],
+                'purchase_order_date' => $data['purchase_order_date'],
+                'purchase_order_amount' => $data['purchase_order_amount'],
                 'vendor_id' => $vendorId,
-                'purchase_cost' => $data['asset_cost'],
             ]);
         }
 

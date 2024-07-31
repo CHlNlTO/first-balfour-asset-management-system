@@ -4,6 +4,10 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AssetResource\Pages;
 use App\Models\Asset;
+use App\Models\HardwareType;
+use App\Models\SoftwareType;
+use App\Models\LicenseType;
+use App\Models\PeripheralType;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -71,36 +75,39 @@ class AssetResource extends Resource
                         Fieldset::make('Hardware Details')
                             ->hidden(fn (callable $get) => $get('show_hardware') !== true)
                             ->schema([
-                                TextArea::make('specifications')->label('Specifications')->required(),
+                                Select::make('hardware_type')->label('Hardware Type')
+                                    ->options(HardwareType::all()->pluck('hardware_type', 'id')->toArray())
+                                    ->required(),
                                 TextInput::make('serial_number')->label('Serial No.')->required(),
+                                TextArea::make('specifications')->label('Specifications')->required(),
                                 TextInput::make('manufacturer')->label('Manufacturer')->required(),
                                 DatePicker::make('warranty_expiration')
                                     ->label('Warranty Expiration Date')
                                     ->displayFormat('m/d/Y')
                                     ->format('Y-m-d')
-                                    ->seconds(false),
+                                    ->seconds(false)
+                                    ->nullable(),
                             ]),
                         Fieldset::make('Software Details')
                             ->hidden(fn (callable $get) => $get('show_software') !== true)
                             ->schema([
-                                TextInput::make('version')->label('Version')->required(),
-                                TextInput::make('license_key')->label('License Key')->required(),
+                                TextInput::make('version')->label('Version')->nullable(),
+                                TextInput::make('license_key')->label('License Key')->nullable(),
+                                Select::make('software_type')->label('Software Type')
+                                    ->options(SoftwareType::all()->pluck('software_type', 'id')->toArray())
+                                    ->required(),
                                 Select::make('license_type')->label('License Type')
-                                    ->options([
-                                        'one_time'=> 'One-Time',
-                                        'monthly_subscription'=> 'Monthly Subscription',
-                                        'annual_subscription'=> 'Annual Subscription',
-                                        'open_source'=> 'Open Source',
-                                        'license_leasing'=> 'License Leasing',
-                                        'pay_as_you_go' => 'Pay As You Go',
-                                    ])
+                                    ->options(LicenseType::all()->pluck('license_type', 'id')->toArray())
                                     ->required(),
                             ]),
                         Fieldset::make('Peripherals Details')
                             ->hidden(fn (callable $get) => $get('show_peripherals') !== true)
                             ->schema([
-                                TextArea::make('specifications')->label('Specifications')->required(),
+                                Select::make('peripherals_type')->label('Peripheral Type')
+                                    ->options(PeripheralType::all()->pluck('peripherals_type', 'id')->toArray())
+                                    ->required(),
                                 TextInput::make('serial_number')->label('Serial No.')->required(),
+                                TextArea::make('specifications')->label('Specifications')->required(),
                                 TextInput::make('manufacturer')->label('Manufacturer')->required(),
                                 DatePicker::make('warranty_expiration')
                                     ->label('Warranty Expiration Date')
@@ -118,6 +125,7 @@ class AssetResource extends Resource
                                     }),
                                 DatePicker::make('retirement_date')
                                     ->label('Retirement Date')
+                                    ->nullable()
                                     ->minDate(fn ($get) => $get('acquisition_date'))
                                 ])->reactive(),
                         Radio::make('add_purchase_information')
@@ -141,10 +149,10 @@ class AssetResource extends Resource
                                         ->required()
                                         ->numeric()
                                         ->columnSpan(1),
-                                    DatePicker::make('purchase_date')
+                                    DatePicker::make('purchase_order_date')
                                         ->label('Purchase Order Date')
                                         ->required(),
-                                    TextInput::make('asset_cost')
+                                    TextInput::make('purchase_order_amount')
                                         ->label('Purchase Order Amount')
                                         ->required()
                                         ->numeric()
@@ -184,29 +192,30 @@ class AssetResource extends Resource
                                                         ->maxLength(255),
                                                     TextInput::make('vendor.city')
                                                         ->label('City')
-                                                        ->required()
+                                                        ->nullable()
                                                         ->maxLength(255),
                                                     TextInput::make('vendor.tel_no_1')
                                                         ->label('Telephone No. 1')
                                                         ->tel()
-                                                        ->required()
+                                                        ->nullable()
                                                         ->maxLength(255),
                                                     TextInput::make('vendor.tel_no_2')
                                                         ->label('Telephone No. 2')
+                                                        ->nullable()
                                                         ->tel()
                                                         ->maxLength(255),
                                                     TextInput::make('vendor.contact_person')
                                                         ->label('Contact Person')
-                                                        ->required()
+                                                        ->nullable()
                                                         ->maxLength(255),
                                                     TextInput::make('vendor.mobile_number')
                                                         ->label('Mobile Number')
-                                                        ->required()
+                                                        ->nullable()
                                                         ->numeric(),
                                                     TextInput::make('vendor.email')
                                                         ->label('Email')
                                                         ->email()
-                                                        ->required()
+                                                        ->nullable()
                                                         ->maxLength(255),
                                                     TextInput::make('vendor.url')
                                                         ->label('URL')
