@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class AssetStatus extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['asset_status'];
+
+    public function assets()
+    {
+        return $this->hasMany(Asset::class);
+    }
 }

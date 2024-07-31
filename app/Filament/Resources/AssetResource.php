@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AssetResource\Pages;
 use App\Models\Asset;
+use App\Models\AssetStatus;
 use App\Models\HardwareType;
 use App\Models\SoftwareType;
 use App\Models\LicenseType;
@@ -56,19 +57,10 @@ class AssetResource extends Resource
                                         $set('show_software', $state === 'software');
                                         $set('show_peripherals', $state === 'peripherals');
                                     }),
-                                Select::make('asset_status')
-                                    ->options([
-                                        'active' => 'Active',
-                                        'inactive' => 'Inactive',
-                                        'under repair' => 'Under Repair',
-                                        'in transfer' => 'In Transfer',
-                                        'disposed' => 'Disposed',
-                                        'lost' => 'Lost',
-                                        'stolen' => 'Stolen'
-                                    ])
-                                    ->required()
-                                    ->label('Asset Status')
-                                    ->default('active'),
+                                Select::make('asset_status')->label('Asset Status')
+                                    ->options(AssetStatus::all()->pluck('asset_status', 'id')->toArray())
+                                    ->default('1')
+                                    ->required(),
                                 TextInput::make('brand')->label('Brand')->required(),
                                 TextInput::make('model')->label('Model')->required(),
                             ]),
@@ -157,75 +149,76 @@ class AssetResource extends Resource
                                         ->required()
                                         ->numeric()
                                         ->columnSpan(1),
-                                    Fieldset::make('Vendor Information')
-                                        ->schema([
-                                            Radio::make('vendor_option')
-                                                ->label('Vendor Option')
-                                                ->options([
-                                                    'existing' => 'Choose from Existing Vendors',
-                                                    'new' => 'Create New Vendor',
-                                                ])
-                                                ->reactive()
-                                                ->default('existing'),
-                                            Select::make('vendor_id')
-                                                ->label('Existing Vendor')
-                                                ->options(function () {
-                                                    return \App\Models\Vendor::pluck('name', 'id');
-                                                })
-                                                ->preload()
-                                                ->searchable()
-                                                ->hidden(fn (callable $get) => $get('vendor_option') !== 'existing')
-                                                ->required(),
-                                            Fieldset::make('New Vendor Details')
-                                                ->hidden(fn (callable $get) => $get('vendor_option') !== 'new')
-                                                ->schema([
-                                                    TextInput::make('vendor.name')
-                                                        ->label('Vendor Name')
-                                                        ->required()
-                                                        ->maxLength(255),
-                                                    TextInput::make('vendor.address_1')
-                                                        ->label('Address 1')
-                                                        ->required()
-                                                        ->maxLength(255),
-                                                    TextInput::make('vendor.address_2')
-                                                        ->label('Address 2')
-                                                        ->maxLength(255),
-                                                    TextInput::make('vendor.city')
-                                                        ->label('City')
-                                                        ->nullable()
-                                                        ->maxLength(255),
-                                                    TextInput::make('vendor.tel_no_1')
-                                                        ->label('Telephone No. 1')
-                                                        ->tel()
-                                                        ->nullable()
-                                                        ->maxLength(255),
-                                                    TextInput::make('vendor.tel_no_2')
-                                                        ->label('Telephone No. 2')
-                                                        ->nullable()
-                                                        ->tel()
-                                                        ->maxLength(255),
-                                                    TextInput::make('vendor.contact_person')
-                                                        ->label('Contact Person')
-                                                        ->nullable()
-                                                        ->maxLength(255),
-                                                    TextInput::make('vendor.mobile_number')
-                                                        ->label('Mobile Number')
-                                                        ->nullable()
-                                                        ->numeric(),
-                                                    TextInput::make('vendor.email')
-                                                        ->label('Email')
-                                                        ->email()
-                                                        ->nullable()
-                                                        ->maxLength(255),
-                                                    TextInput::make('vendor.url')
-                                                        ->label('URL')
-                                                        ->maxLength(255),
-                                                    Textarea::make('vendor.remarks')
-                                                        ->label('Remarks'),
-                                                ]),
-                                        ])
-                                        ->columnSpanFull(),
                                 ])->label('Purchase Order Information'),
+                            Fieldset::make('Vendor Information')
+                            ->hidden(fn (callable $get) => $get('add_purchase_information') !== 'yes')
+                            ->schema([
+                                Radio::make('vendor_option')
+                                    ->label('Vendor Option')
+                                    ->options([
+                                        'existing' => 'Choose from Existing Vendors',
+                                        'new' => 'Create New Vendor',
+                                    ])
+                                    ->reactive()
+                                    ->default('existing'),
+                                Select::make('vendor_id')
+                                    ->label('Existing Vendor')
+                                    ->options(function () {
+                                        return \App\Models\Vendor::pluck('name', 'id');
+                                    })
+                                    ->preload()
+                                    ->searchable()
+                                    ->hidden(fn (callable $get) => $get('vendor_option') !== 'existing')
+                                    ->required(),
+                                Fieldset::make('New Vendor Details')
+                                    ->hidden(fn (callable $get) => $get('vendor_option') !== 'new')
+                                    ->schema([
+                                        TextInput::make('vendor.name')
+                                            ->label('Vendor Name')
+                                            ->required()
+                                            ->maxLength(255),
+                                        TextInput::make('vendor.address_1')
+                                            ->label('Address 1')
+                                            ->required()
+                                            ->maxLength(255),
+                                        TextInput::make('vendor.address_2')
+                                            ->label('Address 2')
+                                            ->maxLength(255),
+                                        TextInput::make('vendor.city')
+                                            ->label('City')
+                                            ->nullable()
+                                            ->maxLength(255),
+                                        TextInput::make('vendor.tel_no_1')
+                                            ->label('Telephone No. 1')
+                                            ->tel()
+                                            ->nullable()
+                                            ->maxLength(255),
+                                        TextInput::make('vendor.tel_no_2')
+                                            ->label('Telephone No. 2')
+                                            ->nullable()
+                                            ->tel()
+                                            ->maxLength(255),
+                                        TextInput::make('vendor.contact_person')
+                                            ->label('Contact Person')
+                                            ->nullable()
+                                            ->maxLength(255),
+                                        TextInput::make('vendor.mobile_number')
+                                            ->label('Mobile Number')
+                                            ->nullable()
+                                            ->numeric(),
+                                        TextInput::make('vendor.email')
+                                            ->label('Email')
+                                            ->email()
+                                            ->nullable()
+                                            ->maxLength(255),
+                                        TextInput::make('vendor.url')
+                                            ->label('URL')
+                                            ->maxLength(255),
+                                        Textarea::make('vendor.remarks')
+                                            ->label('Remarks'),
+                                    ]),
+                            ])
+                            ->columnSpanFull(),
                         ])
                     ->createItemButtonLabel('Add Asset')
                     ->label('Asset Information')
@@ -251,6 +244,10 @@ class AssetResource extends Resource
                     ->searchable(),
                 TextColumn::make('asset_status')
                     ->label('Asset Status')
+                    ->getStateUsing(function (Asset $record): string {
+                        $assetStatus = AssetStatus::find($record->asset_status);
+                        return $assetStatus ? $assetStatus->asset_status : 'N/A';
+                    })
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('brand')

@@ -30,7 +30,7 @@ class HardwareResource extends Resource
                     ->getStateUsing(function (Hardware $record): string {
                         $hardwareType = HardwareType::find($record->hardware_type);
                         return $hardwareType ? $hardwareType->hardware_type : 'N/A';
-                    }),
+                    })->searchable()->sortable(),
                 TextColumn::make('asset.brand')->searchable()->label('Brand'),
                 TextColumn::make('asset.model')->searchable()->label('Model'),
                 TextColumn::make('specifications')->searchable(),

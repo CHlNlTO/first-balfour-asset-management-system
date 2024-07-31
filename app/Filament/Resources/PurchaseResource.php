@@ -4,6 +4,10 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PurchaseResource\Pages;
 use App\Models\Purchase;
+use App\Models\HardwareType;
+use App\Models\SoftwareType;
+use App\Models\LicenseType;
+use App\Models\PeripheralType;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -34,10 +38,18 @@ class PurchaseResource extends Resource
             ->schema([
                 Fieldset::make('Purchase Information')
                     ->schema([
-                        TextInput::make('receipt_no')
+                        TextInput::make('purchase_order_no')
+                            ->label('Purchase Order No.')
                             ->required()
-                            ->numeric(),
-                        DatePicker::make('purchase_date')
+                            ->numeric()
+                            ->columnSpan(1),
+                        TextInput::make('sales_invoice_no')
+                            ->label('Sales Invoice No.')
+                            ->required()
+                            ->numeric()
+                            ->columnSpan(1),
+                        DatePicker::make('purchase_order_date')
+                            ->label('Purchase Order Date')
                             ->required(),
                     ]),
                 Fieldset::make('Vendor Information')
@@ -73,29 +85,30 @@ class PurchaseResource extends Resource
                                     ->maxLength(255),
                                 TextInput::make('vendor.city')
                                     ->label('City')
-                                    ->required()
+                                    ->nullable()
                                     ->maxLength(255),
                                 TextInput::make('vendor.tel_no_1')
                                     ->label('Telephone No. 1')
                                     ->tel()
-                                    ->required()
+                                    ->nullable()
                                     ->maxLength(255),
                                 TextInput::make('vendor.tel_no_2')
                                     ->label('Telephone No. 2')
+                                    ->nullable()
                                     ->tel()
                                     ->maxLength(255),
                                 TextInput::make('vendor.contact_person')
                                     ->label('Contact Person')
-                                    ->required()
+                                    ->nullable()
                                     ->maxLength(255),
                                 TextInput::make('vendor.mobile_number')
                                     ->label('Mobile Number')
-                                    ->required()
+                                    ->nullable()
                                     ->numeric(),
                                 TextInput::make('vendor.email')
                                     ->label('Email')
                                     ->email()
-                                    ->required()
+                                    ->nullable()
                                     ->maxLength(255),
                                 TextInput::make('vendor.url')
                                     ->label('URL')
@@ -108,7 +121,7 @@ class PurchaseResource extends Resource
                     Repeater::make('Asset Information')
                     ->schema([
                         Fieldset::make('Asset Option')
-                            ->columns(2)  // Create a two-column layout
+                            ->columns(2)
                             ->schema([
                                 Radio::make('asset_option')
                                     ->label('')
@@ -118,7 +131,7 @@ class PurchaseResource extends Resource
                                     ])
                                     ->reactive()
                                     ->default('existing')
-                                    ->columnSpan(1), // Set to take up half the width
+                                    ->columnSpan(1),
                                 Select::make('asset_id')
                                     ->label('Existing Asset')
                                     ->relationship('asset', 'id')
@@ -127,15 +140,16 @@ class PurchaseResource extends Resource
                                     ->searchable()
                                     ->hidden(fn (callable $get) => $get('asset_option') !== 'existing')
                                     ->required()
-                                    ->columnSpan(1), // Set to take up half the width
+                                    ->columnSpan(1),
                             ]),
-                        Fieldset::make('Asset Details')
+                            Fieldset::make('Asset Details')
                             ->hidden(fn (callable $get) => $get('asset_option') !== 'new')
                             ->schema([
                                 Select::make('asset_type')
                                     ->options([
                                         'hardware' => 'Hardware',
                                         'software' => 'Software',
+                                        'peripherals' => 'Peripherals',
                                     ])
                                     ->required()
                                     ->label('Asset Type')
@@ -144,6 +158,7 @@ class PurchaseResource extends Resource
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         $set('show_hardware', $state === 'hardware');
                                         $set('show_software', $state === 'software');
+                                        $set('show_peripherals', $state === 'peripherals');
                                     }),
                                 Select::make('asset_status')
                                     ->options([
@@ -160,46 +175,72 @@ class PurchaseResource extends Resource
                                     ->default('active'),
                                 TextInput::make('brand')->label('Brand')->required(),
                                 TextInput::make('model')->label('Model')->required(),
-                            ])
-                            ->columns(2),
-                        Fieldset::make('Hardware Details')
-                            ->hidden(fn (callable $get) => $get('show_hardware') !== true)
-                            ->schema([
-                                TextInput::make('specifications')->label('Specifications')->required(),
-                                TextInput::make('serial_number')->label('Serial Number')->required(),
-                                TextInput::make('manufacturer')->label('Manufacturer')->required(),
-                                DatePicker::make('warranty_expiration')
-                                    ->label('Warranty Expiration')
-                                    ->displayFormat('m/d/Y')
-                                    ->format('Y-m-d')
-                                    ->seconds(false),
-                            ])
-                            ->columns(2),
-                        Fieldset::make('Software Details')
-                            ->hidden(fn (callable $get) => $get('show_software') !== true)
-                            ->schema([
-                                TextInput::make('version')->label('Version')->required(),
-                                TextInput::make('license_key')->label('License Key')->required(),
-                                Select::make('license_type')->label('License Type')
-                                    ->options([
-                                        'one_time'=> 'One-Time',
-                                        'monthly_subscription'=> 'Monthly Subscription',
-                                        'annual_subscription'=> 'Annual Subscription',
-                                        'open_source'=> 'Open Source',
-                                        'license_leasing'=> 'License Leasing',
-                                        'pay_as_you_go' => 'Pay As You Go',
-                                    ])
-                                    ->required(),
-                            ])
-                            ->columns(2),
-                        TextInput::make('asset_cost')
-                            ->label('Asset Cost')
-                            ->required()
-                            ->numeric()
-                            ->columnSpan(1),  // Set the span to 1 column
+                            ]),
+                            Fieldset::make('Hardware Details')
+                                ->hidden(fn (callable $get) => $get('show_hardware') !== true)
+                                ->schema([
+                                    Select::make('hardware_type')->label('Hardware Type')
+                                        ->options(HardwareType::all()->pluck('hardware_type', 'id')->toArray())
+                                        ->required(),
+                                    TextInput::make('serial_number')->label('Serial No.')->required(),
+                                    TextArea::make('specifications')->label('Specifications')->required(),
+                                    TextInput::make('manufacturer')->label('Manufacturer')->required(),
+                                    DatePicker::make('warranty_expiration')
+                                        ->label('Warranty Expiration Date')
+                                        ->displayFormat('m/d/Y')
+                                        ->format('Y-m-d')
+                                        ->seconds(false)
+                                        ->nullable(),
+                                ]),
+                            Fieldset::make('Software Details')
+                                ->hidden(fn (callable $get) => $get('show_software') !== true)
+                                ->schema([
+                                    TextInput::make('version')->label('Version')->nullable(),
+                                    TextInput::make('license_key')->label('License Key')->nullable(),
+                                    Select::make('software_type')->label('Software Type')
+                                        ->options(SoftwareType::all()->pluck('software_type', 'id')->toArray())
+                                        ->required(),
+                                    Select::make('license_type')->label('License Type')
+                                        ->options(LicenseType::all()->pluck('license_type', 'id')->toArray())
+                                        ->required(),
+                                ]),
+                            Fieldset::make('Peripherals Details')
+                                ->hidden(fn (callable $get) => $get('show_peripherals') !== true)
+                                ->schema([
+                                    Select::make('peripherals_type')->label('Peripheral Type')
+                                        ->options(PeripheralType::all()->pluck('peripherals_type', 'id')->toArray())
+                                        ->required(),
+                                    TextInput::make('serial_number')->label('Serial No.')->required(),
+                                    TextArea::make('specifications')->label('Specifications')->required(),
+                                    TextInput::make('manufacturer')->label('Manufacturer')->required(),
+                                    DatePicker::make('warranty_expiration')
+                                        ->label('Warranty Expiration Date')
+                                        ->displayFormat('m/d/Y')
+                                        ->format('Y-m-d')
+                                        ->seconds(false),
+                                ]),
+                            Fieldset::make('Lifecycle Information')
+                                ->hidden(fn (callable $get) => $get('asset_option') !== 'new')
+                                ->schema([
+                                    DatePicker::make('acquisition_date')
+                                        ->label('Acquisition Date')
+                                        ->required()
+                                        ->afterStateUpdated(function ($state, callable $set) {
+                                            $set('retirement_date', null);
+                                        }),
+                                    DatePicker::make('retirement_date')
+                                        ->label('Retirement Date')
+                                        ->nullable()
+                                        ->minDate(fn ($get) => $get('acquisition_date'))
+                                    ])->reactive(),
+                            TextInput::make('purchase_order_amount')
+                                ->label('Purchase Order Amount')
+                                ->required()
+                                ->numeric()
+                                ->columnSpan(1),
                     ])
-                    ->columns(2) // Set the repeater to have a two-column layout
-                    ->createItemButtonLabel('Add Asset')
+                    ->columns(2)
+                    ->addActionLabel('Add Asset')
                     ->columnSpanFull(),
 
             ]);
@@ -218,15 +259,18 @@ class PurchaseResource extends Resource
                 TextColumn::make('asset.model')
                     ->label('Model')
                     ->sortable(),
-                TextColumn::make('receipt_no')
-                    ->label('Receipt No.')
+                TextColumn::make('purchase_order_no')
+                    ->label('Purchase Order No.')
+                    ->sortable(),    
+                TextColumn::make('sales_invoice_no')
+                    ->label('Sales Invoice No.')
                     ->sortable(),
-                TextColumn::make('purchase_cost')
-                    ->label('Asset Cost')
+                TextColumn::make('purchase_order_amount')
+                    ->label('Purchase Order Amount')
                     ->sortable()
                     ->formatStateUsing(fn ($state) => 'PHP ' . number_format($state, 2)),
-                TextColumn::make('purchase_date')
-                    ->label('Purchase Date')
+                TextColumn::make('purchase_order_date')
+                    ->label('Purchase Order Date')
                     ->sortable()
                     ->date(),
                 TextColumn::make('vendor.name')
@@ -244,18 +288,24 @@ class PurchaseResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('receipt_no')
-                    ->label("Filter by Receipt")
+                SelectFilter::make('sales_invoice_no')
+                    ->label("Filter by Sales Invoice")
                     ->searchable()
                     ->indicator('Receipt No')
-                    ->options(Purchase::pluck('receipt_no', 'receipt_no')->toArray()),
+                    ->options(Purchase::pluck('sales_invoice_no', 'sales_invoice_no')->toArray()),
+                SelectFilter::make('purchase_order_no')
+                    ->label("Filter by Purchase Order")
+                    ->searchable()
+                    ->indicator('Receipt No')
+                    ->options(Purchase::pluck('purchase_order_no', 'purchase_order_no')->toArray()),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
-            ]);
+            ])
+            ->defaultSort('purchases.id', 'desc');
     }
 
     public static function getRelations(): array
