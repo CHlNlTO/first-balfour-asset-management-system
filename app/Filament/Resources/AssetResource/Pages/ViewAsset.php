@@ -7,6 +7,7 @@ use App\Models\HardwareType;
 use App\Models\SoftwareType;
 use App\Models\LicenseType;
 use App\Models\PeripheralType;
+use App\Models\AssetStatus;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Actions;
 use Filament\Infolists\Infolist;
@@ -37,7 +38,13 @@ class ViewAsset extends ViewRecord
                         TextEntry::make('asset_type')
                             ->label('Asset Type'),
                         TextEntry::make('asset_status')
-                            ->label('Asset Status'),
+                            ->label('Asset Status')
+                            ->getStateUsing(function ($record) {
+                                Log::info('Record:', ['record' => $record->toArray()]);
+                                Log::info('Asset Status:', ['asset_status' => $record->assetStatus]);
+
+                                return optional($record->assetStatus)->asset_status ?? 'N/A';
+                            }),
                         TextEntry::make('brand')
                             ->label('Brand'),
                         TextEntry::make('model')

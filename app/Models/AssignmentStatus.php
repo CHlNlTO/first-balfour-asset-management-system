@@ -15,4 +15,9 @@ class AssignmentStatus extends Model
     {
         return $this->hasMany(Assignment::class);
     }
+
+    public function assignmentStatus()
+    {
+        return $this->belongsTo(AssignmentStatus::class, 'assignment_status', 'id');
+    }
 }

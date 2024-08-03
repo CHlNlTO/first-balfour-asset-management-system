@@ -1,35 +1,23 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\AssetResource\RelationManagers;
 
-use App\Filament\Resources\AssignmentResource\Pages;
 use App\Models\Assignment;
 use App\Models\AssignmentStatus;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
-class AssignmentResource extends Resource
+class AssignmentsRelationManager extends RelationManager
 {
-    protected static ?string $model = Assignment::class;
+    protected static string $relationship = 'assignments';
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-duplicate';
-
-    public static function form(Form $form): Form
-{
-    return $form
-        ->schema([
-            Forms\Components\Select::make('asset_id')
-                ->label('Asset')
-                ->placeholder('Select from existing assets')
-                ->relationship('asset', 'id')
-                ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->id} {$record->brand} {$record->model}")
-                ->preload()
-                ->searchable()
-                ->required(),
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
             Forms\Components\Select::make('employee_id')
                 ->label('Employee')
                 ->placeholder('Select from registered employees')
@@ -43,7 +31,7 @@ class AssignmentResource extends Resource
                 ->options(AssignmentStatus::all()->pluck('assignment_status', 'id')->toArray())
                 ->default('1')
                 ->required()
-                ->columnSpan(1),
+                ->columnSpan(1), // Span the entire width of the form
             Forms\Components\Group::make()
                 ->schema([
                     Forms\Components\DatePicker::make('start_date')
@@ -56,44 +44,26 @@ class AssignmentResource extends Resource
                         ->native()
                         ->closeOnDateSelection(),
                 ])
-                ->columns(2)
+                ->columns(2) // Specify two columns for the group
                 ->columnSpanFull(),
-        ]);
+            ]);
     }
 
-
-    public static function table(Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id')
-                ->label('ID')
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true)
-                ->searchable(query: function (Builder $query, string $search): Builder {
-                    return $query->orWhere('assignments.id', 'like', "%{$search}%");
-                }),
-                Tables\Columns\TextColumn::make('asset.id')
-                    ->label('Asset ID')
+                    ->label('ID')
                     ->sortable()
-                    ->searchable()
-                    ->url(fn (Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
-                Tables\Columns\TextColumn::make('asset.brand')
-                    ->label('Asset')
-                    ->sortable()
-                    ->searchable()
-                    ->getStateUsing(function (Assignment $record): string {
-                        $asset = $record->asset;
-                        return $asset ? " {$asset->brand} {$asset->model}" : 'N/A';
-                    })
-                    ->url(fn (Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('employee.name')
-                    ->numeric()
+                    ->label('Employee')
                     ->sortable()
                     ->searchable()
                     ->url(fn (Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee_id])),
                 Tables\Columns\TextColumn::make('assignment_status')
-                    ->label('Status')
+                    ->label('Assignment Status')
                     ->getStateUsing(function (Assignment $record): string {
                         $assignmentStatus = AssignmentStatus::find($record->assignment_status);
                         return $assignmentStatus ? $assignmentStatus->assignment_status : 'N/A';
@@ -106,22 +76,24 @@ class AssignmentResource extends Resource
                         'Inactive' => 'primary',
                         'In Transfer' => 'warning',
                         'Pending' => 'warning',
-                        'Unknown' => 'gray'
+                        'Unknown' => 'gray',
+                        default => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('start_date')
                     ->label('Start Date')
                     ->date()
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('end_date')
                     ->label('End Date')
                     ->date()
-                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Created At')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Updated At')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -129,37 +101,16 @@ class AssignmentResource extends Resource
             ->filters([
                 //
             ])
+            ->headerActions([
+                Tables\Actions\CreateAction::make(),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteBulkAction::make(),
             ])
-            ->defaultSort('id', 'desc');
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListAssignments::route('/'),
-            'create' => Pages\CreateAssignment::route('/create'),
-            'view' => Pages\ViewAssignment::route('/{record}'),
-            'edit' => Pages\EditAssignment::route('/{record}/edit'),
-        ];
-    }
-
-    protected function getRedirectUrl(): string
-    {
-        return static::getResource()::getUrl('index');
+            ->defaultSort('assignments.id', 'desc');
     }
 }

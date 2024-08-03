@@ -25,7 +25,7 @@ class Software extends Model
 
     public function licenseType()
     {
-        return $this->belongsTo(LicenseType::class, 'license_type', 'license_type');
+        return $this->belongsTo(LicenseType::class, 'license_type', 'id');
     }
 
     // Override the getRouteKeyName method

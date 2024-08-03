@@ -11,7 +11,7 @@ class Asset extends Model
 
     protected $fillable = ['asset_type', 'asset_status', 'brand', 'model'];
 
-    protected $with = ['hardware', 'software', 'peripherals', 'lifecycle', 'purchases']; // Eager load relationships
+    protected $with = ['hardware', 'software', 'peripherals', 'lifecycle', 'purchases', 'assetStatus']; // Eager load relationships
 
     public function hardware()
     {
@@ -37,6 +37,15 @@ class Asset extends Model
         return $this->hasOne(Lifecycle::class);
     }
 
+    public function assignments()
+    {
+        return $this->hasMany(Assignment::class);
+    }
+
+    public function assetStatus()
+    {
+        return $this->belongsTo(AssetStatus::class, 'asset_status', 'id');
+    }
     public function getDetailsAttribute()
     {
         if ($this->asset_type === 'hardware' && $this->hardware) {

@@ -26,8 +26,8 @@ class AssetStatusesResource extends Resource
         return $form
         ->schema([
             TextInput::make('asset_status')
-                ->required()
-                ->label("Asset Status"),
+                ->label("Asset Status")
+                ->required(),
         ]);
     }
 

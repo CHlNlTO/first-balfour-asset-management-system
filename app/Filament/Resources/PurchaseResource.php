@@ -3,6 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PurchaseResource\Pages;
+use App\Filament\Resources\PurchaseResource\RelationManagers\AssetsRelationManager;
+use App\Models\AssetStatus;
 use App\Models\Purchase;
 use App\Models\HardwareType;
 use App\Models\SoftwareType;
@@ -161,23 +163,17 @@ class PurchaseResource extends Resource
                                         $set('show_peripherals', $state === 'peripherals');
                                     }),
                                 Select::make('asset_status')
-                                    ->options([
-                                        'active' => 'Active',
-                                        'inactive' => 'Inactive',
-                                        'under repair' => 'Under Repair',
-                                        'in transfer' => 'In Transfer',
-                                        'disposed' => 'Disposed',
-                                        'lost' => 'Lost',
-                                        'stolen' => 'Stolen'
-                                    ])
+                                    ->options(function () {
+                                        return AssetStatus::all()->pluck('asset_status', 'id');
+                                    })
                                     ->required()
-                                    ->label('Asset Status')
-                                    ->default('active'),
+                                    ->reactive()
+                                    ->live(),
                                 TextInput::make('brand')->label('Brand')->required(),
                                 TextInput::make('model')->label('Model')->required(),
                             ]),
                             Fieldset::make('Hardware Details')
-                                ->hidden(fn (callable $get) => $get('show_hardware') !== true)
+                                ->hidden(fn (callable $get) => $get('show_hardware') !== true || $get('asset_option') !== 'new')
                                 ->schema([
                                     Select::make('hardware_type')->label('Hardware Type')
                                         ->options(HardwareType::all()->pluck('hardware_type', 'id')->toArray())
@@ -193,7 +189,7 @@ class PurchaseResource extends Resource
                                         ->nullable(),
                                 ]),
                             Fieldset::make('Software Details')
-                                ->hidden(fn (callable $get) => $get('show_software') !== true)
+                                ->hidden(fn (callable $get) => $get('show_software') !== true || $get('asset_option') !== 'new')
                                 ->schema([
                                     TextInput::make('version')->label('Version')->nullable(),
                                     TextInput::make('license_key')->label('License Key')->nullable(),
@@ -205,7 +201,7 @@ class PurchaseResource extends Resource
                                         ->required(),
                                 ]),
                             Fieldset::make('Peripherals Details')
-                                ->hidden(fn (callable $get) => $get('show_peripherals') !== true)
+                                ->hidden(fn (callable $get) => $get('show_peripherals') !== true || $get('asset_option') !== 'new')
                                 ->schema([
                                     Select::make('peripherals_type')->label('Peripheral Type')
                                         ->options(PeripheralType::all()->pluck('peripherals_type', 'id')->toArray())
@@ -301,6 +297,7 @@ class PurchaseResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
@@ -311,7 +308,7 @@ class PurchaseResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // Define any relations here
+            AssetsRelationManager::class,
         ];
     }
 
@@ -320,6 +317,7 @@ class PurchaseResource extends Resource
         return [
             'index' => Pages\ListPurchases::route('/'),
             'create' => Pages\CreatePurchase::route('/create'),
+            'view' => Pages\ViewPurchase::route('/{record}'),
             'edit' => Pages\EditPurchase::route('/{record}/edit'),
         ];
     }

@@ -22,6 +22,8 @@ use Filament\Forms\Components\Repeater;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Textarea;
+use App\Filament\Resources\AssetResource\RelationManagers\AssignmentsRelationManager;
+use Illuminate\Support\Facades\Log;
 
 class AssetResource extends Resource
 {
@@ -57,10 +59,25 @@ class AssetResource extends Resource
                                         $set('show_software', $state === 'software');
                                         $set('show_peripherals', $state === 'peripherals');
                                     }),
-                                Select::make('asset_status')->label('Asset Status')
-                                    ->options(AssetStatus::all()->pluck('asset_status', 'id')->toArray())
-                                    ->default('1')
-                                    ->required(),
+                                Select::make('asset_status')
+                                    ->label('Asset Status')
+                                    ->options(function () {
+                                        return AssetStatus::all()->pluck('asset_status', 'id');
+                                    })
+                                    ->default(1)
+                                    ->required()
+                                    ->createOptionForm([
+                                        TextInput::make('asset_status')
+                                            ->label('Asset Status')
+                                            ->required(),
+                                    ])
+                                    ->createOptionUsing(function ($data) {
+                                        $status = AssetStatus::create([
+                                            'asset_status' => $data['asset_status'],
+                                        ]);
+
+                                        return $status->id;
+                                    }),
                                 TextInput::make('brand')->label('Brand')->required(),
                                 TextInput::make('model')->label('Model')->required(),
                             ]),
@@ -249,7 +266,19 @@ class AssetResource extends Resource
                         return $assetStatus ? $assetStatus->asset_status : 'N/A';
                     })
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Active' => 'success',
+                        'Inactive' => 'gray',
+                        'In Transfer' => 'primary',
+                        'Maintenance' => 'warning',
+                        'Lost' => 'gray',
+                        'Disposed' => 'gray',
+                        'Stolen' => 'danger',
+                        'Unknown' => 'gray',
+                        default => 'gray',
+                    }),
                 TextColumn::make('brand')
                     ->label('Brand')
                     ->sortable()
@@ -308,7 +337,7 @@ class AssetResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            AssignmentsRelationManager::class,
         ];
     }
 
@@ -321,4 +350,5 @@ class AssetResource extends Resource
             'edit' => Pages\EditAsset::route('/{record}/edit'),
         ];
     }
+
 }

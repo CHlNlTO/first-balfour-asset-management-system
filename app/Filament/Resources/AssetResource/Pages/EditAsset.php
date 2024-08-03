@@ -13,6 +13,7 @@ use App\Models\HardwareType;
 use App\Models\SoftwareType;
 use App\Models\LicenseType;
 use App\Models\PeripheralType;
+use App\Models\AssetStatus;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -36,7 +37,7 @@ class EditAsset extends EditRecord
         Log::info('Initial Record Data: ', $this->record->toArray());
 
         $data['asset_type'] = $this->record->asset_type;
-        $data['asset_status'] = $this->record->asset_status;
+        $data['asset_status'] = $this->record->assetStatus->id;
         $data['brand'] = $this->record->brand;
         $data['model'] = $this->record->model;
         $data['acquisition_date'] = $this->record->lifecycle->acquisition_date ?? '';
@@ -150,18 +151,13 @@ class EditAsset extends EditRecord
                 ->autofocus()
                 ->disabled(),
                 Select::make('asset_status')
-                    ->options([
-                        'active' => 'Active',
-                        'inactive' => 'Inactive',
-                        'under repair' => 'Under Repair',
-                        'in transfer' => 'In Transfer',
-                        'disposed' => 'Disposed',
-                        'lost' => 'Lost',
-                        'stolen' => 'Stolen'
-                    ])
-                    ->required()
                     ->label('Asset Status')
-                    ->default('active'),
+                    ->options(function () {
+                        return AssetStatus::all()->pluck('asset_status', 'id');
+                    })
+                    ->required()
+                    ->reactive()
+                    ->live(),
                 TextInput::make('brand')->label('Brand')->required(),
                 TextInput::make('model')->label('Model')->required(),
                 Fieldset::make('Hardware Details')
@@ -186,8 +182,10 @@ class EditAsset extends EditRecord
                 Fieldset::make('Software Details')
                     ->hidden(fn (callable $get) => $get('asset_type') !== 'software')
                     ->schema([
-                        TextInput::make('software.version')->label('Version')->required(),
-                        TextInput::make('software.license_key')->label('License Key')->required(),
+                        TextInput::make('software.version')
+                            ->label('Version'),
+                        TextInput::make('software.license_key')
+                            ->label('License Key'),
                         Select::make('software_type')
                             ->label('Software Type')
                             ->options(SoftwareType::all()->pluck('software_type', 'id')->toArray())
