@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('peripherals', function (Blueprint $table) {
-            if (!Schema::hasColumn('peripherals', 'peripheral_type')) {
+            if (!Schema::hasColumn('peripherals', 'peripherals_type')) {
                 $table->foreignId('peripherals_type')->nullable()->constrained('peripherals_types');
             }
         });

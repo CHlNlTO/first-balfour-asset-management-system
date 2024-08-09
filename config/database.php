@@ -59,6 +59,20 @@ return [
             ]) : [],
         ],
 
+        'central_employeedb' => [
+            'driver' => 'mysql',
+            'host' => env('CENTRAL_EMPLOYEE_DB_HOST', '127.0.0.1'),
+            'port' => env('CENTRAL_EMPLOYEE_DB_PORT', '3306'),
+            'database' => env('CENTRAL_EMPLOYEE_DB_DATABASE', 'central_employeedb'),
+            'username' => env('CENTRAL_EMPLOYEE_DB_USERNAME', 'assetmonitoring'),
+            'password' => env('CENTRAL_EMPLOYEE_DB_PASSWORD', 'p@55w0rdlouise'),
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
+
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

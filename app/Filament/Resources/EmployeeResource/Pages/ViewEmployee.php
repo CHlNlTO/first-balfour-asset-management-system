@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\EmployeeResource\Pages;
 
 use App\Filament\Resources\EmployeeResource;
+use App\Models\CEMREmployee;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists\Infolist;
@@ -16,7 +17,7 @@ class ViewEmployee extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make(),
+            //
         ];
     }
 
@@ -28,18 +29,21 @@ class ViewEmployee extends ViewRecord
                 Section::make('Employee Details')
                     ->schema([
                         TextEntry::make('name')
-                            ->label('Name'),
+                            ->label('Name')
+                            ->getStateUsing(fn ($record) => $record->first_name . ' ' . $record->last_name),
+                        TextEntry::make('id_num')
+                            ->label('ID Number'),
                         TextEntry::make('email')
                             ->label('Email'),
-                        TextEntry::make('position')
+                        TextEntry::make('empService.position.name')
                             ->label('Position'),
-                        TextEntry::make('rank')
+                        TextEntry::make('empService.rank.name')
                             ->label('Rank'),
-                        TextEntry::make('project')
+                        TextEntry::make('empService.project.name')
                             ->label('Project'),
-                        TextEntry::make('department')
-                            ->label('Department'),
-                        TextEntry::make('employee_status')
+                        TextEntry::make('empService.division.name')
+                            ->label('Division'),
+                        TextEntry::make('empService.status.name')
                             ->label('Employee Status'),
                     ])
                     ->columns(2),

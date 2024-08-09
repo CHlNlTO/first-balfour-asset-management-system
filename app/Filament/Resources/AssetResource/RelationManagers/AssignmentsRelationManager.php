@@ -18,12 +18,11 @@ class AssignmentsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-            Forms\Components\Select::make('employee_id')
+                Forms\Components\Select::make('employee_id')
                 ->label('Employee')
                 ->placeholder('Select from registered employees')
-                ->relationship('employee', 'id')
-                ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->id} {$record->name}")
-                ->preload()
+                ->relationship('employee', 'id_num')
+                ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->id_num} {$record->first_name} {$record->last_name}")
                 ->searchable()
                 ->required(),
             Forms\Components\Select::make('assignment_status')
@@ -54,14 +53,23 @@ class AssignmentsRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id')
-                    ->label('ID')
+                    ->label('Assignment ID')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('employee.name')
-                    ->label('Employee')
+                Tables\Columns\TextColumn::make('employee.id_num')
+                    ->label('Employee ID')
                     ->sortable()
                     ->searchable()
-                    ->url(fn (Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee_id])),
+                    ->url(fn (Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id])),
+                Tables\Columns\TextColumn::make('employee')
+                    ->numeric()
+                    ->sortable()
+                    ->searchable()
+                    ->getStateUsing(function (Assignment $record): string {
+                        $employee = $record->employee->first_name . ' ' . $record->employee->last_name;
+                        return $employee ? $employee : 'N/A';
+                    })
+                    ->url(fn (Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id])),
                 Tables\Columns\TextColumn::make('assignment_status')
                     ->label('Assignment Status')
                     ->getStateUsing(function (Assignment $record): string {

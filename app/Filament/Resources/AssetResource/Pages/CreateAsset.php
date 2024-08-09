@@ -63,6 +63,16 @@ class CreateAsset extends CreateRecord
             'retirement_date' => $data['retirement_date'] ?? null,
         ]);
 
+        $vendorId = $this->handleVendor($data);
+
+        Purchase::create([
+            'asset_id' => $asset->id,
+            'purchase_order_no' => $data['purchase_order_no'],
+            'sales_invoice_no' => $data['sales_invoice_no'],
+            'purchase_order_date' => $data['purchase_order_date'],
+            'purchase_order_amount' => $data['purchase_order_amount'],
+            'vendor_id' => $vendorId,
+        ]);
 
         if ($data['asset_type'] === 'hardware') {
             Hardware::create([
@@ -89,18 +99,6 @@ class CreateAsset extends CreateRecord
                 'serial_number' => $data['serial_number'] ?? null,
                 'manufacturer' => $data['manufacturer'] ?? null,
                 'warranty_expiration' => $data['warranty_expiration'] ?? null,
-            ]);
-        }
-
-        if ($data['add_purchase_information'] === 'yes') {
-            $vendorId = $this->handleVendor($data);
-            Purchase::create([
-                'asset_id' => $asset->id,
-                'purchase_order_no' => $data['purchase_order_no'],
-                'sales_invoice_no' => $data['sales_invoice_no'],
-                'purchase_order_date' => $data['purchase_order_date'],
-                'purchase_order_amount' => $data['purchase_order_amount'],
-                'vendor_id' => $vendorId,
             ]);
         }
 

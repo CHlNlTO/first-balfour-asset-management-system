@@ -137,16 +137,7 @@ class AssetResource extends Resource
                                     ->nullable()
                                     ->minDate(fn ($get) => $get('acquisition_date'))
                                 ])->reactive(),
-                        Radio::make('add_purchase_information')
-                            ->label('Add Purchase Order Information?')
-                            ->options([
-                                'yes' => 'Yes',
-                                'no' => 'No',
-                            ])
-                            ->default('no')
-                            ->reactive(),
                             Fieldset::make('Purchase Information')
-                                ->hidden(fn (callable $get) => $get('add_purchase_information') !== 'yes')
                                 ->schema([
                                     TextInput::make('purchase_order_no')
                                         ->label('Purchase Order No.')
@@ -168,7 +159,6 @@ class AssetResource extends Resource
                                         ->columnSpan(1),
                                 ])->label('Purchase Order Information'),
                             Fieldset::make('Vendor Information')
-                            ->hidden(fn (callable $get) => $get('add_purchase_information') !== 'yes')
                             ->schema([
                                 Radio::make('vendor_option')
                                     ->label('Vendor Option')
@@ -279,16 +269,15 @@ class AssetResource extends Resource
                         'Unknown' => 'gray',
                         default => 'gray',
                     }),
-                TextColumn::make('brand')
-                    ->label('Brand')
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('model')
-                    ->label('Model')
+                TextColumn::make('asset')
+                    ->label('Asset Name')
+                    ->getStateUsing(function (Asset $record): string {
+                        return "{$record->brand} {$record->model}";
+                    })
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('details')
-                    ->label('Details')
+                    ->label('Specifications/Version')
                     ->sortable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->orWhere('hardware.specifications', 'like', "%{$search}%")

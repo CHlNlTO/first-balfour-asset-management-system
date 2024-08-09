@@ -3,12 +3,10 @@
 namespace App\Filament\Resources\PurchaseResource\Pages;
 
 use App\Filament\Resources\PurchaseResource;
+use App\Models\AssetStatus;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
-use App\Models\Asset;
-use App\Models\Hardware;
-use App\Models\Software;
 use Illuminate\Support\Facades\Log;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Select;
@@ -31,22 +29,26 @@ class EditPurchase extends EditRecord
     {
         return $form
             ->schema([
-                Fieldset::make('General Purchase Information')
+                Fieldset::make('Purchase Information')
                     ->schema([
-                        TextInput::make('receipt_no')
+                        TextInput::make('purchase_order_no')
+                            ->label('Purchase Order No.')
                             ->required()
-                            ->numeric(),
-                        DatePicker::make('purchase_date')
-                            ->required(),
-                        Select::make('vendor_id')
-                            ->label('Vendor')
-                            ->relationship('vendor', 'name')
-                            ->preload()
+                            ->numeric()
+                            ->columnSpan(1),
+                        TextInput::make('sales_invoice_no')
+                            ->label('Sales Invoice No.')
                             ->required()
-                            ->searchable(),
-                        TextInput::make('purchase_cost')
-                            ->label('Asset Cost')
+                            ->numeric()
+                            ->columnSpan(1),
+                        DatePicker::make('purchase_order_date')
+                            ->label('Purchase Order Date')
                             ->required(),
+                        TextInput::make('purchase_order_amount')
+                            ->label('Purchase Order Amount')
+                            ->required()
+                            ->numeric()
+                            ->columnSpan(1),
                     ]),
                 Fieldset::make('Asset Details')
                     ->schema([
@@ -54,6 +56,7 @@ class EditPurchase extends EditRecord
                             ->options([
                                 'hardware' => 'Hardware',
                                 'software' => 'Software',
+                                'peripherals'=> 'peripherals',
                             ])
                             ->required()
                             ->label('Asset Type')
@@ -61,18 +64,13 @@ class EditPurchase extends EditRecord
                             ->autofocus()
                             ->disabled(),
                         Select::make('asset_status')
-                            ->options([
-                                'active' => 'Active',
-                                'inactive' => 'Inactive',
-                                'under repair' => 'Under Repair',
-                                'in transfer' => 'In Transfer',
-                                'disposed' => 'Disposed',
-                                'lost' => 'Lost',
-                                'stolen' => 'Stolen'
-                            ])
-                            ->required()
                             ->label('Asset Status')
-                            ->default('active'),
+                            ->options(function () {
+                                return AssetStatus::all()->pluck('asset_status', 'id');
+                            })
+                            ->required()
+                            ->reactive()
+                            ->live(),
                         TextInput::make('brand')->label('Brand')->required(),
                         TextInput::make('model')->label('Model')->required(),
                     ]),
@@ -95,18 +93,39 @@ class EditPurchase extends EditRecord
                         TextInput::make('license_key')->label('License Key')->required(),
                         TextInput::make('license_type')->label('License Type')->required(),
                     ]),
+                Fieldset::make('Lifecycle Information')
+                    ->schema([
+                        DatePicker::make('acquisition_date')
+                            ->label('Acquisition Date')
+                            ->required(),
+                        DatePicker::make('retirement_date')
+                            ->label('Retirement Date')
+                            ->required(),
+                    ]),
+                Fieldset::make('Vendor Information')
+                    ->schema([
+                        Select::make('vendor_id')
+                            ->label('Vendor')
+                            ->options(function () {
+                                return \App\Models\Vendor::all()->pluck('name', 'id');
+                            })
+                            ->required(),
+                    ]),
             ]);
     }
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        Log::info('Initial Record Data: ', $this->record->toArray());
+        Log::info('Initial Record Datas: ', $this->record->toArray());
 
         $asset = $this->record->asset;
         $data['asset_type'] = $asset->asset_type;
-        $data['asset_status'] = $asset->asset_status;
+        $data['asset_status'] = $asset->assetStatus->id;
         $data['brand'] = $asset->brand;
         $data['model'] = $asset->model;
+        $data['acquisition_date'] = $asset->lifecycle->acquisition_date;
+        $data['retirement_date'] = $asset->lifecycle->retirement_date;
+        $data['vendor_id'] = $this->record->vendor_id;
 
         if ($asset->asset_type === 'hardware') {
             $hardware = $asset->hardware;
@@ -136,10 +155,11 @@ class EditPurchase extends EditRecord
 
         return DB::transaction(function () use ($record, $data) {
             $record->update([
-                'receipt_no' => $data['receipt_no'],
-                'purchase_date' => $data['purchase_date'],
+                'sales_invoice_no' => $data['sales_invoice_no'],
+                'purchase_order_no' => $data['purchase_order_no'],
+                'purchase_order_date' => $data['purchase_order_date'],
                 'vendor_id' => $data['vendor_id'],
-                'purchase_cost' => $data['purchase_cost'],
+                'purchase_order_amount' => $data['purchase_order_amount'],
             ]);
 
             $asset = $record->asset;
@@ -172,7 +192,17 @@ class EditPurchase extends EditRecord
                 );
             }
 
+            $asset->lifecycle()->update([
+                'acquisition_date' => $data['acquisition_date'],
+                'retirement_date' => $data['retirement_date'],
+            ]);
+
             return $record;
         });
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('index');
     }
 }

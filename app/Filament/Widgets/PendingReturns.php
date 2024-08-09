@@ -9,17 +9,17 @@ use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
 
-class PendingAssignments extends BaseWidget
+class PendingReturns extends BaseWidget
 {
     protected static ?string $model = Assignment::class;
 
     protected int | string | array $columnSpan = 'full';
 
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 4;
 
     protected function getTableQuery(): Builder
     {
-        $pendingStatusId = AssignmentStatus::where('assignment_status', 'Pending Approval')->value('id');
+        $pendingStatusId = AssignmentStatus::where('assignment_status', 'Pending Return')->value('id');
         return Assignment::query()->where('assignment_status', $pendingStatusId);
     }
 

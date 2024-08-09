@@ -3,74 +3,58 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\EmployeeResource\Pages;
-use App\Filament\Resources\EmployeeResource\RelationManagers;
-use App\Models\Employee;
-use Filament\Forms;
-use Filament\Forms\Form;
+use App\Models\CEMREmployee;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use App\Filament\Resources\AssetResource\RelationManagers\EmployeeAssignmentsRelationManager;
 
 class EmployeeResource extends Resource
 {
-    protected static ?string $model = Employee::class;
+    protected static ?string $model = CEMREmployee::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
+    protected static ?string $navigationLabel = 'Employees';
+
     protected static ?string $navigationGroup = 'Manage Employees';
+
+    protected static ?string $modelLabel = 'Employees';
 
     protected static ?int $navigationSort = 1;
 
-    public static function form(Form $form): Form
+    public static function getRouteKeyName(): string
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('position')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('rank')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('project')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('department')
-                    ->maxLength(255),
-                Forms\Components\Select::make('employee_status')
-                    ->required()
-                    ->options([
-                        'regular'=> 'Regular',
-                        'part_time'=> 'Part-time',
-                        'probationary'=> 'Probationary',
-                        'intern'=> 'Intern',
-
-                    ])
-                    ->default('regular'),
-            ]);
+        return 'id_num';
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                Tables\Columns\TextColumn::make('id_num')
+                    ->label('ID')
+                    ->sortable()
                     ->searchable(),
+                    Tables\Columns\TextColumn::make('full_name')
+                    ->label('Name')
+                    ->getStateUsing(fn (CEMREmployee $record) => $record->first_name . ' ' . $record->last_name)
+                    ->searchable(['first_name', 'last_name']),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('position')
+                Tables\Columns\TextColumn::make('empService.position.name')
+                    ->label('Position')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('rank')
+                Tables\Columns\TextColumn::make('empService.rank.name')
+                    ->label('Rank')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('project')
+                Tables\Columns\TextColumn::make('empService.project.name')
+                    ->label('Project')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('department')
+                Tables\Columns\TextColumn::make('empService.division.name')
+                    ->label('Division')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('employee_status')
+                Tables\Columns\TextColumn::make('empService.status.name')
+                    ->label('Employee Status')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -85,20 +69,17 @@ class EmployeeResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
+                //
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                //
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            EmployeeAssignmentsRelationManager::class,
+            // Define any relationships here
         ];
     }
 
@@ -106,9 +87,7 @@ class EmployeeResource extends Resource
     {
         return [
             'index' => Pages\ListEmployees::route('/'),
-            'create' => Pages\CreateEmployee::route('/create'),
             'view' => Pages\ViewEmployee::route('/{record}'),
-            'edit' => Pages\EditEmployee::route('/{record}/edit'),
         ];
     }
 }

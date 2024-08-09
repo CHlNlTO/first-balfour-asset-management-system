@@ -16,6 +16,8 @@ class PeripheralResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
 
+    protected static ?string $navigationParentItem = 'Assets';
+
     protected static ?string $navigationGroup = 'Manage Assets';
 
     protected static ?int $navigationSort = 4;

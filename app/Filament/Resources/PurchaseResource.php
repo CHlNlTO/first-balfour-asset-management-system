@@ -247,39 +247,51 @@ class PurchaseResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')
-                    ->label('ID')
-                    ->sortable(),
+                    ->label('Purchase ID')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('asset.brand')
-                    ->label('Brand')
-                    ->sortable(),
-                TextColumn::make('asset.model')
-                    ->label('Model')
-                    ->sortable(),
+                    ->label('Asset Name')
+                    ->getStateUsing(function (Purchase $record): string {
+                        $asset = $record->asset;
+                        return $asset ? " {$asset->brand} {$asset->model}" : 'N/A';
+                    })
+                    ->sortable()
+                    ->searchable()
+                    ->url(fn (Purchase $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
                 TextColumn::make('purchase_order_no')
                     ->label('Purchase Order No.')
-                    ->sortable(),    
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('sales_invoice_no')
                     ->label('Sales Invoice No.')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('purchase_order_amount')
                     ->label('Purchase Order Amount')
                     ->sortable()
+                    ->searchable()
                     ->formatStateUsing(fn ($state) => 'PHP ' . number_format($state, 2)),
                 TextColumn::make('purchase_order_date')
                     ->label('Purchase Order Date')
                     ->sortable()
+                    ->searchable()
                     ->date(),
                 TextColumn::make('vendor.name')
                     ->label('Vendor ID')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable()
+                    ->url(fn (Purchase $record): string => route('filament.admin.resources.vendors.edit', ['record' => $record->vendor_id])),
                 TextColumn::make('created_at')
                     ->label('Created At')
                     ->sortable()
+                    ->searchable()
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label('Updated At')
                     ->sortable()
+                    ->searchable()
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

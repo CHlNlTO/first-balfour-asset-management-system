@@ -16,6 +16,8 @@ class HardwareResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-server-stack';
 
+    protected static ?string $navigationParentItem = 'Assets';
+
     protected static ?string $navigationGroup = 'Manage Assets';
 
     protected static ?int $navigationSort = 2;

@@ -36,25 +36,20 @@ class VendorResource extends Resource
                     ->maxLength(255)
                     ->default(null),
                 Forms\Components\TextInput::make('city')
-                    ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('tel_no_1')
                     ->tel()
-                    ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('tel_no_2')
                     ->tel()
                     ->maxLength(255)
                     ->default(null),
                 Forms\Components\TextInput::make('contact_person')
-                    ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('mobile_number')
-                    ->required()
                     ->numeric(),
                 Forms\Components\TextInput::make('email')
                     ->email()
-                    ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('url')
                     ->maxLength(255)
