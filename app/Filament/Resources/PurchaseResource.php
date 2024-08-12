@@ -53,6 +53,9 @@ class PurchaseResource extends Resource
                         DatePicker::make('purchase_order_date')
                             ->label('Purchase Order Date')
                             ->required(),
+                        TextInput::make('requestor')
+                            ->label('Requestor')
+                            ->nullable(),
                     ]),
                 Fieldset::make('Vendor Information')
                     ->schema([
@@ -171,6 +174,9 @@ class PurchaseResource extends Resource
                                     ->live(),
                                 TextInput::make('brand')->label('Brand')->required(),
                                 TextInput::make('model')->label('Model')->required(),
+                                TextInput::make('department_project_code')
+                                    ->label('Department/Project Code')
+                                    ->nullable(),
                             ]),
                             Fieldset::make('Hardware Details')
                                 ->hidden(fn (callable $get) => $get('show_hardware') !== true || $get('asset_option') !== 'new')
@@ -181,6 +187,15 @@ class PurchaseResource extends Resource
                                     TextInput::make('serial_number')->label('Serial No.')->required(),
                                     TextArea::make('specifications')->label('Specifications')->required(),
                                     TextInput::make('manufacturer')->label('Manufacturer')->required(),
+                                    TextInput::make('mac_address')
+                                        ->label('MAC Address')
+                                        ->nullable(),
+                                    TextInput::make('accessories')
+                                        ->label('Accessories')
+                                        ->nullable(),
+                                    TextInput::make('pc_name')
+                                        ->label('PC Name')
+                                        ->nullable(),
                                     DatePicker::make('warranty_expiration')
                                         ->label('Warranty Expiration Date')
                                         ->displayFormat('m/d/Y')
@@ -199,6 +214,9 @@ class PurchaseResource extends Resource
                                     Select::make('license_type')->label('License Type')
                                         ->options(LicenseType::all()->pluck('license_type', 'id')->toArray())
                                         ->required(),
+                                    TextInput::make('pc_name')
+                                        ->label('PC Name')
+                                        ->nullable(),
                                 ]),
                             Fieldset::make('Peripherals Details')
                                 ->hidden(fn (callable $get) => $get('show_peripherals') !== true || $get('asset_option') !== 'new')
@@ -250,6 +268,11 @@ class PurchaseResource extends Resource
                     ->label('Purchase ID')
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('asset.id')
+                    ->label('Asset ID')
+                    ->sortable()
+                    ->searchable()
+                    ->url(fn (Purchase $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
                 TextColumn::make('asset.brand')
                     ->label('Asset Name')
                     ->getStateUsing(function (Purchase $record): string {
@@ -259,6 +282,15 @@ class PurchaseResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->url(fn (Purchase $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
+                TextColumn::make('asset.department_project_code')
+                    ->label('Department/Project Code')
+                    ->getStateUsing(function (Purchase $record): string {
+                        $asset = $record->asset;
+                        return $asset ? "{$asset->department_project_code}" : 'N/A';
+                    })
+                    ->sortable()
+                    ->searchable()
+                    ->placeholder('N/A'),
                 TextColumn::make('purchase_order_no')
                     ->label('Purchase Order No.')
                     ->sortable()
@@ -282,6 +314,11 @@ class PurchaseResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->url(fn (Purchase $record): string => route('filament.admin.resources.vendors.edit', ['record' => $record->vendor_id])),
+                TextColumn::make('requestor')
+                    ->label('Requestor')
+                    ->sortable()
+                    ->searchable()
+                    ->placeholder('N/A'),
                 TextColumn::make('created_at')
                     ->label('Created At')
                     ->sortable()

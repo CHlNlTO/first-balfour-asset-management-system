@@ -11,7 +11,7 @@ class Hardware extends Model
 
     protected $primaryKey = 'asset_id'; // Specify the primary key if it's not the default 'id'
 
-    protected $fillable = ['asset_id', 'hardware_type', 'serial_number', 'specifications', 'manufacturer', 'warranty_expiration'];
+    protected $fillable = ['asset_id', 'hardware_type', 'serial_number', 'specifications', 'manufacturer', 'warranty_expiration', 'mac_address', 'accessories', 'pc_name'];
 
     public function asset()
     {

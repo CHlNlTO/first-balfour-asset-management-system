@@ -32,13 +32,13 @@ class PendingReturns extends BaseWidget
                     ->label('ID'),
                 Tables\Columns\TextColumn::make('employee.id_num')
                     ->label("Emp ID")
-                    ->url(fn (Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->empService->id_num])),
+                    ->url(fn (Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num])),
                 Tables\Columns\TextColumn::make('employee')
                     ->label('Employee')
                     ->getStateUsing(function (Assignment $record): string {
                         return "{$record->employee->first_name} {$record->employee->last_name}";
                     })
-                    ->url(fn (Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->empService->id_num])),
+                    ->url(fn (Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num])),
                 Tables\Columns\TextColumn::make('asset.id')
                     ->label('Asset ID')
                     ->url(fn (Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),

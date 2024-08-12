@@ -29,10 +29,14 @@ class EditHardware extends EditRecord
         $data['asset_status'] = $this->record->asset->asset_status;
         $data['brand'] = $this->record->asset->brand;
         $data['model'] = $this->record->asset->model;
+        $data['department_project_code'] = $this->record->asset->department_project_code;
 
         $data['specifications'] = $this->record->specifications;
         $data['serial_number'] = $this->record->serial_number;
         $data['manufacturer'] = $this->record->manufacturer;
+        $data['mac_address'] = $this->record->mac_address;
+        $data['accessories'] = $this->record->accessories;
+        $data['pc_name'] = $this->record->pc_name;
         $data['warranty_expiration'] = $this->record->warranty_expiration;
 
         return $data;
@@ -89,11 +93,17 @@ class EditHardware extends EditRecord
                     ->default('active'),
                 TextInput::make('brand')->label('Brand')->required(),
                 TextInput::make('model')->label('Model')->required(),
+                TextInput::make('asset.department_project_code')
+                    ->label('Department/Project Code')
+                    ->nullable(),
                 Fieldset::make('Hardware Details')
                     ->schema([
                         TextInput::make('specifications')->label('Specifications')->required(),
                         TextInput::make('serial_number')->label('Serial Number')->required(),
                         TextInput::make('manufacturer')->label('Manufacturer')->required(),
+                        TextInput::make('mac_address')->label('MAC Address')->nullable(),
+                        TextInput::make('accessories')->label('Accessories')->nullable(),
+                        TextInput::make('pc_name')->label('PC Name')->nullable(),
                         DatePicker::make('warranty_expiration')
                             ->label('Warranty Expiration')
                             ->displayFormat('m/d/Y')

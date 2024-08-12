@@ -45,6 +45,9 @@ class ViewPurchase extends ViewRecord
                         TextEntry::make('purchase_order_amount')
                             ->label('Purchase Order Amount')
                             ->money('php'),
+                        TextEntry::make('requestor')
+                            ->label('Requestor')
+                            ->placeholder('N/A'),
                     ])
                     ->columns(2),
 

@@ -9,7 +9,7 @@ class Asset extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['asset_type', 'asset_status', 'brand', 'model'];
+    protected $fillable = ['asset_type', 'asset_status', 'brand', 'model', 'department_project_code'];
 
     protected $with = ['hardware', 'software', 'peripherals', 'lifecycle', 'purchases', 'assetStatus']; // Eager load relationships
 

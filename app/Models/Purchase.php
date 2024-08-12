@@ -9,7 +9,7 @@ class Purchase extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['asset_id', 'purchase_order_no', 'sales_invoice_no', 'purchase_order_date', 'purchase_cost', 'purchase_order_amount', 'vendor_id'];
+    protected $fillable = ['asset_id', 'purchase_order_no', 'sales_invoice_no', 'purchase_order_date', 'purchase_cost', 'purchase_order_amount', 'vendor_id', 'requestor'];
 
     public function asset()
     {

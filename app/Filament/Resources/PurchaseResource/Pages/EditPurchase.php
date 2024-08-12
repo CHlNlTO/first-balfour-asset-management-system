@@ -49,6 +49,9 @@ class EditPurchase extends EditRecord
                             ->required()
                             ->numeric()
                             ->columnSpan(1),
+                        TextInput::make('requestor')
+                            ->label('Requestor')
+                            ->nullable(),
                     ]),
                 Fieldset::make('Asset Details')
                     ->schema([
@@ -73,6 +76,7 @@ class EditPurchase extends EditRecord
                             ->live(),
                         TextInput::make('brand')->label('Brand')->required(),
                         TextInput::make('model')->label('Model')->required(),
+                        TextInput::make('department_project_code')->label('Department/Project Code')->nullable(),
                     ]),
                 Fieldset::make('Hardware Details')
                     ->hidden(fn (callable $get) => $get('asset_type') !== 'hardware')
@@ -80,6 +84,9 @@ class EditPurchase extends EditRecord
                         TextInput::make('specifications')->label('Specifications')->required(),
                         TextInput::make('serial_number')->label('Serial Number')->required(),
                         TextInput::make('manufacturer')->label('Manufacturer')->required(),
+                        TextInput::make('mac_address')->label('MAC Address')->nullable(),
+                        TextInput::make('accessories')->label('Accessories')->nullable(),
+                        TextInput::make('pc_name')->label('PC Name')->nullable(),
                         DatePicker::make('warranty_expiration')
                             ->label('Warranty Expiration')
                             ->displayFormat('m/d/Y')
@@ -92,6 +99,20 @@ class EditPurchase extends EditRecord
                         TextInput::make('version')->label('Version')->required(),
                         TextInput::make('license_key')->label('License Key')->required(),
                         TextInput::make('license_type')->label('License Type')->required(),
+                        TextInput::make('pc_name')->label('PC Name')->nullable(),
+                    ]),
+                Fieldset::make('Peripherals Details')
+                    ->hidden(fn (callable $get) => $get('asset_type') !== 'peripherals')
+                    ->schema([
+                        TextInput::make('peripherals_type')->label('Peripherals Type')->required(),
+                        TextInput::make('specifications')->label('Specifications')->required(),
+                        TextInput::make('serial_number')->label('Serial Number')->required(),
+                        TextInput::make('manufacturer')->label('Manufacturer')->required(),
+                        DatePicker::make('warranty_expiration')
+                            ->label('Warranty Expiration')
+                            ->displayFormat('m/d/Y')
+                            ->format('Y-m-d')
+                            ->seconds(false),
                     ]),
                 Fieldset::make('Lifecycle Information')
                     ->schema([
@@ -123,6 +144,7 @@ class EditPurchase extends EditRecord
         $data['asset_status'] = $asset->assetStatus->id;
         $data['brand'] = $asset->brand;
         $data['model'] = $asset->model;
+        $data['department_project_code'] = $asset->department_project_code;
         $data['acquisition_date'] = $asset->lifecycle->acquisition_date;
         $data['retirement_date'] = $asset->lifecycle->retirement_date;
         $data['vendor_id'] = $this->record->vendor_id;
@@ -133,6 +155,9 @@ class EditPurchase extends EditRecord
                 $data['specifications'] = $hardware->specifications;
                 $data['serial_number'] = $hardware->serial_number;
                 $data['manufacturer'] = $hardware->manufacturer;
+                $data['mac_address'] = $hardware->mac_address;
+                $data['accessories'] = $hardware->accessories;
+                $data['pc_name'] = $hardware->pc_name;
                 $data['warranty_expiration'] = $hardware->warranty_expiration;
             }
         } elseif ($asset->asset_type === 'software') {
@@ -141,6 +166,16 @@ class EditPurchase extends EditRecord
                 $data['version'] = $software->version;
                 $data['license_key'] = $software->license_key;
                 $data['license_type'] = $software->license_type;
+                $data['pc_name'] = $software->pc_name;
+            }
+        } elseif ($asset->asset_type === 'peripherals') {
+            $peripherals = $asset->peripherals;
+            if ($peripherals) {
+                $data['peripherals_type'] = $peripherals->peripherals_type;
+                $data['specifications'] = $peripherals->specifications;
+                $data['serial_number'] = $peripherals->serial_number;
+                $data['manufacturer'] = $peripherals->manufacturer;
+                $data['warranty_expiration'] = $peripherals->warranty_expiration;
             }
         }
 
@@ -160,6 +195,7 @@ class EditPurchase extends EditRecord
                 'purchase_order_date' => $data['purchase_order_date'],
                 'vendor_id' => $data['vendor_id'],
                 'purchase_order_amount' => $data['purchase_order_amount'],
+                'requestor' => $data['requestor'] ?? null,
             ]);
 
             $asset = $record->asset;
@@ -167,6 +203,7 @@ class EditPurchase extends EditRecord
                 'asset_status' => $data['asset_status'],
                 'brand' => $data['brand'],
                 'model' => $data['model'],
+                'department_project_code' => $data['department_project_code'] ?? null,
             ]);
 
             if ($asset->asset_type === 'hardware') {
@@ -177,6 +214,9 @@ class EditPurchase extends EditRecord
                         'serial_number' => $data['serial_number'],
                         'manufacturer' => $data['manufacturer'],
                         'warranty_expiration' => $data['warranty_expiration'],
+                        'mac_address' => $data['mac_address'] ?? null,
+                        'accessories' => $data['accessories'] ?? null,
+                        'pc_name' => $data['pc_name'] ?? null,
                     ]
                 );
             }
@@ -188,6 +228,20 @@ class EditPurchase extends EditRecord
                         'version' => $data['version'],
                         'license_key' => $data['license_key'],
                         'license_type' => $data['license_type'],
+                        'pc_name' => $data['pc_name'] ?? null,
+                    ]
+                );
+            }
+
+            if ($asset->asset_type === 'peripherals') {
+                $asset->peripherals()->updateOrCreate(
+                    ['asset_id' => $asset->id],
+                    [
+                        'peripherals_type' => $data['peripherals_type'],
+                        'specifications' => $data['specifications'],
+                        'serial_number' => $data['serial_number'],
+                        'manufacturer' => $data['manufacturer'],
+                        'warranty_expiration' => $data['warranty_expiration'],
                     ]
                 );
             }

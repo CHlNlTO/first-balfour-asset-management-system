@@ -11,7 +11,7 @@ class Software extends Model
 
     protected $primaryKey = 'asset_id'; // Specify the primary key if it's not the default 'id'
 
-    protected $fillable = ['asset_id', 'version', 'license_key', 'software_type', 'license_type'];
+    protected $fillable = ['asset_id', 'version', 'license_key', 'software_type', 'license_type', 'pc_name'];
 
     public function asset()
     {

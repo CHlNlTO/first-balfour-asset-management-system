@@ -55,6 +55,7 @@ class CreateAsset extends CreateRecord
             'asset_status' => $data['asset_status'],
             'brand' => $data['brand'],
             'model' => $data['model'],
+            'department_project_code' => $data['department_project_code'] ?? null,
         ]);
 
         Lifecycle::create([
@@ -71,6 +72,7 @@ class CreateAsset extends CreateRecord
             'sales_invoice_no' => $data['sales_invoice_no'],
             'purchase_order_date' => $data['purchase_order_date'],
             'purchase_order_amount' => $data['purchase_order_amount'],
+            'requestor' => $data['requestor'] ?? null,
             'vendor_id' => $vendorId,
         ]);
 
@@ -82,6 +84,9 @@ class CreateAsset extends CreateRecord
                 'specifications' => $data['specifications'] ?? null,
                 'manufacturer' => $data['manufacturer'] ?? null,
                 'warranty_expiration' => $data['warranty_expiration'] ?? null,
+                'mac_address' => $data['mac_address'] ?? null,
+                'accessories' => $data['accessories'] ?? null,
+                'pc_name' => $data['pc_name'] ?? null,
             ]);
         } elseif ($data['asset_type'] === 'software') {
             Software::create([
@@ -90,6 +95,7 @@ class CreateAsset extends CreateRecord
                 'license_key' => $data['license_key'] ?? null,
                 'software_type' => $data['software_type'] ?? null,
                 'license_type' => $data['license_type'] ?? null,
+                'pc_name' => $data['pc_name'] ?? null,
             ]);
         } else if ($data['asset_type'] === 'peripherals') {
             Peripheral::create([

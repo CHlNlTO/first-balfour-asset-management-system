@@ -50,6 +50,7 @@ class SoftwareResource extends Resource
                         Log::info('Found Software Type: ' . ($softwareType ? $softwareType->software_type : 'null'));
                         return $softwareType ? $softwareType->software_type : 'N/A';
                     }),
+                TextColumn::make('pc_name')->searchable(),
                 TextColumn::make('asset.created_at')->label('Created At')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('asset.updated_at')->label('Updated At')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])

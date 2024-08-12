@@ -24,6 +24,7 @@ class CreatePurchase extends CreateRecord
         $purchaseOrderNo = $data['purchase_order_no'];
         $salesInvoiceNo = $data['sales_invoice_no'];
         $purchaseOrderDate = $data['purchase_order_date'];
+        $purchaseRequestor = $data['requestor'];
 
         // Handle vendor information
         $vendorId = $this->handleVendor($data);
@@ -31,7 +32,7 @@ class CreatePurchase extends CreateRecord
         // Handle asset information
         $assetsData = $data['Asset Information'];
 
-        DB::transaction(function () use ($purchaseOrderNo, $salesInvoiceNo, $purchaseOrderDate, $vendorId, $assetsData) {
+        DB::transaction(function () use ($purchaseOrderNo, $salesInvoiceNo, $purchaseOrderDate, $purchaseRequestor, $vendorId, $assetsData) {
             foreach ($assetsData as $assetData) {
                 if ($assetData['asset_option'] === 'new') {
                     $asset = $this->createAsset($assetData);
@@ -47,6 +48,7 @@ class CreatePurchase extends CreateRecord
                     'purchase_order_date' => $purchaseOrderDate,
                     'vendor_id' => $vendorId,
                     'purchase_order_amount' => $assetData['purchase_order_amount'],
+                    'requestor' => $purchaseRequestor,
                 ]);
             }
         });
@@ -83,6 +85,7 @@ class CreatePurchase extends CreateRecord
             'asset_status' => $data['asset_status'],
             'brand' => $data['brand'],
             'model' => $data['model'],
+            'department_project_code' => $data['department_project_code'] ?? null,
         ]);
 
         Lifecycle::create([
@@ -100,6 +103,9 @@ class CreatePurchase extends CreateRecord
                 'specifications' => $data['specifications'] ?? null,
                 'manufacturer' => $data['manufacturer'] ?? null,
                 'warranty_expiration' => $data['warranty_expiration'] ?? null,
+                'mac_address' => $data['mac_address'] ?? null,
+                'accessories' => $data['accessories'] ?? null,
+                'pc_name' => $data['pc_name'] ?? null,
             ]);
         } elseif ($data['asset_type'] === 'software') {
             Software::create([
@@ -108,6 +114,7 @@ class CreatePurchase extends CreateRecord
                 'license_key' => $data['license_key'] ?? null,
                 'software_type' => $data['software_type'] ?? null,
                 'license_type' => $data['license_type'] ?? null,
+                'pc_name' => $data['pc_name'] ?? null,
             ]);
         } else if ($data['asset_type'] === 'peripherals') {
             Peripheral::create([

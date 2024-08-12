@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Textarea;
 use App\Filament\Resources\AssetResource\RelationManagers\AssignmentsRelationManager;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 
 class AssetResource extends Resource
@@ -80,16 +81,46 @@ class AssetResource extends Resource
                                     }),
                                 TextInput::make('brand')->label('Brand')->required(),
                                 TextInput::make('model')->label('Model')->required(),
+                                TextInput::make('department_project_code')
+                                    ->label('Department/Project Code')
+                                    ->nullable(),
                             ]),
                         Fieldset::make('Hardware Details')
                             ->hidden(fn (callable $get) => $get('show_hardware') !== true)
                             ->schema([
                                 Select::make('hardware_type')->label('Hardware Type')
                                     ->options(HardwareType::all()->pluck('hardware_type', 'id')->toArray())
-                                    ->required(),
+                                    ->required()
+                                    ->createOptionForm([
+                                        TextInput::make('hardware_type')
+                                            ->label('Hardware Type')
+                                            ->required(),
+                                    ])
+                                    ->createOptionUsing(function ($data) {
+                                        $status = HardwareType::create([
+                                            'hardware_type' => $data['hardware_type'],
+                                        ]);
+
+                                        Notification::make()
+                                            ->title('Hardware type created successfully')
+                                            ->success()
+                                            ->send();
+
+                                        return $status->hardware_type;
+                                    })
+                                    ->reactive(),
                                 TextInput::make('serial_number')->label('Serial No.')->required(),
                                 TextArea::make('specifications')->label('Specifications')->required(),
                                 TextInput::make('manufacturer')->label('Manufacturer')->required(),
+                                TextInput::make('mac_address')
+                                    ->label('MAC Address')
+                                    ->nullable(),
+                                TextInput::make('accessories')
+                                    ->label('Accessories')
+                                    ->nullable(),
+                                TextInput::make('pc_name')
+                                    ->label('PC Name')
+                                    ->nullable(),
                                 DatePicker::make('warranty_expiration')
                                     ->label('Warranty Expiration Date')
                                     ->displayFormat('m/d/Y')
@@ -104,17 +135,74 @@ class AssetResource extends Resource
                                 TextInput::make('license_key')->label('License Key')->nullable(),
                                 Select::make('software_type')->label('Software Type')
                                     ->options(SoftwareType::all()->pluck('software_type', 'id')->toArray())
-                                    ->required(),
+                                    ->required()
+                                    ->createOptionForm([
+                                        TextInput::make('software_type')
+                                            ->label('Software Type')
+                                            ->required(),
+                                    ])
+                                    ->createOptionUsing(function ($data) {
+                                        $status = SoftwareType::create([
+                                            'software_type' => $data['software_type'],
+                                        ]);
+
+                                        Notification::make()
+                                            ->title('Software type created successfully')
+                                            ->success()
+                                            ->send();
+
+                                        return $status->software_type;
+                                    })
+                                    ->reactive(),
                                 Select::make('license_type')->label('License Type')
                                     ->options(LicenseType::all()->pluck('license_type', 'id')->toArray())
-                                    ->required(),
+                                    ->required()
+                                    ->createOptionForm([
+                                        TextInput::make('license_type')
+                                            ->label('License Type')
+                                            ->required(),
+                                    ])
+                                    ->createOptionUsing(function ($data) {
+                                        $status = LicenseType::create([
+                                            'license_type' => $data['license_type'],
+                                        ]);
+
+                                        Notification::make()
+                                            ->title('License type created successfully')
+                                            ->success()
+                                            ->send();
+
+                                        return $status->license_type;
+                                    })
+                                    ->reactive(),
+                                TextInput::make('pc_name')
+                                    ->label('PC Name')
+                                    ->nullable(),
                             ]),
                         Fieldset::make('Peripherals Details')
                             ->hidden(fn (callable $get) => $get('show_peripherals') !== true)
                             ->schema([
                                 Select::make('peripherals_type')->label('Peripheral Type')
                                     ->options(PeripheralType::all()->pluck('peripherals_type', 'id')->toArray())
-                                    ->required(),
+                                    ->required()
+                                    ->createOptionForm([
+                                        TextInput::make('peripherals_type')
+                                            ->label('Peripherals Type')
+                                            ->required(),
+                                    ])
+                                    ->createOptionUsing(function ($data) {
+                                        $status = PeripheralType::create([
+                                            'peripherals_type' => $data['peripherals_type'],
+                                        ]);
+
+                                        Notification::make()
+                                            ->title('Peripherals type created successfully')
+                                            ->success()
+                                            ->send();
+
+                                        return $status->peripherals_type;
+                                    })
+                                    ->reactive(),
                                 TextInput::make('serial_number')->label('Serial No.')->required(),
                                 TextArea::make('specifications')->label('Specifications')->required(),
                                 TextInput::make('manufacturer')->label('Manufacturer')->required(),
@@ -157,6 +245,9 @@ class AssetResource extends Resource
                                         ->required()
                                         ->numeric()
                                         ->columnSpan(1),
+                                    TextInput::make('requestor')
+                                        ->label('Requestor')
+                                        ->nullable(),
                                 ])->label('Purchase Order Information'),
                             Fieldset::make('Vendor Information')
                             ->schema([
@@ -244,11 +335,13 @@ class AssetResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->orWhere('assets.id', 'like', "%{$search}%");
-                    }),
+                    })
+                    ->placeholder('N/A'),
                 TextColumn::make('asset_type')
                     ->label('Asset Type')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('N/A'),
                 TextColumn::make('asset_status')
                     ->label('Asset Status')
                     ->getStateUsing(function (Asset $record): string {
@@ -267,15 +360,18 @@ class AssetResource extends Resource
                         'Disposed' => 'gray',
                         'Stolen' => 'danger',
                         'Unknown' => 'gray',
+                        'Sold' => 'success',
                         default => 'gray',
-                    }),
+                    })
+                    ->placeholder('N/A'),
                 TextColumn::make('asset')
                     ->label('Asset Name')
                     ->getStateUsing(function (Asset $record): string {
                         return "{$record->brand} {$record->model}";
                     })
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('N/A'),
                 TextColumn::make('details')
                     ->label('Specifications/Version')
                     ->sortable()
@@ -284,21 +380,32 @@ class AssetResource extends Resource
                             ->orWhere('software.version', 'like', "%{$search}%")
                             ->orWhere('peripherals.specifications', 'like', "%{$search}%");
                     })
-                    ->getStateUsing(fn($record) => $record->details),
+                    ->getStateUsing(fn($record) => $record->details)
+                    ->placeholder('N/A'),
+                TextColumn::make('department_project_code')
+                    ->label('Department/Project Code')
+                    ->getStateUsing(function (Asset $record): string {
+                        return "{$record->department_project_code}";
+                    })
+                    ->sortable()
+                    ->searchable()
+                    ->placeholder('N/A'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->orWhere('assets.created_at', 'like', "%{$search}%");
-                    }),
+                    })
+                    ->placeholder('N/A'),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->orWhere('assets.updated_at', 'like', "%{$search}%");
-                    }),
+                    })
+                    ->placeholder('N/A'),
             ])
             ->filters([
                 // Define any filters here

@@ -78,6 +78,7 @@ class EditAsset extends EditRecord
             'asset_status' => $data['asset_status'],
             'brand' => $data['brand'],
             'model' => $data['model'],
+            'department_project_code' => $data['department_project_code'] ?? null,
         ];
 
         return DB::transaction(function () use ($record, $data, $assetData) {
@@ -93,6 +94,9 @@ class EditAsset extends EditRecord
                         'serial_number' => $data['hardware']['serial_number'],
                         'specifications' => $data['hardware']['specifications'],
                         'manufacturer' => $data['hardware']['manufacturer'],
+                        'mac_address' => $data['hardware']['mac_address'] ?? null,
+                        'accessories' => $data['hardware']['accessories'] ?? null,
+                        'pc_name' => $data['hardware']['pc_name'] ?? null,
                         'warranty_expiration' => $data['hardware']['warranty_expiration'],
                     ]
                 );
@@ -106,6 +110,7 @@ class EditAsset extends EditRecord
                         'software_type'=> $data['software_type'],
                         'license_type' => $data['license_type'],
                         'license_key' => $data['software']['license_key'],
+                        'pc_name' => $data['software']['pc_name'] ?? null,
                     ]
                 );
             }
@@ -160,6 +165,9 @@ class EditAsset extends EditRecord
                     ->live(),
                 TextInput::make('brand')->label('Brand')->required(),
                 TextInput::make('model')->label('Model')->required(),
+                TextInput::make('department_project_code')
+                    ->label('Department/Project Code')
+                    ->nullable(),
                 Fieldset::make('Hardware Details')
                     ->hidden(fn (callable $get) => $get('asset_type') !== 'hardware')
                     ->schema([
@@ -173,6 +181,9 @@ class EditAsset extends EditRecord
                         TextInput::make('hardware.serial_number')->label('Serial Number')->required(),
                         TextInput::make('hardware.specifications')->label('Specifications')->required(),
                         TextInput::make('hardware.manufacturer')->label('Manufacturer')->required(),
+                        TextInput::make('hardware.mac_address')->label('MAC Address')->nullable(),
+                        TextInput::make('hardware.accessories')->label('Accessories')->nullable(),
+                        TextInput::make('hardware.pc_name')->label('PC Name')->nullable(),
                         DatePicker::make('hardware.warranty_expiration')
                             ->label('Warranty Expiration')
                             ->displayFormat('m/d/Y')
@@ -200,6 +211,7 @@ class EditAsset extends EditRecord
                             ->default(function ($get) {
                                 return $get('license_type') ?? null;
                             }),
+                        TextInput::make('software.pc_name')->label('PC Name')->nullable(),
                     ]),
                 Fieldset::make('Peripherals Details')
                     ->hidden(fn (callable $get) => $get('asset_type') !== 'peripherals')

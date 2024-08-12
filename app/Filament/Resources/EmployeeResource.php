@@ -34,28 +34,27 @@ class EmployeeResource extends Resource
                 Tables\Columns\TextColumn::make('id_num')
                     ->label('ID')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(isIndividual: true),
                     Tables\Columns\TextColumn::make('full_name')
                     ->label('Name')
-                    ->getStateUsing(fn (CEMREmployee $record) => $record->first_name . ' ' . $record->last_name)
-                    ->searchable(['first_name', 'last_name']),
+                    ->getStateUsing(fn (CEMREmployee $record) => $record->first_name . ' ' . $record->last_name),
                 Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
+                ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('empService.position.name')
                     ->label('Position')
-                    ->searchable(),
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('empService.rank.name')
                     ->label('Rank')
-                    ->searchable(),
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('empService.project.name')
                     ->label('Project')
-                    ->searchable(),
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('empService.division.name')
                     ->label('Division')
-                    ->searchable(),
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('empService.status.name')
                     ->label('Employee Status')
-                    ->searchable(),
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -73,7 +72,8 @@ class EmployeeResource extends Resource
             ])
             ->bulkActions([
                 //
-            ]);
+            ])
+            ->searchOnBlur();;
     }
 
     public static function getRelations(): array

@@ -23,6 +23,7 @@ use Filament\Infolists\Components\TextEntry;
 use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\DateTimeEntry;
 use Illuminate\Support\Carbon;
+use Filament\Support\Enums\FontWeight;
 
 class ViewAssignment extends ViewRecord
 {
@@ -47,25 +48,45 @@ class ViewAssignment extends ViewRecord
                             ->getStateUsing(function (Assignment $record): string {
                                 $asset = $record->asset;
                                 return $asset ? "{$asset->id} {$asset->brand} {$asset->model}" : 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('employee_id')
                             ->label('ID | Employee')
                             ->getStateUsing(function (Assignment $record): string {
                                 $employee = $record->employee;
                                 return $employee ? "{$employee->id} {$employee->name}" : 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('start_date')
                             ->label('Start Date')
                             ->getStateUsing(function (Assignment $record): string {
                                 $startDate = Carbon::parse($record->start_date);
                                 return $startDate ? $startDate->format('m/d/Y') : 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('end_date')
                             ->label('End Date')
                             ->getStateUsing(function (Assignment $record): string {
                                 $endDate = Carbon::parse($record->end_date);
                                 return $endDate ? $endDate->format('m/d/Y') : 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('assignment_status')
                             ->label('Assignment Status')
                             ->getStateUsing(function (Assignment $record): string {
@@ -74,11 +95,20 @@ class ViewAssignment extends ViewRecord
                             })
                             ->badge()
                             ->color(fn (string $state): string => match ($state) {
-                                'Active' => 'success',
-                                'Inactive' => 'primary',
-                                'In Transfer' => 'warning',
-                                'Unknown' => 'gray'
-                            }),
+                                "Active" => "success",
+                                "Pending Approval" => "pending",
+                                "Pending Return" => "warning",
+                                "In Transfer" => "primary",
+                                "Transferred" => "success",
+                                "Declined" => "danger",
+                                'Unknown' => 'gray',
+                                default => 'gray',
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
 
                     ])
                     ->columns(2),
@@ -86,17 +116,37 @@ class ViewAssignment extends ViewRecord
                 Section::make('Asset Details')
                     ->schema([
                         TextEntry::make('asset.asset_type')
-                            ->label('Asset Type'),
+                            ->label('Asset Type')
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('asset.asset_status')
                             ->label('Asset Status')
                             ->getStateUsing(function (Assignment $record): string {
                                 $assetStatus = AssetStatus::find($record->asset->asset_status);
                                 return $assetStatus ? $assetStatus->asset_status : 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('asset.brand')
-                            ->label('Brand'),
+                            ->label('Brand')
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('asset.model')
-                            ->label('Model'),
+                            ->label('Model')
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                     ])
                     ->columns(2),
 
@@ -110,7 +160,12 @@ class ViewAssignment extends ViewRecord
                                     return $hardwareType ? $hardwareType->hardware_type : 'N/A';
                                 }
                                 return 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('serial_number')
                             ->label('Serial No.')
                             ->getStateUsing(function (Assignment $record): string {
@@ -120,7 +175,12 @@ class ViewAssignment extends ViewRecord
                                     }
                                 }
                                 return 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('specifications')
                             ->label('Specifications')
                             ->getStateUsing(function (Assignment $record): string {
@@ -130,7 +190,12 @@ class ViewAssignment extends ViewRecord
                                     }
                                 }
                                 return 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('manufacturer')
                             ->label('Manufacturer')
                             ->getStateUsing(function (Assignment $record): string {
@@ -140,7 +205,12 @@ class ViewAssignment extends ViewRecord
                                     }
                                 }
                                 return 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('warranty_expiration')
                             ->label('Warranty Expiration Date')
                             ->getStateUsing(function (Assignment $record): string {
@@ -150,7 +220,12 @@ class ViewAssignment extends ViewRecord
                                     }
                                 }
                                 return 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                     ])
                     ->columns(2)
                     ->visible(function ($record): bool {
@@ -168,7 +243,12 @@ class ViewAssignment extends ViewRecord
                                     }
                                 }
                                 return 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('software.license_key')
                             ->label('License Key')
                             ->getStateUsing(function (Assignment $record): string {
@@ -178,7 +258,12 @@ class ViewAssignment extends ViewRecord
                                     }
                                 }
                                 return 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('software_type')
                             ->label('Software Type')
                             ->getStateUsing(function (Assignment $record): string {
@@ -187,7 +272,12 @@ class ViewAssignment extends ViewRecord
                                     return $softwareType ? $softwareType->software_type : 'N/A';
                                 }
                                 return 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('license_type')
                             ->label('License Type')
                             ->getStateUsing(function (Assignment $record): string {
@@ -196,7 +286,12 @@ class ViewAssignment extends ViewRecord
                                     return $licenseType ? $licenseType->license_type : 'N/A';
                                 }
                                 return 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                     ])
                     ->columns(2)
                     ->visible(function ($record): bool {
@@ -213,7 +308,12 @@ class ViewAssignment extends ViewRecord
                                     return $peripheralsType ? $peripheralsType->peripherals_type : 'N/A';
                                 }
                                 return 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('serial_number')
                             ->label('Serial No.')
                             ->getStateUsing(function (Assignment $record): string {
@@ -223,7 +323,12 @@ class ViewAssignment extends ViewRecord
                                     }
                                 }
                                 return 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('specifications')
                             ->label('Specifications')
                             ->getStateUsing(function (Assignment $record): string {
@@ -233,7 +338,12 @@ class ViewAssignment extends ViewRecord
                                     }
                                 }
                                 return 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('manufacturer')
                             ->label('Manufacturer')
                             ->getStateUsing(function (Assignment $record): string {
@@ -243,7 +353,12 @@ class ViewAssignment extends ViewRecord
                                     }
                                 }
                                 return 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('warranty_expiration')
                             ->label('Warranty Expiration Date')
                             ->getStateUsing(function (Assignment $record): string {
@@ -253,7 +368,12 @@ class ViewAssignment extends ViewRecord
                                     }
                                 }
                                 return 'N/A';
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                     ])
                     ->columns(2)
                     ->visible(function ($record): bool {
@@ -269,7 +389,12 @@ class ViewAssignment extends ViewRecord
                                 return $lifecycle && $lifecycle->acquisition_date
                                     ? Carbon::parse($lifecycle->acquisition_date)->format('m/d/Y')
                                     : "N/A";
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                         TextEntry::make('retirement_date')
                             ->label('Retirement Date')
                             ->getStateUsing(function (Assignment $record): string {
@@ -277,7 +402,12 @@ class ViewAssignment extends ViewRecord
                                 return $lifecycle && $lifecycle->retirement_date
                                     ? Carbon::parse($lifecycle->retirement_date)->format('m/d/Y')
                                     : "N/A";
-                            }),
+                            })
+                            ->weight(FontWeight::Bold)
+                            ->copyable()
+                            ->copyMessage('Copied!')
+                            ->copyMessageDuration(1000)
+                            ->placeholder('N/A'),
                     ])
                     ->columns(2),
             ]);

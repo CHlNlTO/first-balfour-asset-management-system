@@ -31,10 +31,12 @@ class EditSoftware extends EditRecord
         $data['asset_status'] = $this->record->asset->asset_status;
         $data['brand'] = $this->record->asset->brand;
         $data['model'] = $this->record->asset->model;
+        $data['department_project_code'] = $this->record->asset->department_project_code;
 
         $data['version'] = $this->record->version;
         $data['license_key'] = $this->record->license_key;
         $data['license_type'] = $this->record->license_type;
+        $data['pc_name'] = $this->record->pc_name;
 
         Log::info('Mutated Data Before Fill: ', $data);
 
@@ -49,6 +51,7 @@ class EditSoftware extends EditRecord
             'asset_status' => $data['asset_status'],
             'brand' => $data['brand'],
             'model' => $data['model'],
+            'department_project_code' => $data['department_project_code'],
         ];
 
         return DB::transaction(function () use ($record, $data, $assetData) {
@@ -58,6 +61,7 @@ class EditSoftware extends EditRecord
                 'version' => $data['version'],
                 'license_key' => $data['license_key'],
                 'license_type' => $data['license_type'],
+                'pc_name' => $data['pc_name'],
             ]);
 
             return $record;
@@ -83,11 +87,13 @@ class EditSoftware extends EditRecord
                     ->default('active'),
                 TextInput::make('brand')->label('Brand')->required(),
                 TextInput::make('model')->label('Model')->required(),
+                TextInput::make('department_project_code')->label('Department/Project Code'),
                 Fieldset::make('Software Details')
                     ->schema([
                         TextInput::make('version')->label('Version')->required(),
                         TextInput::make('license_key')->label('License Key')->required(),
                         TextInput::make('license_type')->label('License Type')->required(),
+                        TextInput::make('pc_name')->label('PC Name')->required(),
                     ]),
             ]);
     }

@@ -66,32 +66,43 @@ class VendorResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('contact_person')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('address_1')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('address_2')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('city')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('tel_no_1')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('tel_no_2')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('mobile_number')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('url')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('N/A'),
             ])
             ->filters([
                 //
