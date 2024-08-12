@@ -21,6 +21,7 @@ use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Filament\Support\Enums\Alignment;
 use Filament\Tables\Actions\ActionGroup;
 
 class AssignmentResource extends Resource
@@ -269,6 +270,84 @@ class AssignmentResource extends Resource
                         ->modalHeading('Transfer Asset')
                         ->modalButton('Transfer')
                         ->successNotificationTitle('Asset Transferred.'),
+                    Tables\Actions\Action::make('manageTransfer')
+                        ->label('Manage Transfer')
+                        ->icon('heroicon-o-cog')
+                        ->color('primary')
+                        ->visible(fn (Assignment $record): bool => $record->assignment_status == AssignmentStatus::where('assignment_status', 'In Transfer')->first()->id)
+                        ->modalIcon('heroicon-o-cog')
+                        ->modalHeading('Manage Transfer')
+                        ->modalDescription(fn (Assignment $record) => "{$record->asset->brand} {$record->asset->model}")
+                        ->modalAlignment(Alignment::Center)
+                        ->modalFooterActions([
+                            Tables\Actions\Action::make('approve')
+                                ->label('Approve')
+                                ->icon('heroicon-o-check-circle')
+                                ->color('success')
+                                ->requiresConfirmation()
+                                ->modalHeading('Approve Transfer')
+                                ->modalDescription('Are you sure you want to approve this transfer?')
+                                ->form([
+                                    Forms\Components\DatePicker::make('start_date')
+                                        ->label('Start Date')
+                                        ->required(),
+                                    Forms\Components\DatePicker::make('end_date')
+                                        ->label('End Date')
+                                        ->after('start_date'),
+                                ])
+                                ->modalSubmitActionLabel('Yes, approve')
+                                ->action(function (Assignment $record, array $data) {
+                                    $pendingApprovalStatusId = AssignmentStatus::where('assignment_status', 'Pending Approval')->first()->id;
+                                    $newEmployeeId = substr($record->remarks, strrpos($record->remarks, ':') + 2);
+
+                                    // Create new assignment for the receiving employee
+                                    Assignment::create([
+                                        'asset_id' => $record->asset_id,
+                                        'employee_id' => $newEmployeeId,
+                                        'assignment_status' => $pendingApprovalStatusId,
+                                        'start_date' => $data['start_date'],
+                                        'end_date' => $data['end_date'],
+                                    ]);
+
+                                    // Update the current assignment to Inactive
+                                    $inactiveStatusId = AssignmentStatus::where('assignment_status', 'Inactive')->first()->id;
+                                    $record->update(['assignment_status' => $inactiveStatusId]);
+
+                                    Notification::make()
+                                        ->title('Transfer Approved')
+                                        ->success()
+                                        ->send();
+                                    return redirect()->to(AssignmentResource::getUrl('index'));
+                                }),
+                            Tables\Actions\Action::make('decline')
+                                ->label('Decline')
+                                ->icon('heroicon-o-x-circle')
+                                ->color('danger')
+                                ->form([
+                                    Forms\Components\Textarea::make('reason')
+                                        ->label('Reason for decline')
+                                        ->required()
+                                        ->maxLength(255),
+                                ])
+                                ->requiresConfirmation()
+                                ->modalHeading('Decline Transfer')
+                                ->modalDescription('Please provide a reason for declining this transfer.')
+                                ->modalSubmitActionLabel('Decline')
+                                ->action(function (Assignment $record, array $data) {
+                                    $activeStatusId = AssignmentStatus::where('assignment_status', 'Active')->first()->id;
+                                    $record->update([
+                                        'assignment_status' => $activeStatusId,
+                                        'remarks' => $data['reason'],
+                                    ]);
+                                    Notification::make()
+                                        ->title('Transfer Declined')
+                                        ->success()
+                                        ->send();
+                                    return redirect()->to(AssignmentResource::getUrl('index'));
+                                }),
+                        ])
+                        ->modalFooterActionsAlignment(Alignment::Center)
+                        ->modalWidth('max-w-sm'),
                     Action::make('Option to Buy')
                         ->form([
                             Hidden::make('id')

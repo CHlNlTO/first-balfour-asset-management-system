@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Widgets\AssetCosts;
 use App\Filament\Widgets\AssetStatsOverview;
 use App\Filament\Widgets\PendingAssignments;
+use App\Http\Middleware\CheckRole;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -68,6 +69,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                CheckRole::class. ':admin',
             ])
             ->userMenuItems([
                 'profile' => MenuItem::make()->label('Edit profile'),
