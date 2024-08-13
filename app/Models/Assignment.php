@@ -38,4 +38,9 @@ class Assignment extends Model
     {
         return $this->belongsTo(AssignmentStatus::class, 'assignment_status');
     }
+
+    public function transfers()
+{
+    return $this->hasMany(Transfer::class);
+}
 }
