@@ -4,12 +4,15 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PurchaseResource\Pages;
 use App\Filament\Resources\PurchaseResource\RelationManagers\AssetsRelationManager;
+use App\Models\Asset;
 use App\Models\AssetStatus;
 use App\Models\Purchase;
 use App\Models\HardwareType;
 use App\Models\SoftwareType;
 use App\Models\LicenseType;
 use App\Models\PeripheralType;
+use App\Models\Vendor;
+use Carbon\Carbon;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -23,6 +26,7 @@ use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Forms\Components\Textarea;
+use Illuminate\Database\Eloquent\Builder;
 
 class PurchaseResource extends Resource
 {
@@ -117,6 +121,7 @@ class PurchaseResource extends Resource
                                     ->maxLength(255),
                                 TextInput::make('vendor.url')
                                     ->label('URL')
+                                    ->prefix('https://')
                                     ->maxLength(255),
                                 Textarea::make('vendor.remarks')
                                     ->label('Remarks'),
@@ -169,6 +174,7 @@ class PurchaseResource extends Resource
                                     ->options(function () {
                                         return AssetStatus::all()->pluck('asset_status', 'id');
                                     })
+                                    ->default('1')
                                     ->required()
                                     ->reactive()
                                     ->live(),
@@ -238,10 +244,7 @@ class PurchaseResource extends Resource
                                 ->schema([
                                     DatePicker::make('acquisition_date')
                                         ->label('Acquisition Date')
-                                        ->required()
-                                        ->afterStateUpdated(function ($state, callable $set) {
-                                            $set('retirement_date', null);
-                                        }),
+                                        ->required(),
                                     DatePicker::make('retirement_date')
                                         ->label('Retirement Date')
                                         ->nullable()
@@ -267,7 +270,8 @@ class PurchaseResource extends Resource
                 TextColumn::make('id')
                     ->label('Purchase ID')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ,
                 TextColumn::make('asset.id')
                     ->label('Asset ID')
                     ->sortable()
@@ -279,7 +283,6 @@ class PurchaseResource extends Resource
                         $asset = $record->asset;
                         return $asset ? " {$asset->brand} {$asset->model}" : 'N/A';
                     })
-                    ->sortable()
                     ->searchable()
                     ->url(fn (Purchase $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
                 TextColumn::make('asset.department_project_code')
@@ -308,7 +311,7 @@ class PurchaseResource extends Resource
                     ->label('Purchase Order Date')
                     ->sortable()
                     ->searchable()
-                    ->date(),
+                    ->getStateUsing(fn (Purchase $record): string => Carbon::parse($record->purchase_order_date)->format('Y-m-d')),
                 TextColumn::make('vendor.name')
                     ->label('Vendor ID')
                     ->sortable()
@@ -333,16 +336,59 @@ class PurchaseResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('sales_invoice_no')
-                    ->label("Filter by Sales Invoice")
+                SelectFilter::make('department_project_code')
+                    ->label("Filter by Department/Project Code")
                     ->searchable()
-                    ->indicator('Receipt No')
-                    ->options(Purchase::pluck('sales_invoice_no', 'sales_invoice_no')->toArray()),
+                    ->indicator('Department/Project Code')
+                    ->options(function () {
+                        return Asset::whereNotNull('department_project_code')
+                            ->distinct()
+                            ->pluck('department_project_code', 'department_project_code')
+                            ->toArray();
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['value'],
+                            fn (Builder $query, $value): Builder => $query->whereHas('asset', function ($query) use ($value) {
+                                $query->where('department_project_code', $value);
+                            })
+                        );
+                    }),
                 SelectFilter::make('purchase_order_no')
-                    ->label("Filter by Purchase Order")
+                    ->label("Filter by Purchase Order No")
                     ->searchable()
                     ->indicator('Receipt No')
                     ->options(Purchase::pluck('purchase_order_no', 'purchase_order_no')->toArray()),
+                SelectFilter::make('sales_invoice_no')
+                    ->label("Filter by Sales Invoice No")
+                    ->searchable()
+                    ->indicator('Receipt No')
+                    ->options(Purchase::pluck('sales_invoice_no', 'sales_invoice_no')->toArray()),
+                SelectFilter::make('purchase_order_date')
+                    ->label("Filter by Purchase Order Date")
+                    ->searchable()
+                    ->indicator('Date')
+                    ->options(function () {
+                        return Purchase::distinct()
+                            ->get(['purchase_order_date'])
+                            ->pluck('purchase_order_date')
+                            ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
+                            ->unique()
+                            ->sort()
+                            ->mapWithKeys(fn ($date) => [$date => $date])
+                            ->toArray();
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['value'],
+                            fn (Builder $query, $value): Builder => $query->where('purchase_order_date', $value)
+                        );
+                    }),
+                SelectFilter::make('vendor_id')
+                    ->label("Filter by Vendor")
+                    ->searchable()
+                    ->indicator('Vendor')
+                    ->options(Vendor::pluck('name', 'id')->toArray()),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

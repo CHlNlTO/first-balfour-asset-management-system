@@ -94,15 +94,19 @@ class AssignmentResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->url(fn (Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
-                Tables\Columns\TextColumn::make('asset.brand')
-                    ->label('Asset')
-                    ->sortable()
-                    ->searchable()
+                Tables\Columns\TextColumn::make('asset')
+                    ->label('Asset Name')
                     ->getStateUsing(function (Assignment $record): string {
-                        $asset = $record->asset;
-                        return $asset ? " {$asset->brand} {$asset->model}" : 'N/A';
+                        return "{$record->asset->brand} {$record->asset->model}";
                     })
-                    ->url(fn (Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('asset', function (Builder $query) use ($search) {
+                            $query->where('brand', 'like', "%{$search}%")
+                                  ->orWhere('model', 'like', "%{$search}%");
+                        });
+                    })
+                    ->placeholder('N/A')
+                    ->url(fn (Assignment $record): string => $record->asset ? route('filament.admin.resources.assets.view', ['record' => $record->asset_id]) : '#'),
                 Tables\Columns\TextColumn::make('employee_id')
                     ->label('Employee ID')
                     ->sortable()
@@ -113,14 +117,11 @@ class AssignmentResource extends Resource
                     })
                     ->url(fn (Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num])),
                 Tables\Columns\TextColumn::make('employee')
-                    ->numeric()
-                    ->sortable()
-                    ->searchable()
+                    ->label('Employee Name')
                     ->getStateUsing(function (Assignment $record): string {
-                        $employee = $record->employee->first_name . ' ' . $record->employee->last_name;
-                        return $employee ? $employee : 'N/A';
+                        return $record->employee ? "{$record->employee->first_name} {$record->employee->last_name}" : 'N/A';
                     })
-                    ->url(fn (Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num])),
+                    ->url(fn (Assignment $record): string => $record->employee ? route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num]) : '#'),
                 Tables\Columns\TextColumn::make('assignment_status')
                     ->label('Status')
                     ->getStateUsing(function (Assignment $record): string {
@@ -171,6 +172,20 @@ class AssignmentResource extends Resource
                     ->searchable()
                     ->indicator('Status')
                     ->options(AssignmentStatus::pluck('assignment_status', 'id')->toArray()),
+                SelectFilter::make('employee_id')
+                    ->label("Filter by Employee Name")
+                    ->searchable()
+                    ->indicator('Employee')
+                    ->options(
+                        CEMREmployee::on('central_employeedb')
+                            ->get()
+                            ->mapWithKeys(function ($employee) {
+                                $fullName = trim("{$employee->first_name} {$employee->last_name}");
+                                return [$employee->id_num => $fullName];
+                            })
+                            ->toArray()
+                    ),
+
             ])
             ->actions([
                 ActionGroup::make([
@@ -466,6 +481,7 @@ class AssignmentResource extends Resource
                 ]),
             ])
             ->defaultSort('id', 'desc');
+
     }
 
     public static function getRelations(): array

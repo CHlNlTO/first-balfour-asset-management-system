@@ -3,12 +3,16 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\HardwareResource\Pages;
+use App\Models\Asset;
+use App\Models\AssetStatus;
 use App\Models\Hardware;
 use App\Models\HardwareType;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Support\Facades\Log;
 
 class HardwareResource extends Resource
 {
@@ -26,27 +30,154 @@ class HardwareResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('asset_id')->label('Asset ID')->sortable()->searchable(),
+                TextColumn::make('asset_id')->label('Asset ID')
+                    ->sortable()
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                TextColumn::make('asset.asset_status')
+                    ->label('Asset Status')
+                    ->sortable()
+                    ->searchable()
+                    ->getStateUsing(function (Hardware $record): string {
+                        $assetStatus = AssetStatus::find($record->asset->asset_status);
+                        return $assetStatus ? $assetStatus->asset_status : 'N/A';
+                    })
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
                 TextColumn::make('hardware_type')
                     ->label('Hardware Type')
                     ->getStateUsing(function (Hardware $record): string {
                         $hardwareType = HardwareType::find($record->hardware_type);
                         return $hardwareType ? $hardwareType->hardware_type : 'N/A';
-                    })->searchable()->sortable(),
-                TextColumn::make('asset.brand')->searchable()->label('Brand'),
-                TextColumn::make('asset.model')->searchable()->label('Model'),
-                TextColumn::make('specifications')->searchable(),
-                TextColumn::make('serial_number')->searchable(),
-                TextColumn::make('manufacturer')->searchable(),
-                TextColumn::make('mac_address')->searchable(),
-                TextColumn::make('accessories')->searchable(),
-                TextColumn::make('pc_name')->searchable(),
-                TextColumn::make('warranty_expiration')->date()->sortable()->searchable(),
-                TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true)->searchable(),
-                TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true)->searchable(),
+                    })
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                TextColumn::make('asset.brand')
+                    ->searchable()
+                    ->sortable()
+                    ->label('Brand')
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                TextColumn::make('asset.model')
+                    ->searchable()
+                    ->sortable()
+                    ->label('Model')
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                TextColumn::make('specifications')
+                    ->searchable()
+                    ->sortable()
+                    ->label('Specifications')
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->limit(20)
+                    ->placeholder('N/A'),
+                TextColumn::make('serial_number')
+                    ->searchable()
+                    ->sortable()
+                    ->label('Serial Number')
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                TextColumn::make('manufacturer')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->label('Manufacturer')
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->limit(20)
+                    ->placeholder('N/A'),
+                TextColumn::make('mac_address')
+                    ->searchable()
+                    ->sortable()
+                    ->label('MAC Address')
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->limit(20)
+                    ->placeholder('N/A'),
+                TextColumn::make('accessories')
+                    ->searchable()
+                    ->sortable()
+                    ->label('Accessories')
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->limit(20)
+                    ->placeholder('N/A'),
+                TextColumn::make('pc_name')
+                    ->searchable()
+                    ->sortable()
+                    ->label('PC Name')
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                TextColumn::make('warranty_expiration')
+                    ->sortable()
+                    ->searchable()
+                    ->label('Warranty Expiration')
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
             ])
             ->filters([
-                //
+                SelectFilter::make('asset_status')
+                    ->label('Filter by Asset Status')
+                    ->indicator('Asset Status')
+                    ->relationship('asset.assetStatus', 'asset_status'),
+                SelectFilter::make('hardware_type')
+                    ->label("Filter by Hardware Type")
+                    ->searchable()
+                    ->indicator('Hardware Type')
+                    ->options(function () {
+                        return HardwareType::whereNotNull('hardware_type')
+                            ->pluck('hardware_type', 'id')
+                            ->filter(fn($value) => !is_null($value))
+                            ->toArray();
+                    }),
+                SelectFilter::make('pc_name')
+                    ->label('Filter by PC Name')
+                    ->searchable()
+                    ->indicator('PC Name')
+                    ->options(function () {
+                        return Hardware::pluck('pc_name', 'pc_name')->filter(fn($value) => !is_null($value) && $value !== '')->unique()->toArray();
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

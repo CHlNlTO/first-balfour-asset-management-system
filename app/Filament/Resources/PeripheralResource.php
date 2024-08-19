@@ -9,6 +9,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 
 class PeripheralResource extends Resource
 {
@@ -26,24 +27,118 @@ class PeripheralResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('asset_id')->label('Asset ID')->sortable()->searchable(),
+                TextColumn::make('asset_id')
+                    ->label('Asset ID')
+                    ->sortable()
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
                 TextColumn::make('peripherals_type')
                     ->label('Peripherals Type')
                     ->getStateUsing(function (Peripheral $record): string {
                         $peripheralsType = PeripheralType::find($record->peripherals_type);
                         return $peripheralsType ? $peripheralsType->peripherals_type : 'N/A';
-                    }),
-                TextColumn::make('asset.brand')->searchable()->label('Brand'),
-                TextColumn::make('asset.model')->searchable()->label('Model'),
-                TextColumn::make('specifications')->searchable(),
-                TextColumn::make('serial_number')->searchable(),
-                TextColumn::make('manufacturer')->searchable(),
-                TextColumn::make('warranty_expiration')->date()->sortable()->searchable(),
-                TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true)->searchable(),
-                TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true)->searchable(),
+                    })
+                    ->sortable()
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                TextColumn::make('asset.brand')
+                    ->label('Brand')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                TextColumn::make('asset.model')
+                    ->label('Model')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                TextColumn::make('specifications')
+                    ->label('Specifications')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->limit(20)
+                    ->placeholder('N/A'),
+                TextColumn::make('serial_number')
+                    ->label('Serial Number')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                TextColumn::make('manufacturer')
+                    ->label('Manufacturer')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->limit(20)
+                    ->placeholder('N/A'),
+                TextColumn::make('warranty_expiration')
+                    ->label('Warranty Expiration')
+                    ->sortable()
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                TextColumn::make('created_at')
+                    ->label('Created At')
+                    ->dateTime()
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                TextColumn::make('updated_at')
+                    ->label('Updated At')
+                    ->dateTime()
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
             ])
             ->filters([
-                //
+                SelectFilter::make('peripherals_type')
+                    ->label('Filter by Peripherals Type')
+                    ->searchable()
+                    ->indicator('Peripherals Type')
+                    ->options(function () {
+                        return PeripheralType::whereNotNull('peripherals_type')
+                            ->pluck('peripherals_type', 'id')
+                            ->filter(fn($value) => !is_null($value))
+                            ->toArray();
+                    }),
+                SelectFilter::make('peripherals_type')
+                    ->label("Filter by Peripherals Type")
+                    ->searchable()
+                    ->indicator('Peripherals Type')
+                    ->options(function () {
+                        return PeripheralType::whereNotNull('peripherals_type')
+                            ->pluck('peripherals_type', 'id')
+                            ->filter(fn($value) => !is_null($value))
+                            ->toArray();
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

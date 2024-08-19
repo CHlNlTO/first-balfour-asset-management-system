@@ -80,11 +80,15 @@ class AssignmentsRelationManager extends RelationManager
                     ->searchable()
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'Active' => 'success',
-                        'Inactive' => 'primary',
-                        'In Transfer' => 'warning',
-                        'Pending' => 'warning',
+                        "Active" => "success",
+                        "Pending Approval" => "pending",
+                        "Pending Return" => "warning",
+                        "In Transfer" => "primary",
+                        "Transferred" => "success",
+                        "Declined" => "danger",
                         'Unknown' => 'gray',
+                        'Asset Sold' => 'success',
+                        'Option to Buy' => 'primary',
                         default => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('start_date')

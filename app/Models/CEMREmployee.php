@@ -3,11 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class CEMREmployee extends Model
 {
     protected $connection = 'central_employeedb';
     protected $table = 'employees';
+
+    public function testConnection()
+    {
+        return DB::connection($this->connection)->table($this->table)->get();
+    }
 
     public function empService()
     {
@@ -39,13 +45,9 @@ class CEMREmployee extends Model
         return $this->belongsTo(CEMRStatus::class, 'emp_stat_id');
     }
 
-    public function getFullName()
-    {
-        return $this->first_name . ' ' . $this->last_name;
-    }
-
     public function getRouteKeyName()
     {
         return 'id_num';
     }
+
 }

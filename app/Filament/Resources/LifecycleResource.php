@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Support\Carbon;
 
 class LifecycleResource extends Resource
@@ -47,6 +48,7 @@ class LifecycleResource extends Resource
                 TextColumn::make('id')
                     ->label('ID')
                     ->sortable()
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('asset.id')
                     ->label('Asset ID')
@@ -56,12 +58,9 @@ class LifecycleResource extends Resource
                 TextColumn::make('asset.asset_type')
                     ->label('Asset Type')
                     ->sortable()
-                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('asset_name')
                     ->label('Asset')
-                    ->sortable()
-                    ->searchable()
                     ->getStateUsing(function (Lifecycle $record): string {
                         $asset = $record->asset;
                         return $asset ? " {$asset->brand} {$asset->model}" : 'N/A';
@@ -69,8 +68,6 @@ class LifecycleResource extends Resource
                     ->url(fn (Lifecycle $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
                 TextColumn::make('asset_status')
                     ->label('Asset Status')
-                    ->sortable()
-                    ->searchable()
                     ->getStateUsing(function (Lifecycle $record): string {
                         $assetStatus = AssetStatus::find($record->asset->asset_status);
                         return $assetStatus ? $assetStatus->asset_status : 'N/A';
@@ -88,18 +85,17 @@ class LifecycleResource extends Resource
                         default => 'gray',
                     }),
                 TextColumn::make('asset.software.license_type')
-                    ->label('License Type')
+                    ->label('Software License Type')
                     ->sortable()
                     ->searchable()
                     ->getStateUsing(function (Lifecycle $record): string {
                         // Access the related LicenseType through the relationships
-                        $licenseType = $record->asset->software->licenseType->license_type ?? 'N/A';
+                        $licenseType = $record->asset->software->licenseType->license_type ?? '';
                         return $licenseType;
-                    }),
+                    })
+                    ->placeholder('Hardware Asset'),
                 TextColumn::make('lifecycle_status')
                     ->label('Lifecycle Status')
-                    ->sortable()
-                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->getStateUsing(function (Lifecycle $record): string {
                         $asset = $record->asset;
@@ -153,39 +149,47 @@ class LifecycleResource extends Resource
                         default => 'gray',
                     }),
                 TextColumn::make('acquisition_date')
-                    ->label('Start Date')
-                    ->date('m-d-Y')
+                    ->label('Acquisition Date')
+                    ->date('Y-m-d')
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('retirement_date')
                     ->label('Retirement Date')
-                    ->date('m-d-Y')
+                    ->date('Y-m-d')
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')
                     ->label('Created At')
-                    ->dateTime('m-d-Y')
+                    ->dateTime('Y-m-d')
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label('Updated At')
-                    ->dateTime('m-d-Y')
+                    ->dateTime('Y-m-d')
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('asset_status')
+                    ->label('Filter by Asset Status')
+                    ->indicator('Asset Status')
+                    ->relationship('asset.assetStatus', 'asset_status'),
+                SelectFilter::make('license_type')
+                    ->label('Filter by License Type')
+                    ->indicator('License Type')
+                    ->relationship('asset.software.licenseType', 'license_type'),
+
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
-            ]);
+            ])
+            ->searchPlaceholder('Search by Asset ID')
+            ->defaultSort('id', 'desc');
     }
 
     private static function getSoftwareStatus($software, $now, $retirementDate): string

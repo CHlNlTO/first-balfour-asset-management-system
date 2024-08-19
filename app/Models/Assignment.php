@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use Filament\Forms\Components\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Assignment extends Model
 {
@@ -40,7 +43,7 @@ class Assignment extends Model
     }
 
     public function transfers()
-{
-    return $this->hasMany(Transfer::class);
-}
+    {
+        return $this->hasMany(Transfer::class);
+    }
 }

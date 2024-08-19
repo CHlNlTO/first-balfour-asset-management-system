@@ -53,6 +53,7 @@ class VendorResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('url')
                     ->maxLength(255)
+                    ->prefix('https://')
                     ->default(null),
                 Forms\Components\Textarea::make('remarks')
                     ->columnSpanFull(),
@@ -63,44 +64,95 @@ class VendorResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('contact_person')
+                Tables\Columns\TextColumn::make('id')
+                    ->label('ID')
+                    ->sortable()
                     ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Vendor Name')
+                    ->sortable()
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+                Tables\Columns\TextColumn::make('contact_person')
+                    ->sortable()
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
                     ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('address_1')
+                    ->sortable()
                     ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
                     ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('address_2')
+                    ->sortable()
                     ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
                     ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('city')
+                    ->sortable()
                     ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
                     ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('tel_no_1')
+                    ->sortable()
                     ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
                     ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('tel_no_2')
+                    ->sortable()
                     ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
                     ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('mobile_number')
-                    ->numeric()
                     ->sortable()
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
                     ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('email')
+                    ->sortable()
                     ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
                     ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('url')
+                    ->sortable()
                     ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
                     ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->placeholder('N/A'),
             ])
@@ -111,7 +163,9 @@ class VendorResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 

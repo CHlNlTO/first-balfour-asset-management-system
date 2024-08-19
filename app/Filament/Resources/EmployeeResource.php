@@ -27,15 +27,19 @@ class EmployeeResource extends Resource
         return 'id_num';
     }
 
+    public static function getRecordRouteKeyName(): string
+    {
+        return 'id_num';
+    }
+
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id_num')
                     ->label('ID')
-                    ->sortable()
                     ->searchable(isIndividual: true),
-                    Tables\Columns\TextColumn::make('full_name')
+                Tables\Columns\TextColumn::make('full_name')
                     ->label('Name')
                     ->getStateUsing(fn (CEMREmployee $record) => $record->first_name . ' ' . $record->last_name),
                 Tables\Columns\TextColumn::make('email')
@@ -73,7 +77,8 @@ class EmployeeResource extends Resource
             ->bulkActions([
                 //
             ])
-            ->searchOnBlur();;
+            ->searchOnBlur()
+            ->searchable(false);
     }
 
     public static function getRelations(): array

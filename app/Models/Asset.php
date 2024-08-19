@@ -57,4 +57,9 @@ class Asset extends Model
         }
         return '';
     }
+
+    public function getAssetAttribute()
+    {
+        return trim("{$this->brand} {$this->model}");
+    }
 }

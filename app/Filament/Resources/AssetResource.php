@@ -24,6 +24,7 @@ use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Textarea;
 use App\Filament\Resources\AssetResource\RelationManagers\AssignmentsRelationManager;
 use Filament\Notifications\Notification;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Support\Facades\Log;
 
 class AssetResource extends Resource
@@ -216,10 +217,7 @@ class AssetResource extends Resource
                             ->schema([
                                 DatePicker::make('acquisition_date')
                                     ->label('Acquisition Date')
-                                    ->required()
-                                    ->afterStateUpdated(function ($state, callable $set) {
-                                        $set('retirement_date', null);
-                                    }),
+                                    ->required(),
                                 DatePicker::make('retirement_date')
                                     ->label('Retirement Date')
                                     ->nullable()
@@ -366,15 +364,13 @@ class AssetResource extends Resource
                     ->placeholder('N/A'),
                 TextColumn::make('asset')
                     ->label('Asset Name')
-                    ->getStateUsing(function (Asset $record): string {
-                        return "{$record->brand} {$record->model}";
+                    ->getStateUsing(fn(Asset $record) => $record->asset)
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->orWhereRaw("CONCAT(assets.brand, ' ', assets.model) LIKE ?", ["%{$search}%"]);
                     })
-                    ->sortable()
-                    ->searchable()
                     ->placeholder('N/A'),
                 TextColumn::make('details')
                     ->label('Specifications/Version')
-                    ->sortable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->orWhere('hardware.specifications', 'like', "%{$search}%")
                             ->orWhere('software.version', 'like', "%{$search}%")
@@ -408,14 +404,25 @@ class AssetResource extends Resource
                     ->placeholder('N/A'),
             ])
             ->filters([
-                // Define any filters here
+                SelectFilter::make('department_project_code')
+                    ->label("Filter by Department/Project Code")
+                    ->searchable()
+                    ->indicator('Status')
+                    ->options(function () {
+                        return Asset::whereNotNull('department_project_code')
+                            ->pluck('department_project_code', 'department_project_code')
+                            ->filter(fn($value) => !is_null($value))
+                            ->toArray();
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ])
             ->defaultSort('assets.id', 'desc')
             ->modifyQueryUsing(function (Builder $query) {
