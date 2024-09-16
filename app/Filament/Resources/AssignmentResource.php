@@ -213,7 +213,7 @@ class AssignmentResource extends Resource
                             Forms\Components\Select::make('employee_id')
                                 ->label('To Employee')
                                 ->placeholder('Select from registered employees')
-                                ->relationship('employee', 'id')
+                                ->relationship('employee', 'id_num')
                                 ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->id_num} - {$record->first_name} {$record->last_name}")
                                 ->searchable()
                                 ->required(),
@@ -268,7 +268,8 @@ class AssignmentResource extends Resource
                                 DB::commit();
 
                                 Notification::make()
-                                    ->title('Asset transferred successfully')
+                                    ->title('Transfer Initiated')
+                                    ->body('The asset is now for approval by the receiving employee.')
                                     ->success()
                                     ->send();
 
@@ -465,6 +466,7 @@ class AssignmentResource extends Resource
                                     ->send();
                             }
                         })
+                        ->visible(fn (Assignment $record): bool => $record->assignment_status == AssignmentStatus::where('assignment_status', 'Active')->first()->id)
                         ->icon('heroicon-o-banknotes')
                         ->requiresConfirmation()
                         ->modalHeading('Option to Buy Asset')

@@ -34,15 +34,18 @@ class AssignmentResource extends Resource
                 ->label('ID')
                 ->sortable()
                 ->searchable()
+                ->placeholder('N/A')
                 ->toggleable(isToggledHiddenByDefault: true),
             Tables\Columns\TextColumn::make('asset_id')
                 ->label('Asset ID')
                 ->sortable()
-                ->searchable(),
+                ->searchable()
+                ->placeholder('N/A'),
             Tables\Columns\TextColumn::make('asset_name')
                 ->label('Asset')
                 ->sortable()
                 ->searchable()
+                ->placeholder('N/A')
                 ->getStateUsing(function (Assignment $record): string {
                     $asset = $record->asset;
                     return $asset ? " {$asset->brand} {$asset->model}" : 'N/A';
@@ -55,6 +58,7 @@ class AssignmentResource extends Resource
                 })
                 ->sortable()
                 ->searchable()
+                ->placeholder('N/A')
                 ->badge()
                 ->color(fn (string $state): string => match ($state) {
                     "Active" => "success",
@@ -71,21 +75,25 @@ class AssignmentResource extends Resource
             Tables\Columns\TextColumn::make('start_date')
                 ->label('Start Date')
                 ->date()
-                ->searchable(),
+                ->searchable()
+                ->placeholder('N/A'),
             Tables\Columns\TextColumn::make('end_date')
                 ->label('End Date')
                 ->date()
-                ->searchable(),
+                ->searchable()
+                ->placeholder('N/A'),
             Tables\Columns\TextColumn::make('remarks'),
             Tables\Columns\TextColumn::make('created_at')
                 ->label('Created At')
                 ->dateTime()
                 ->sortable()
+                ->placeholder('N/A')
                 ->toggleable(isToggledHiddenByDefault: true),
             Tables\Columns\TextColumn::make('updated_at')
                 ->label('Updated At')
                 ->dateTime()
                 ->sortable()
+                ->placeholder('N/A')
                 ->toggleable(isToggledHiddenByDefault: true),
         ])
         ->filters([
@@ -94,7 +102,7 @@ class AssignmentResource extends Resource
         ->actions([
             Tables\Actions\Action::make('manage')
                 ->label('Approve')
-                ->icon('heroicon-o-cog')
+                ->icon('heroicon-o-check-badge')
                 ->requiresConfirmation()
                 ->color('primary')
                 ->visible(fn (Assignment $record): bool => $record->assignment_status == AssignmentStatus::where('assignment_status', 'Pending Approval')->first()->id)
@@ -116,7 +124,7 @@ class AssignmentResource extends Resource
                             $transferredStatusId = AssignmentStatus::where('assignment_status', 'Transferred')->first()->id;
 
                             // Update the current assignment to Active
-                            $record->update(['assignment_status' => $activeStatusId]);
+                            $record->update(['assignment_status' => $activeStatusId, 'remarks' => 'Asset received.']);
 
                             // Check for a matching transfer record
                             $transfer = Transfer::where('to_employee', $record->employee_id)

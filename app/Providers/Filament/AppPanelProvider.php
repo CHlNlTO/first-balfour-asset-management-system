@@ -33,6 +33,7 @@ class AppPanelProvider extends PanelProvider
             ->registration(Register::class)
             ->colors([
                 'primary' => Color::Blue,
+                'secondary' => Color::Stone,
             ])
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
@@ -56,7 +57,7 @@ class AppPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                CheckRole::class. ':employee,manager',
+                CheckRole::class . ':employee,manager',
             ])
             ->maxContentWidth(MaxWidth::Full)
             ->breadcrumbs(false)

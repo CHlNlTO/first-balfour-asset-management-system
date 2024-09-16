@@ -45,6 +45,11 @@ class CEMREmployee extends Model
         return $this->belongsTo(CEMRStatus::class, 'emp_stat_id');
     }
 
+    public function getFullName()
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
+
     public function getRouteKeyName()
     {
         return 'id_num';

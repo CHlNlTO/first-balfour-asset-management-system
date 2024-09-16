@@ -29,7 +29,6 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
             ->id('admin')
             ->path('admin')
             ->login()
@@ -69,7 +68,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                CheckRole::class. ':admin',
+                CheckRole::class . ':admin',
             ])
             ->userMenuItems([
                 'profile' => MenuItem::make()->label('Edit profile'),

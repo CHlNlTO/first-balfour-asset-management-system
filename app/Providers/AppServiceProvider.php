@@ -29,7 +29,8 @@ class AppServiceProvider extends ServiceProvider
             'success' => Color::Green,
             'warning' => Color::Amber,
             'pending' => Color::Blue,
-            'notice'=> Color::Orange,
+            'notice' => Color::Orange,
+            'secondary' => Color::Stone,
         ]);
     }
 }

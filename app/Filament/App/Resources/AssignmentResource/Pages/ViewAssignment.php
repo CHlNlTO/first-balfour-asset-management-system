@@ -11,26 +11,17 @@ use App\Models\LicenseType;
 use App\Models\Lifecycle;
 use App\Models\PeripheralType;
 use App\Models\SoftwareType;
-use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Illuminate\Support\Facades\Log;
-use Filament\Forms\Components\DateTimeEntry;
 use Illuminate\Support\Carbon;
 use Filament\Support\Enums\FontWeight;
 
 class ViewAssignment extends ViewRecord
 {
     protected static string $resource = AssignmentResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\EditAction::make(),
-        ];
-    }
 
     public function infolist(Infolist $infolist): Infolist
     {
@@ -43,7 +34,7 @@ class ViewAssignment extends ViewRecord
                             ->label('ID | Asset')
                             ->getStateUsing(function (Assignment $record): string {
                                 $asset = $record->asset;
-                                return $asset ? "{$asset->id} {$asset->brand} {$asset->model}" : 'N/A';
+                                return $asset ? "{$asset->id} | {$asset->brand} {$asset->model}" : 'N/A';
                             })
                             ->weight(FontWeight::Bold)
                             ->copyable()
@@ -54,7 +45,7 @@ class ViewAssignment extends ViewRecord
                             ->label('ID | Employee')
                             ->getStateUsing(function (Assignment $record): string {
                                 $employee = $record->employee;
-                                return $employee ? "{$employee->id} {$employee->name}" : 'N/A';
+                                return $employee ? "{$employee->id_num} | {$employee->getFullName()}" : 'N/A';
                             })
                             ->weight(FontWeight::Bold)
                             ->copyable()
