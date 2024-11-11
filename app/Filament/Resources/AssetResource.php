@@ -17,15 +17,15 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Textarea;
 use App\Filament\Resources\AssetResource\RelationManagers\AssignmentsRelationManager;
+use Filament\Forms\Components\Grid;
 use Filament\Notifications\Notification;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\HTML;
 
 class AssetResource extends Resource
 {
@@ -42,9 +42,11 @@ class AssetResource extends Resource
     {
         return $form
             ->schema([
-                Repeater::make('Asset Information')
+                // Repeater::make('Asset Information')
+                //     ->schema([
+                Section::make('Asset Details')
                     ->schema([
-                        Fieldset::make('Asset Details')
+                        Grid::make(2)
                             ->schema([
                                 Select::make('asset_type')
                                     ->options([
@@ -60,267 +62,267 @@ class AssetResource extends Resource
                                         $set('show_hardware', $state === 'hardware');
                                         $set('show_software', $state === 'software');
                                         $set('show_peripherals', $state === 'peripherals');
-                                    }),
+                                    })
+                                    ->inlineLabel(),
                                 Select::make('asset_status')
                                     ->label('Asset Status')
-                                    ->options(function () {
-                                        return AssetStatus::all()->pluck('asset_status', 'id');
-                                    })
+                                    ->options(fn() => AssetStatus::all()->pluck('asset_status', 'id'))
                                     ->default(1)
                                     ->required()
                                     ->createOptionForm([
-                                        TextInput::make('asset_status')
-                                            ->label('Asset Status')
-                                            ->required(),
+                                        TextInput::make('asset_status')->required(),
                                     ])
                                     ->createOptionUsing(function ($data) {
-                                        $status = AssetStatus::create([
-                                            'asset_status' => $data['asset_status'],
-                                        ]);
-
-                                        return $status->id;
-                                    }),
-                                TextInput::make('brand')->label('Brand')->required(),
-                                TextInput::make('model')->label('Model')->required(),
+                                        return AssetStatus::create(['asset_status' => $data['asset_status']])->id;
+                                    })
+                                    ->inlineLabel(),
+                            ]),
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('brand')->required()->inlineLabel(),
+                                TextInput::make('model')->required()->inlineLabel(),
+                            ]),
+                        Grid::make(2)
+                            ->schema([
                                 TextInput::make('department_project_code')
-                                    ->label('Department/Project Code')
-                                    ->nullable(),
-                            ]),
-                        Fieldset::make('Hardware Details')
-                            ->hidden(fn (callable $get) => $get('show_hardware') !== true)
-                            ->schema([
-                                Select::make('hardware_type')->label('Hardware Type')
-                                    ->options(HardwareType::all()->pluck('hardware_type', 'id')->toArray())
-                                    ->required()
-                                    ->createOptionForm([
-                                        TextInput::make('hardware_type')
-                                            ->label('Hardware Type')
-                                            ->required(),
-                                    ])
-                                    ->createOptionUsing(function ($data) {
-                                        $status = HardwareType::create([
-                                            'hardware_type' => $data['hardware_type'],
-                                        ]);
-
-                                        Notification::make()
-                                            ->title('Hardware type created successfully')
-                                            ->success()
-                                            ->send();
-
-                                        return $status->hardware_type;
-                                    })
-                                    ->reactive(),
-                                TextInput::make('serial_number')->label('Serial No.')->required(),
-                                TextArea::make('specifications')->label('Specifications')->required(),
-                                TextInput::make('manufacturer')->label('Manufacturer')->required(),
-                                TextInput::make('mac_address')
-                                    ->label('MAC Address')
-                                    ->nullable(),
-                                TextInput::make('accessories')
-                                    ->label('Accessories')
-                                    ->nullable(),
-                                TextInput::make('pc_name')
-                                    ->label('PC Name')
-                                    ->nullable(),
-                                DatePicker::make('warranty_expiration')
-                                    ->label('Warranty Expiration Date')
-                                    ->displayFormat('m/d/Y')
-                                    ->format('Y-m-d')
-                                    ->seconds(false)
-                                    ->nullable(),
-                            ]),
-                        Fieldset::make('Software Details')
-                            ->hidden(fn (callable $get) => $get('show_software') !== true)
-                            ->schema([
-                                TextInput::make('version')->label('Version')->nullable(),
-                                TextInput::make('license_key')->label('License Key')->nullable(),
-                                Select::make('software_type')->label('Software Type')
-                                    ->options(SoftwareType::all()->pluck('software_type', 'id')->toArray())
-                                    ->required()
-                                    ->createOptionForm([
-                                        TextInput::make('software_type')
-                                            ->label('Software Type')
-                                            ->required(),
-                                    ])
-                                    ->createOptionUsing(function ($data) {
-                                        $status = SoftwareType::create([
-                                            'software_type' => $data['software_type'],
-                                        ]);
-
-                                        Notification::make()
-                                            ->title('Software type created successfully')
-                                            ->success()
-                                            ->send();
-
-                                        return $status->software_type;
-                                    })
-                                    ->reactive(),
-                                Select::make('license_type')->label('License Type')
-                                    ->options(LicenseType::all()->pluck('license_type', 'id')->toArray())
-                                    ->required()
-                                    ->createOptionForm([
-                                        TextInput::make('license_type')
-                                            ->label('License Type')
-                                            ->required(),
-                                    ])
-                                    ->createOptionUsing(function ($data) {
-                                        $status = LicenseType::create([
-                                            'license_type' => $data['license_type'],
-                                        ]);
-
-                                        Notification::make()
-                                            ->title('License type created successfully')
-                                            ->success()
-                                            ->send();
-
-                                        return $status->license_type;
-                                    })
-                                    ->reactive(),
-                                TextInput::make('pc_name')
-                                    ->label('PC Name')
-                                    ->nullable(),
-                            ]),
-                        Fieldset::make('Peripherals Details')
-                            ->hidden(fn (callable $get) => $get('show_peripherals') !== true)
-                            ->schema([
-                                Select::make('peripherals_type')->label('Peripheral Type')
-                                    ->options(PeripheralType::all()->pluck('peripherals_type', 'id')->toArray())
-                                    ->required()
-                                    ->createOptionForm([
-                                        TextInput::make('peripherals_type')
-                                            ->label('Peripherals Type')
-                                            ->required(),
-                                    ])
-                                    ->createOptionUsing(function ($data) {
-                                        $status = PeripheralType::create([
-                                            'peripherals_type' => $data['peripherals_type'],
-                                        ]);
-
-                                        Notification::make()
-                                            ->title('Peripherals type created successfully')
-                                            ->success()
-                                            ->send();
-
-                                        return $status->peripherals_type;
-                                    })
-                                    ->reactive(),
-                                TextInput::make('serial_number')->label('Serial No.')->required(),
-                                TextArea::make('specifications')->label('Specifications')->required(),
-                                TextInput::make('manufacturer')->label('Manufacturer')->required(),
-                                DatePicker::make('warranty_expiration')
-                                    ->label('Warranty Expiration Date')
-                                    ->displayFormat('m/d/Y')
-                                    ->format('Y-m-d')
-                                    ->seconds(false),
-                            ]),
-                        Fieldset::make('Lifecycle Information')
-                            ->schema([
-                                DatePicker::make('acquisition_date')
-                                    ->label('Acquisition Date')
-                                    ->required(),
-                                DatePicker::make('retirement_date')
-                                    ->label('Retirement Date')
+                                    ->label('Dept/Project Code')
                                     ->nullable()
-                                    ->minDate(fn ($get) => $get('acquisition_date'))
-                                ])->reactive(),
-                            Fieldset::make('Purchase Information')
-                                ->schema([
-                                    TextInput::make('purchase_order_no')
-                                        ->label('Purchase Order No.')
-                                        ->required()
-                                        ->numeric()
-                                        ->columnSpan(1),
-                                    TextInput::make('sales_invoice_no')
-                                        ->label('Sales Invoice No.')
-                                        ->required()
-                                        ->numeric()
-                                        ->columnSpan(1),
-                                    DatePicker::make('purchase_order_date')
-                                        ->label('Purchase Order Date')
-                                        ->required(),
-                                    TextInput::make('purchase_order_amount')
-                                        ->label('Purchase Order Amount')
-                                        ->required()
-                                        ->numeric()
-                                        ->columnSpan(1),
-                                    TextInput::make('requestor')
-                                        ->label('Requestor')
-                                        ->nullable(),
-                                ])->label('Purchase Order Information'),
-                            Fieldset::make('Vendor Information')
+                                    ->inlineLabel(),
+                            ]),
+                    ]),
+
+                Section::make('Hardware Details')
+                    ->hidden(fn(callable $get) => $get('show_hardware') !== true)
+                    ->schema([
+                        Grid::make(2)
                             ->schema([
-                                Radio::make('vendor_option')
-                                    ->label('Vendor Option')
-                                    ->options([
-                                        'existing' => 'Choose from Existing Vendors',
-                                        'new' => 'Create New Vendor',
+                                Select::make('hardware_type')
+                                    ->label('Hardware Type')
+                                    ->options(HardwareType::all()->pluck('hardware_type', 'id'))
+                                    ->required()
+                                    ->createOptionForm([
+                                        TextInput::make('hardware_type')->required(),
                                     ])
                                     ->reactive()
-                                    ->default('existing'),
+                                    ->inlineLabel(),
+                                TextInput::make('serial_number')
+                                    ->label('Serial No.')
+                                    ->required()
+                                    ->inlineLabel(),
+                                TextInput::make('manufacturer')
+                                    ->required()
+                                    ->inlineLabel(),
+                                TextInput::make('mac_address')
+                                    ->nullable()
+                                    ->inlineLabel(),
+                                TextInput::make('pc_name')
+                                    ->nullable()
+                                    ->inlineLabel(),
+                                DatePicker::make('warranty_expiration')
+                                    ->label('Warranty Exp.')
+                                    ->displayFormat('m/d/Y')
+                                    ->format('Y-m-d')
+                                    ->nullable()
+                                    ->inlineLabel(),
+                            ]),
+                        Grid::make(2)
+                            ->schema([
+                                TextArea::make('specifications')
+                                    ->required()
+                                    ->inlineLabel(),
+                                TextInput::make('accessories')
+                                    ->nullable()
+                                    ->inlineLabel(),
+                            ]),
+                    ]),
+
+                Section::make('Software Details')
+                    ->hidden(fn(callable $get) => $get('show_software') !== true)
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('version')
+                                    ->nullable()
+                                    ->inlineLabel(),
+                                TextInput::make('license_key')
+                                    ->nullable()
+                                    ->inlineLabel(),
+                                TextInput::make('pc_name')
+                                    ->nullable()
+                                    ->inlineLabel(),
+                                Select::make('software_type')
+                                    ->label('Software Type')
+                                    ->options(SoftwareType::all()->pluck('software_type', 'id'))
+                                    ->required()
+                                    ->createOptionForm([
+                                        TextInput::make('software_type')->required(),
+                                    ])
+                                    ->reactive()
+                                    ->inlineLabel(),
+                                Select::make('license_type')
+                                    ->label('License Type')
+                                    ->options(LicenseType::all()->pluck('license_type', 'id'))
+                                    ->required()
+                                    ->createOptionForm([
+                                        TextInput::make('license_type')->required(),
+                                    ])
+                                    ->reactive()
+                                    ->inlineLabel(),
+                            ]),
+                    ]),
+
+                Section::make('Peripherals Details')
+                    ->hidden(fn(callable $get) => $get('show_peripherals') !== true)
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                Select::make('peripherals_type')
+                                    ->label('Peripheral Type')
+                                    ->options(PeripheralType::all()->pluck('peripherals_type', 'id'))
+                                    ->required()
+                                    ->createOptionForm([
+                                        TextInput::make('peripherals_type')->required(),
+                                    ])
+                                    ->reactive()
+                                    ->inlineLabel(),
+                                TextInput::make('serial_number')
+                                    ->label('Serial No.')
+                                    ->required()
+                                    ->inlineLabel(),
+                                TextInput::make('manufacturer')
+                                    ->required()
+                                    ->inlineLabel(),
+                                DatePicker::make('warranty_expiration')
+                                    ->label('Warranty Exp.')
+                                    ->displayFormat('m/d/Y')
+                                    ->format('Y-m-d')
+                                    ->inlineLabel(),
+                            ]),
+                        Grid::make(1)
+                            ->schema([
+                                TextArea::make('specifications')
+                                    ->required()
+                                    ->inlineLabel(),
+                            ]),
+                    ]),
+
+                Section::make('Purchase Information')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('purchase_order_no')
+                                    ->required()
+                                    ->numeric()
+                                    ->inlineLabel(),
+                                TextInput::make('sales_invoice_no')
+                                    ->required()
+                                    ->numeric()
+                                    ->inlineLabel(),
+                            ]),
+                        Grid::make(2)
+                            ->schema([
+                                DatePicker::make('purchase_order_date')
+                                    ->required()
+                                    ->inlineLabel(),
+                                TextInput::make('purchase_order_amount')
+                                    ->label('PO Cost')
+                                    ->required()
+                                    ->numeric()
+                                    ->inlineLabel(),
+                                TextInput::make('requestor')
+                                    ->nullable()
+                                    ->inlineLabel(),
+                            ]),
+                    ]),
+
+                Section::make('Lifecycle Information')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                DatePicker::make('acquisition_date')
+                                    ->required()
+                                    ->inlineLabel(),
+                                DatePicker::make('retirement_date')
+                                    ->nullable()
+                                    ->minDate(fn($get) => $get('acquisition_date'))
+                                    ->inlineLabel(),
+                            ]),
+                    ]),
+
+                Section::make('Vendor Information')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
                                 Select::make('vendor_id')
-                                    ->label('Existing Vendor')
-                                    ->options(function () {
-                                        return \App\Models\Vendor::pluck('name', 'id');
-                                    })
-                                    ->preload()
-                                    ->searchable()
-                                    ->hidden(fn (callable $get) => $get('vendor_option') !== 'existing')
-                                    ->required(),
-                                Fieldset::make('New Vendor Details')
-                                    ->hidden(fn (callable $get) => $get('vendor_option') !== 'new')
-                                    ->schema([
-                                        TextInput::make('vendor.name')
+                                    ->label('Vendor')
+                                    ->options(fn() => \App\Models\Vendor::pluck('name', 'id'))
+                                    ->required()
+                                    ->createOptionForm([
+                                        TextInput::make('name')
                                             ->label('Vendor Name')
-                                            ->required()
-                                            ->maxLength(255),
-                                        TextInput::make('vendor.address_1')
+                                            ->required(),
+                                        TextInput::make('address_1')
                                             ->label('Address 1')
-                                            ->required()
-                                            ->maxLength(255),
-                                        TextInput::make('vendor.address_2')
+                                            ->required(),
+                                        TextInput::make('address_2')
                                             ->label('Address 2')
-                                            ->maxLength(255),
-                                        TextInput::make('vendor.city')
-                                            ->label('City')
-                                            ->nullable()
-                                            ->maxLength(255),
-                                        TextInput::make('vendor.tel_no_1')
+                                            ->nullable(),
+                                        TextInput::make('city')
+                                            ->nullable(),
+                                        TextInput::make('tel_no_1')
                                             ->label('Telephone No. 1')
                                             ->tel()
-                                            ->nullable()
-                                            ->maxLength(255),
-                                        TextInput::make('vendor.tel_no_2')
+                                            ->nullable(),
+                                        TextInput::make('tel_no_2')
                                             ->label('Telephone No. 2')
-                                            ->nullable()
                                             ->tel()
-                                            ->maxLength(255),
-                                        TextInput::make('vendor.contact_person')
-                                            ->label('Contact Person')
-                                            ->nullable()
-                                            ->maxLength(255),
-                                        TextInput::make('vendor.mobile_number')
-                                            ->label('Mobile Number')
-                                            ->nullable()
-                                            ->numeric(),
-                                        TextInput::make('vendor.email')
-                                            ->label('Email')
+                                            ->nullable(),
+                                        TextInput::make('contact_person')
+                                            ->nullable(),
+                                        TextInput::make('mobile_number')
+                                            ->numeric()
+                                            ->nullable(),
+                                        TextInput::make('email')
                                             ->email()
-                                            ->nullable()
-                                            ->maxLength(255),
-                                        TextInput::make('vendor.url')
-                                            ->label('URL')
-                                            ->maxLength(255),
-                                        Textarea::make('vendor.remarks')
-                                            ->label('Remarks'),
-                                    ]),
-                            ])
-                            ->columnSpanFull(),
-                        ])
-                    ->createItemButtonLabel('Add Asset')
-                    ->label('Asset Information')
-                    ->columnSpanFull()
-                    ->required(),
-        ]);
+                                            ->nullable(),
+                                        TextInput::make('url')
+                                            ->nullable(),
+                                        Textarea::make('remarks')
+                                            ->nullable(),
+                                    ])
+                                    ->createOptionUsing(function ($data) {
+                                        $vendor = \App\Models\Vendor::create([
+                                            'name' => $data['name'],
+                                            'address_1' => $data['address_1'],
+                                            'address_2' => $data['address_2'],
+                                            'city' => $data['city'],
+                                            'tel_no_1' => $data['tel_no_1'],
+                                            'tel_no_2' => $data['tel_no_2'],
+                                            'contact_person' => $data['contact_person'],
+                                            'mobile_number' => $data['mobile_number'],
+                                            'email' => $data['email'],
+                                            'url' => $data['url'],
+                                            'remarks' => $data['remarks'],
+                                        ]);
+
+                                        Notification::make()
+                                            ->title('Vendor created successfully')
+                                            ->success()
+                                            ->send();
+
+                                        return $vendor->id;
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->inlineLabel(),
+                            ]),
+                    ]),
+            ]);
+        //         ->createItemButtonLabel('Add Asset')
+        //         ->label('Asset Information')
+        //         ->columnSpanFull()
+        //         ->required(),
+        // ]);
     }
 
     public static function table(Table $table): Table
@@ -349,7 +351,7 @@ class AssetResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'Active' => 'success',
                         'Inactive' => 'gray',
                         'In Transfer' => 'primary',
@@ -424,12 +426,18 @@ class AssetResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
+            ->groups([
+                'asset_type',
+                'asset_status',
+                'department_project_code',
+            ])
             ->defaultSort('assets.id', 'desc')
             ->modifyQueryUsing(function (Builder $query) {
                 $query->leftJoin('hardware', 'assets.id', '=', 'hardware.asset_id')
                     ->leftJoin('software', 'assets.id', '=', 'software.asset_id')
                     ->leftJoin('peripherals', 'assets.id', '=', 'peripherals.asset_id')
-                    ->select('assets.*',
+                    ->select(
+                        'assets.*',
                         'hardware.specifications as hardware_specifications',
                         'software.version as software_version',
                         'peripherals.specifications as peripherals_specifications',
@@ -453,5 +461,4 @@ class AssetResource extends Resource
             'edit' => Pages\EditAsset::route('/{record}/edit'),
         ];
     }
-
 }

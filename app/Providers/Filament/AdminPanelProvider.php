@@ -3,8 +3,11 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Widgets\AssetCosts;
+use App\Filament\Widgets\AssetsTable;
 use App\Filament\Widgets\AssetStatsOverview;
+use App\Filament\Widgets\DepartmentFilterWidget;
 use App\Filament\Widgets\PendingAssignments;
+use App\Filament\Widgets\PendingReturns;
 use App\Http\Middleware\CheckRole;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -51,9 +54,12 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
+                // DepartmentFilterWidget::class,
                 AssetStatsOverview::class,
                 AssetCosts::class,
                 PendingAssignments::class,
+                PendingReturns::class,
+                AssetsTable::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -78,6 +84,10 @@ class AdminPanelProvider extends PanelProvider
             ->unsavedChangesAlerts()
             ->breadcrumbs(false)
             // ->sidebarCollapsibleOnDesktop()
-            ->sidebarFullyCollapsibleOnDesktop();
+            ->sidebarFullyCollapsibleOnDesktop()
+            ->renderHook(
+                'panels::auth.login.form.after',
+                fn() => view('auth.socialite.admin-google')
+            );
     }
 }

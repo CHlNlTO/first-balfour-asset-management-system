@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SocialiteController;
 
 Route::view('/', 'welcome');
 
@@ -12,24 +13,20 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
-require __DIR__.'/auth.php';
+// Admin panel Google auth routes
+Route::get('/admin/auth/{provider}/redirect', [SocialiteController::class, 'redirect'])
+    ->name('admin.socialite.redirect')
+    ->defaults('panel', 'admin');
 
-// use Illuminate\Support\Facades\Route;
-// use App\Http\Controllers\Auth\RegisterController;
+Route::get('/admin/auth/{provider}/callback', [SocialiteController::class, 'callback'])
+    ->name('admin.socialite.callback');
 
-// // Custom registration route
-// Route::get('/app/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-// Route::post('/app/register', [RegisterController::class, 'store'])->name('register.store');
+// Employee panel Google auth routes
+Route::get('/app/auth/{provider}/redirect', [SocialiteController::class, 'redirect'])
+    ->name('app.socialite.redirect')
+    ->defaults('panel', 'app');
 
-// // Other routes
-// Route::view('/', 'welcome');
+Route::get('/app/auth/{provider}/callback', [SocialiteController::class, 'callback'])
+    ->name('app.socialite.callback');
 
-// Route::view('dashboard', 'dashboard')
-//     ->middleware(['auth', 'verified'])
-//     ->name('dashboard');
-
-// Route::view('profile', 'profile')
-//     ->middleware(['auth'])
-//     ->name('profile');
-
-// require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

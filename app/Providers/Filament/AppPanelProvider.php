@@ -61,6 +61,10 @@ class AppPanelProvider extends PanelProvider
             ])
             ->maxContentWidth(MaxWidth::Full)
             ->breadcrumbs(false)
-            ->sidebarFullyCollapsibleOnDesktop();
+            ->sidebarFullyCollapsibleOnDesktop()
+            ->renderHook(
+                'panels::auth.login.form.after',
+                fn() => view('auth.socialite.app-google')
+            );
     }
 }

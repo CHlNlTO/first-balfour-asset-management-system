@@ -50,8 +50,8 @@ class AssignmentResource extends Resource
                     ->label('Employee')
                     ->placeholder('Select from registered employees')
                     ->relationship('employee', 'id_num')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->id_num} {$record->first_name} {$record->last_name}")
-                    ->searchable()
+                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->id_num} {$record->first_name} {$record->last_name}")
+                    ->searchable(['id_num', 'first_name', 'last_name'])
                     ->required(),
                 Forms\Components\Select::make('assignment_status')
                     ->label('Assignment Status')
@@ -64,13 +64,14 @@ class AssignmentResource extends Resource
                         Forms\Components\DatePicker::make('start_date')
                             ->label('Start Date')
                             ->native()
+                            ->default(Carbon::now())
                             ->closeOnDateSelection()
                             ->required(),
                         Forms\Components\DatePicker::make('end_date')
                             ->label('End Date')
                             ->native()
                             ->closeOnDateSelection()
-                            ->minDate(fn ($get) => $get('start_date')),
+                            ->minDate(fn($get) => $get('start_date')),
                     ])->reactive()
                     ->columns(2)
                     ->columnSpanFull(),
@@ -83,17 +84,17 @@ class AssignmentResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id')
-                ->label('ID')
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true)
-                ->searchable(query: function (Builder $query, string $search): Builder {
-                    return $query->orWhere('assignments.id', 'like', "%{$search}%");
-                }),
+                    ->label('ID')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->orWhere('assignments.id', 'like', "%{$search}%");
+                    }),
                 Tables\Columns\TextColumn::make('asset.id')
                     ->label('Asset ID')
                     ->sortable()
                     ->searchable()
-                    ->url(fn (Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
+                    ->url(fn(Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
                 Tables\Columns\TextColumn::make('asset')
                     ->label('Asset Name')
                     ->getStateUsing(function (Assignment $record): string {
@@ -102,11 +103,11 @@ class AssignmentResource extends Resource
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->whereHas('asset', function (Builder $query) use ($search) {
                             $query->where('brand', 'like', "%{$search}%")
-                                  ->orWhere('model', 'like', "%{$search}%");
+                                ->orWhere('model', 'like', "%{$search}%");
                         });
                     })
                     ->placeholder('N/A')
-                    ->url(fn (Assignment $record): string => $record->asset ? route('filament.admin.resources.assets.view', ['record' => $record->asset_id]) : '#'),
+                    ->url(fn(Assignment $record): string => $record->asset ? route('filament.admin.resources.assets.view', ['record' => $record->asset_id]) : '#'),
                 Tables\Columns\TextColumn::make('employee_id')
                     ->label('Employee ID')
                     ->sortable()
@@ -115,13 +116,13 @@ class AssignmentResource extends Resource
                         $employee = $record->employee->id_num;
                         return $employee ? $employee : 'N/A';
                     })
-                    ->url(fn (Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num])),
+                    ->url(fn(Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num])),
                 Tables\Columns\TextColumn::make('employee')
                     ->label('Employee Name')
                     ->getStateUsing(function (Assignment $record): string {
                         return $record->employee ? "{$record->employee->first_name} {$record->employee->last_name}" : 'N/A';
                     })
-                    ->url(fn (Assignment $record): string => $record->employee ? route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num]) : '#'),
+                    ->url(fn(Assignment $record): string => $record->employee ? route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num]) : '#'),
                 Tables\Columns\TextColumn::make('assignment_status')
                     ->label('Status')
                     ->getStateUsing(function (Assignment $record): string {
@@ -131,7 +132,7 @@ class AssignmentResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         "Active" => "success",
                         "Pending Approval" => "pending",
                         "Pending Return" => "warning",
@@ -192,29 +193,29 @@ class AssignmentResource extends Resource
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make(),
                     Action::make('Transfer')
-                        ->visible(fn (Assignment $record): bool => $record->assignment_status == AssignmentStatus::where('assignment_status', 'Active')->first()->id)
+                        ->visible(fn(Assignment $record): bool => $record->assignment_status == AssignmentStatus::where('assignment_status', 'Active')->first()->id)
                         ->form([
                             Hidden::make('asset_id')
-                                ->default(fn ($record) => $record->asset_id)
+                                ->default(fn($record) => $record->asset_id)
                                 ->required(),
                             TextInput::make('asset_display')
                                 ->label('Assets')
-                                ->default(fn ($record) => "{$record->asset->id} - {$record->asset->brand} {$record->asset->model}")
+                                ->default(fn($record) => "{$record->asset->id} - {$record->asset->brand} {$record->asset->model}")
                                 ->disabled()
                                 ->dehydrated(false),
                             Hidden::make('from_employee_id')
-                                ->default(fn ($record) => $record->employee->id_num)
+                                ->default(fn($record) => $record->employee->id_num)
                                 ->required(),
                             TextInput::make('from_employee_display')
                                 ->label('From Employee')
-                                ->default(fn ($record) => "{$record->employee->id_num} - {$record->employee->first_name} {$record->employee->last_name}")
+                                ->default(fn($record) => "{$record->employee->id_num} - {$record->employee->first_name} {$record->employee->last_name}")
                                 ->disabled()
                                 ->dehydrated(false),
                             Forms\Components\Select::make('employee_id')
                                 ->label('To Employee')
                                 ->placeholder('Select from registered employees')
                                 ->relationship('employee', 'id_num')
-                                ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->id_num} - {$record->first_name} {$record->last_name}")
+                                ->getOptionLabelFromRecordUsing(fn($record) => "{$record->id_num} - {$record->first_name} {$record->last_name}")
                                 ->searchable()
                                 ->required(),
                             Hidden::make('assignment_status')
@@ -226,9 +227,9 @@ class AssignmentResource extends Resource
                                 ->disabled()
                                 ->dehydrated(false),
                             Hidden::make('old_start_date')
-                                ->default(fn ($record) => Carbon::parse($record->start_date)->format('Y-m-d')),
+                                ->default(fn($record) => Carbon::parse($record->start_date)->format('Y-m-d')),
                             Hidden::make('old_end_date')
-                                ->default(fn ($record) => Carbon::parse($record->end_date)->format('Y-m-d')),
+                                ->default(fn($record) => Carbon::parse($record->end_date)->format('Y-m-d')),
                             Forms\Components\Group::make()
                                 ->schema([
                                     Forms\Components\DatePicker::make('start_date')
@@ -272,7 +273,6 @@ class AssignmentResource extends Resource
                                     ->body('The asset is now for approval by the receiving employee.')
                                     ->success()
                                     ->send();
-
                             } catch (\Exception $e) {
                                 DB::rollBack();
                                 Log::error("Error in Transfer action: " . $e->getMessage());
@@ -293,13 +293,13 @@ class AssignmentResource extends Resource
                         ->label('Manage Transfer')
                         ->icon('heroicon-o-cog')
                         ->color('primary')
-                        ->visible(fn (Assignment $record): bool => $record->assignment_status == AssignmentStatus::where('assignment_status', 'In Transfer')->first()->id)
+                        ->visible(fn(Assignment $record): bool => $record->assignment_status == AssignmentStatus::where('assignment_status', 'In Transfer')->first()->id)
                         ->modalIcon('heroicon-o-cog')
                         ->modalHeading('Manage Transfer')
                         ->modalDescription(function (Assignment $record) {
                             $transfer = Transfer::where('assignment_id', $record->id)
-                            ->orderBy('id', 'desc')
-                            ->first();
+                                ->orderBy('id', 'desc')
+                                ->first();
                             Log::info("Transfer record:", $transfer->toArray());
                             $toEmployee = CEMREmployee::where('id_num', $transfer->to_employee)->first();
                             return "Transfer {$record->asset->brand} {$record->asset->model} to {$toEmployee->first_name} {$toEmployee->last_name}?";
@@ -393,22 +393,22 @@ class AssignmentResource extends Resource
                     Action::make('Option to Buy')
                         ->form([
                             Hidden::make('id')
-                                ->default(fn ($record) => $record->id)
+                                ->default(fn($record) => $record->id)
                                 ->required(),
                             Hidden::make('asset_id')
-                                ->default(fn ($record) => $record->asset_id)
+                                ->default(fn($record) => $record->asset_id)
                                 ->required(),
                             TextInput::make('asset_display')
                                 ->label('Assets')
-                                ->default(fn ($record) => "{$record->asset->id} - {$record->asset->brand} {$record->asset->model}")
+                                ->default(fn($record) => "{$record->asset->id} - {$record->asset->brand} {$record->asset->model}")
                                 ->disabled()
                                 ->dehydrated(false),
                             Hidden::make('from_employee_id')
-                                ->default(fn ($record) => $record->employee->id_num)
+                                ->default(fn($record) => $record->employee->id_num)
                                 ->required(),
                             TextInput::make('from_employee_display')
                                 ->label('Sell to Employee')
-                                ->default(fn ($record) => "{$record->employee->id_num} - {$record->employee->first_name} {$record->employee->last_name}")
+                                ->default(fn($record) => "{$record->employee->id_num} - {$record->employee->first_name} {$record->employee->last_name}")
                                 ->disabled()
                                 ->dehydrated(false),
                             Hidden::make('assignment_status')
@@ -420,9 +420,9 @@ class AssignmentResource extends Resource
                                 ->disabled()
                                 ->dehydrated(false),
                             Hidden::make('old_start_date')
-                                ->default(fn ($record) => Carbon::parse($record->start_date)->format('Y-m-d')),
+                                ->default(fn($record) => Carbon::parse($record->start_date)->format('Y-m-d')),
                             Hidden::make('old_end_date')
-                                ->default(fn ($record) => Carbon::parse($record->end_date)->format('Y-m-d')),
+                                ->default(fn($record) => Carbon::parse($record->end_date)->format('Y-m-d')),
                             TextInput::make('asset_cost')
                                 ->label('Asset Cost')
                                 ->prefix('₱')
@@ -454,7 +454,6 @@ class AssignmentResource extends Resource
                                     ->title('Option In Progress')
                                     ->success()
                                     ->send();
-
                             } catch (\Exception $e) {
                                 DB::rollBack();
                                 Log::error("Error in Transfer action: " . $e->getMessage());
@@ -466,7 +465,7 @@ class AssignmentResource extends Resource
                                     ->send();
                             }
                         })
-                        ->visible(fn (Assignment $record): bool => $record->assignment_status == AssignmentStatus::where('assignment_status', 'Active')->first()->id)
+                        ->visible(fn(Assignment $record): bool => $record->assignment_status == AssignmentStatus::where('assignment_status', 'Active')->first()->id)
                         ->icon('heroicon-o-banknotes')
                         ->requiresConfirmation()
                         ->modalHeading('Option to Buy Asset')
@@ -474,8 +473,8 @@ class AssignmentResource extends Resource
                         ->successNotificationTitle('Asset Transferred.'),
                     Tables\Actions\DeleteAction::make(),
                 ])
-                ->color('primary')
-                ->tooltip('Actions'),
+                    ->color('primary')
+                    ->tooltip('Actions'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -483,7 +482,6 @@ class AssignmentResource extends Resource
                 ]),
             ])
             ->defaultSort('id', 'desc');
-
     }
 
     public static function getRelations(): array

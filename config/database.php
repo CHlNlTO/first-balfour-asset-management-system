@@ -59,13 +59,25 @@ return [
             ]) : [],
         ],
 
+        // 'central_employeedb' => [
+        //     'driver' => 'mysql',
+        //     'host' => env('CENTRAL_EMPLOYEE_DB_HOST', '127.0.0.1'),
+        //     'port' => env('CENTRAL_EMPLOYEE_DB_PORT', '3306'),
+        //     'database' => env('CENTRAL_EMPLOYEE_DB_DATABASE', 'central_employeedb'),
+        //     'username' => env('CENTRAL_EMPLOYEE_DB_USERNAME', 'assetmonitoring'),
+        //     'password' => env('CENTRAL_EMPLOYEE_DB_PASSWORD', 'p@55w0rdlouise'),
+        //     'options' => extension_loaded('pdo_mysql') ? array_filter([
+        //         PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+        //     ]) : [],
+        // ],
+
         'central_employeedb' => [
             'driver' => 'mysql',
             'host' => env('CENTRAL_EMPLOYEE_DB_HOST', '127.0.0.1'),
             'port' => env('CENTRAL_EMPLOYEE_DB_PORT', '3306'),
             'database' => env('CENTRAL_EMPLOYEE_DB_DATABASE', 'central_employeedb'),
-            'username' => env('CENTRAL_EMPLOYEE_DB_USERNAME', 'assetmonitoring'),
-            'password' => env('CENTRAL_EMPLOYEE_DB_PASSWORD', 'p@55w0rdlouise'),
+            'username' => env('CENTRAL_EMPLOYEE_DB_USERNAME', 'root'),
+            'password' => env('CENTRAL_EMPLOYEE_DB_PASSWORD', ''),
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
@@ -158,7 +170,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [

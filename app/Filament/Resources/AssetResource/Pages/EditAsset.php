@@ -90,7 +90,7 @@ class EditAsset extends EditRecord
                 $record->hardware()->updateOrCreate(
                     ['asset_id' => $record->id],
                     [
-                        'hardware_type'=> $data['hardware_type'],
+                        'hardware_type' => $data['hardware_type'],
                         'serial_number' => $data['hardware']['serial_number'],
                         'specifications' => $data['hardware']['specifications'],
                         'manufacturer' => $data['hardware']['manufacturer'],
@@ -107,7 +107,7 @@ class EditAsset extends EditRecord
                     ['asset_id' => $record->id],
                     [
                         'version' => $data['software']['version'],
-                        'software_type'=> $data['software_type'],
+                        'software_type' => $data['software_type'],
                         'license_type' => $data['license_type'],
                         'license_key' => $data['software']['license_key'],
                         'pc_name' => $data['software']['pc_name'] ?? null,
@@ -119,7 +119,7 @@ class EditAsset extends EditRecord
                 $record->peripherals()->updateOrCreate(
                     ['asset_id' => $record->id],
                     [
-                        'peripherals_type'=> $data['peripherals_type'],
+                        'peripherals_type' => $data['peripherals_type'],
                         'serial_number' => $data['peripherals']['serial_number'],
                         'specifications' => $data['peripherals']['specifications'],
                         'manufacturer' => $data['peripherals']['manufacturer'],
@@ -145,16 +145,16 @@ class EditAsset extends EditRecord
         return $form
             ->schema([
                 Select::make('asset_type')
-                ->options([
-                    'hardware' => 'Hardware',
-                    'software' => 'Software',
-                    'peripherals' => 'Peripherals',
-                ])
-                ->required()
-                ->label('Asset Type')
-                ->reactive()
-                ->autofocus()
-                ->disabled(),
+                    ->options([
+                        'hardware' => 'Hardware',
+                        'software' => 'Software',
+                        'peripherals' => 'Peripherals',
+                    ])
+                    ->required()
+                    ->label('Asset Type')
+                    ->reactive()
+                    ->autofocus()
+                    ->disabled(),
                 Select::make('asset_status')
                     ->label('Asset Status')
                     ->options(function () {
@@ -169,7 +169,7 @@ class EditAsset extends EditRecord
                     ->label('Department/Project Code')
                     ->nullable(),
                 Fieldset::make('Hardware Details')
-                    ->hidden(fn (callable $get) => $get('asset_type') !== 'hardware')
+                    ->hidden(fn(callable $get) => $get('asset_type') !== 'hardware')
                     ->schema([
                         Select::make('hardware_type')
                             ->label('Hardware Type')
@@ -191,7 +191,7 @@ class EditAsset extends EditRecord
                             ->nullable(),
                     ]),
                 Fieldset::make('Software Details')
-                    ->hidden(fn (callable $get) => $get('asset_type') !== 'software')
+                    ->hidden(fn(callable $get) => $get('asset_type') !== 'software')
                     ->schema([
                         TextInput::make('software.version')
                             ->label('Version'),
@@ -214,7 +214,7 @@ class EditAsset extends EditRecord
                         TextInput::make('software.pc_name')->label('PC Name')->nullable(),
                     ]),
                 Fieldset::make('Peripherals Details')
-                    ->hidden(fn (callable $get) => $get('asset_type') !== 'peripherals')
+                    ->hidden(fn(callable $get) => $get('asset_type') !== 'peripherals')
                     ->schema([
                         Select::make('peripherals_type')
                             ->label('Peripherals Type')
@@ -242,8 +242,8 @@ class EditAsset extends EditRecord
                             }),
                         DatePicker::make('retirement_date')
                             ->label('Retirement Date')
-                            ->minDate(fn ($get) => $get('acquisition_date'))
-                        ])->reactive(),
+                            ->minDate(fn($get) => $get('acquisition_date'))
+                    ])->reactive(),
             ]);
     }
 

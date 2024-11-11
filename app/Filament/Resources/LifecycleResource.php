@@ -65,7 +65,7 @@ class LifecycleResource extends Resource
                         $asset = $record->asset;
                         return $asset ? " {$asset->brand} {$asset->model}" : 'N/A';
                     })
-                    ->url(fn (Lifecycle $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
+                    ->url(fn(Lifecycle $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
                 TextColumn::make('asset_status')
                     ->label('Asset Status')
                     ->getStateUsing(function (Lifecycle $record): string {
@@ -73,7 +73,7 @@ class LifecycleResource extends Resource
                         return $assetStatus ? $assetStatus->asset_status : 'N/A';
                     })
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'Active' => 'success',
                         'Inactive' => 'gray',
                         'In Transfer' => 'primary',
@@ -131,7 +131,7 @@ class LifecycleResource extends Resource
                         }
                     })
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'Subscription Active' => 'success',
                         'Subscription Renewal Due' => 'warning',
                         'Subscription Expired' => 'danger',
@@ -184,10 +184,8 @@ class LifecycleResource extends Resource
                     ->relationship('asset.software.licenseType', 'license_type'),
 
             ])
-            ->actions([
-            ])
-            ->bulkActions([
-            ])
+            ->actions([])
+            ->bulkActions([])
             ->searchPlaceholder('Search by Asset ID')
             ->defaultSort('id', 'desc');
     }
