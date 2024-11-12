@@ -181,9 +181,9 @@ class HardwareResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->url(fn (Hardware $record) => route('filament.admin.resources.assets.edit', ['record' => $record])),
+                    ->url(fn(Hardware $record) => route('filament.admin.resources.assets.edit', ['record' => $record])),
                 Tables\Actions\ViewAction::make()
-                    ->url(fn (Hardware $record) => route('filament.admin.resources.assets.view', ['record' => $record])),
+                    ->url(fn(Hardware $record) => route('filament.admin.resources.assets.view', ['record' => $record])),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),

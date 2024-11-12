@@ -2,10 +2,8 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Widgets\AssetCosts;
 use App\Filament\Widgets\AssetsTable;
 use App\Filament\Widgets\AssetStatsOverview;
-use App\Filament\Widgets\DepartmentFilterWidget;
 use App\Filament\Widgets\PendingAssignments;
 use App\Filament\Widgets\PendingReturns;
 use App\Http\Middleware\CheckRole;
@@ -51,12 +49,9 @@ class AdminPanelProvider extends PanelProvider
                 'Manage Types',
                 'Manage Statuses',
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                // DepartmentFilterWidget::class,
                 AssetStatsOverview::class,
-                AssetCosts::class,
+                Widgets\AccountWidget::class,
                 PendingAssignments::class,
                 PendingReturns::class,
                 AssetsTable::class,
@@ -85,6 +80,9 @@ class AdminPanelProvider extends PanelProvider
             ->breadcrumbs(false)
             // ->sidebarCollapsibleOnDesktop()
             ->sidebarFullyCollapsibleOnDesktop()
+            ->viteTheme([
+                'resources/css/app.css',
+            ])
             ->renderHook(
                 'panels::auth.login.form.after',
                 fn() => view('auth.socialite.admin-google')

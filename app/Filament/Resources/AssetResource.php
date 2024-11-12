@@ -25,7 +25,6 @@ use App\Filament\Resources\AssetResource\RelationManagers\AssignmentsRelationMan
 use Filament\Forms\Components\Grid;
 use Filament\Notifications\Notification;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Support\Facades\HTML;
 
 class AssetResource extends Resource
 {
@@ -427,8 +426,8 @@ class AssetResource extends Resource
                 ]),
             ])
             ->groups([
-                'asset_type',
-                'asset_status',
+                'brand',
+                'model',
                 'department_project_code',
             ])
             ->defaultSort('assets.id', 'desc')
@@ -456,7 +455,10 @@ class AssetResource extends Resource
     {
         return [
             'index' => Pages\ListAssets::route('/'),
-            'create' => Pages\CreateAsset::route('/create'),
+            'create' => Pages\SelectAssetType::route('/create'),
+            'create-hardware' => Pages\CreateHardwareAsset::route('/create-hardware'),
+            'create-software' => Pages\CreateSoftwareAsset::route('/create-software'),
+            'create-peripherals' => Pages\CreatePeripheralsAsset::route('/create-peripherals'),
             'view' => Pages\ViewAsset::route('/{record}'),
             'edit' => Pages\EditAsset::route('/{record}/edit'),
         ];

@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\HardwareResource\Pages;
 
 use App\Filament\Resources\HardwareResource;
-use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Actions\Action;
 
 class ListHardware extends ListRecords
 {
@@ -13,7 +13,11 @@ class ListHardware extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()->label('New Asset'),
+            Action::make('createHardware')
+                ->label('Hardware')
+                ->icon('heroicon-m-server-stack')
+                ->size('lg')
+                ->url(route('filament.admin.resources.assets.create-hardware')),
         ];
     }
 }

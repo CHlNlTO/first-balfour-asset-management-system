@@ -133,8 +133,11 @@ class AssetsTable extends BaseWidget
                 'asset_type',
                 'asset_status',
                 'department_project_code',
+                'brand',
+                'model',
             ])
             ->defaultSort('assets.id', 'desc')
+            ->defaultPaginationPageOption(5)
             ->modifyQueryUsing(function (Builder $query) {
                 $query->leftJoin('hardware', 'assets.id', '=', 'hardware.asset_id')
                     ->leftJoin('software', 'assets.id', '=', 'software.asset_id')

@@ -1,3 +1,59 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+    font-family: "Inter", sans-serif;
+}
+
+.fi-sidebar-nav {
+    @apply bg-white lg:shadow-md lg:rounded-3xl m-0 lg:m-6 lg:border lg:border-gray-100/5 lg:ring-1 lg:ring-gray-950/5 !important;
+}
+
+.dark .fi-sidebar-nav {
+    @apply bg-gray-900 lg:border-gray-700/5 lg:ring-1 lg:dark:ring-white/10 !important;
+}
+
+.fi-sidebar-nav {
+    @apply dark:bg-gray-900 bg-white;
+}
+
+.fi-sidebar-nav::-webkit-scrollbar {
+    width: 2px;
+}
+
+.fi-sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.fi-sidebar-nav::-webkit-scrollbar-thumb {
+    background-color: rgba(155, 155, 155, 0.5);
+    border-radius: 3px;
+    border: transparent;
+}
+
+.fi-sidebar-nav {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+    scrollbar-gutter: auto !important;
+}
+
+.fi-ta-content::-webkit-scrollbar {
+    width: 2px;
+}
+
+.fi-ta-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.fi-ta-content::-webkit-scrollbar-thumb {
+    background-color: rgba(155, 155, 155, 0.5);
+    border-radius: 3px;
+    border: transparent;
+}
+
+.fi-ta-content {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+    scrollbar-gutter: auto !important;
+}

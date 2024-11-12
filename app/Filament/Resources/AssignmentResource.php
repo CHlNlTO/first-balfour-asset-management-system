@@ -186,7 +186,6 @@ class AssignmentResource extends Resource
                             })
                             ->toArray()
                     ),
-
             ])
             ->actions([
                 ActionGroup::make([

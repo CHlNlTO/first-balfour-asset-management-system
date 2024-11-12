@@ -13,9 +13,9 @@ class PendingReturns extends BaseWidget
 {
     protected static ?string $model = Assignment::class;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int | string | array $columnSpan = 'half';
 
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 3;
 
     protected function getTableQuery(): Builder
     {
@@ -29,26 +29,27 @@ class PendingReturns extends BaseWidget
             ->query($this->getTableQuery())
             ->columns([
                 Tables\Columns\TextColumn::make('id')
-                    ->label('ID'),
+                    ->label('ID')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('employee.id_num')
                     ->label("Emp ID")
-                    ->url(fn (Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num])),
+                    ->url(fn(Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num])),
                 Tables\Columns\TextColumn::make('employee')
                     ->label('Employee')
                     ->getStateUsing(function (Assignment $record): string {
                         return "{$record->employee->first_name} {$record->employee->last_name}";
                     })
-                    ->url(fn (Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num])),
+                    ->url(fn(Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num])),
                 Tables\Columns\TextColumn::make('asset.id')
                     ->label('Asset ID')
-                    ->url(fn (Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
+                    ->url(fn(Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
                 Tables\Columns\TextColumn::make('asset.brand')
                     ->label('Asset')
                     ->getStateUsing(function (Assignment $record): string {
                         $asset = $record->asset;
                         return $asset ? " {$asset->brand} {$asset->model}" : 'N/A';
                     })
-                    ->url(fn (Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
+                    ->url(fn(Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
                 Tables\Columns\TextColumn::make('assignment_status')
                     ->label('Status')
                     ->getStateUsing(function (Assignment $record): string {
@@ -56,7 +57,7 @@ class PendingReturns extends BaseWidget
                         return $assignmentStatus ? $assignmentStatus->assignment_status : 'N/A';
                     })
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         "Active" => "success",
                         "Pending Approval" => "pending",
                         "Pending Return" => "warning",
@@ -73,9 +74,11 @@ class PendingReturns extends BaseWidget
                     ->label('End Date')
                     ->date(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime(),
+                    ->dateTime()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime(),
+                    ->dateTime()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 // Add any filters if needed
