@@ -183,7 +183,7 @@ class CreateHardwareAsset extends CreateRecord
         return Notification::make()
             ->success()
             ->title('Hardware Asset Created')
-            ->body(Str::markdown("{$this->record->brand} {$this->record->model}*"))
+            ->body(Str::markdown("*{$this->record->brand} {$this->record->model}*"))
             ->color('success')
             ->sendToDatabase($recipient);
     }
