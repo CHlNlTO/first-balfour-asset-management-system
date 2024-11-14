@@ -65,6 +65,8 @@ class AppPanelProvider extends PanelProvider
             ->renderHook(
                 'panels::auth.login.form.after',
                 fn() => view('auth.socialite.app-google')
-            );
+            )
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s');
     }
 }

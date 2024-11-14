@@ -10,7 +10,6 @@ use App\Models\Hardware;
 use App\Models\Software;
 use App\Models\Peripheral;
 use App\Models\Purchase;
-use App\Models\Vendor;
 use App\Models\Lifecycle;
 use Illuminate\Support\Facades\Log;
 

@@ -21,6 +21,7 @@ use App\Models\Lifecycle;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class CreatePeripheralsAsset extends CreateRecord
 {
@@ -152,10 +153,14 @@ class CreatePeripheralsAsset extends CreateRecord
 
     protected function getCreatedNotification(): ?Notification
     {
+        $recipient = auth()->user();
+
         return Notification::make()
             ->success()
-            ->title('Peripheral Asset Created Successfully')
-            ->body("Asset {$this->record->brand} {$this->record->model} has been created.");
+            ->title('Peripheral Asset Created')
+            ->body(Str::markdown("*{$this->record->brand} {$this->record->model}*"))
+            ->color('success')
+            ->sendToDatabase($recipient);
     }
 
     protected function getRedirectUrl(): string

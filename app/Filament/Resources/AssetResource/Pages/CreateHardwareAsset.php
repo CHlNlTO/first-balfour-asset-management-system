@@ -18,10 +18,10 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Group;
-use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Filament\Forms\Set;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Str;
 
 class CreateHardwareAsset extends CreateRecord
 {
@@ -178,10 +178,14 @@ class CreateHardwareAsset extends CreateRecord
 
     protected function getCreatedNotification(): ?Notification
     {
+        $recipient = auth()->user();
+
         return Notification::make()
             ->success()
-            ->title('Hardware Asset Created Successfully')
-            ->body("Asset {$this->record->brand} {$this->record->model} has been created.");
+            ->title('Hardware Asset Created')
+            ->body(Str::markdown("{$this->record->brand} {$this->record->model}*"))
+            ->color('success')
+            ->sendToDatabase($recipient);
     }
 
 

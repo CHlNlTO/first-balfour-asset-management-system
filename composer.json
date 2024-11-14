@@ -10,6 +10,7 @@
         "filament/filament": "3.2.57",
         "filament/forms": "^3.2",
         "filament/infolists": "3.2.57",
+        "filament/notifications": "^3.2",
         "laravel/framework": "^11.9",
         "laravel/socialite": "^5.16",
         "laravel/tinker": "^2.9",

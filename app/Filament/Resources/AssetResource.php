@@ -331,7 +331,7 @@ class AssetResource extends Resource
                 TextColumn::make('id')
                     ->label('Asset ID')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->orWhere('assets.id', 'like', "%{$search}%");
                     })
@@ -340,6 +340,14 @@ class AssetResource extends Resource
                     ->label('Asset Type')
                     ->sortable()
                     ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('N/A'),
+                TextColumn::make('asset')
+                    ->label('Asset Name')
+                    ->getStateUsing(fn(Asset $record) => $record->asset)
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->orWhereRaw("CONCAT(assets.brand, ' ', assets.model) LIKE ?", ["%{$search}%"]);
+                    })
                     ->placeholder('N/A'),
                 TextColumn::make('asset_status')
                     ->label('Asset Status')
@@ -363,13 +371,6 @@ class AssetResource extends Resource
                         default => 'gray',
                     })
                     ->placeholder('N/A'),
-                TextColumn::make('asset')
-                    ->label('Asset Name')
-                    ->getStateUsing(fn(Asset $record) => $record->asset)
-                    ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->orWhereRaw("CONCAT(assets.brand, ' ', assets.model) LIKE ?", ["%{$search}%"]);
-                    })
-                    ->placeholder('N/A'),
                 TextColumn::make('details')
                     ->label('Specifications/Version')
                     ->searchable(query: function (Builder $query, string $search): Builder {
@@ -378,6 +379,7 @@ class AssetResource extends Resource
                             ->orWhere('peripherals.specifications', 'like', "%{$search}%");
                     })
                     ->getStateUsing(fn($record) => $record->details)
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->placeholder('N/A'),
                 TextColumn::make('department_project_code')
                     ->label('Department/Project Code')
