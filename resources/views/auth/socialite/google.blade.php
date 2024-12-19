@@ -1,4 +1,4 @@
-<div class="mt-4">
+{{-- <div class="mt-4">
     <div class="relative">
         <div class="absolute inset-0 flex items-center">
             <div class="w-full border-t border-gray-300"></div>
@@ -27,4 +27,4 @@
             </div>
         </x-filament::button>
     </div>
-</div>
+</div> --}}

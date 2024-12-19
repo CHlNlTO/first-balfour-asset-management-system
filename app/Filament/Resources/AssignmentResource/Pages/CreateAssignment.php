@@ -2,11 +2,18 @@
 
 namespace App\Filament\Resources\AssignmentResource\Pages;
 
+use App\Filament\App\Resources\AssignmentResource\Actions\ManageApprovalAction;
 use App\Models\Assignment;
 use App\Filament\Resources\AssignmentResource;
+use App\Models\AssignmentStatus;
+use App\Models\CEMREmployee;
+use App\Models\User;
+use Filament\Notifications\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class CreateAssignment extends CreateRecord
 {
@@ -23,7 +30,7 @@ class CreateAssignment extends CreateRecord
         return $this->handleSingleAssignmentCreation($data);
     }
 
-    protected function handleMultipleAssignmentsCreation(array $data)
+    protected function handleMultipleAssignmentsCreation(array $data): Assignment
     {
         $createdAssignments = [];
 
@@ -31,7 +38,11 @@ class CreateAssignment extends CreateRecord
             foreach ($data['asset_id'] as $assetId) {
                 $assignmentData = $data;
                 $assignmentData['asset_id'] = $assetId;
-                $createdAssignments[] = $this->createSingleAssignment($assignmentData);
+                $assignment = $this->createSingleAssignment($assignmentData);
+                $createdAssignments[] = $assignment;
+
+                // Send notification for each asset
+                $this->notifyReceivingEmployee($assignment);
             }
         });
 
@@ -40,8 +51,10 @@ class CreateAssignment extends CreateRecord
 
     protected function handleSingleAssignmentCreation(array $data): Assignment
     {
-        return DB::transaction(function () use ($data) {
-            return $this->createSingleAssignment($data);
+        return DB::transaction(function () use ($data): Assignment {
+            $assignment = $this->createSingleAssignment($data);
+            $this->notifyReceivingEmployee($assignment);
+            return $assignment;
         });
     }
 
@@ -59,5 +72,45 @@ class CreateAssignment extends CreateRecord
     protected function getRedirectUrl(): string
     {
         return static::getResource()::getUrl('index');
+    }
+
+    protected function notifyReceivingEmployee(Assignment $assignment): void
+    {
+        try {
+            // Find the receiving employee using the employee_id (id_num)
+            $employee = CEMREmployee::where('id_num', $assignment->employee_id)->first();
+
+            if (!$employee) {
+                Log::warning('Could not find employee for notification', [
+                    'employee_id' => $assignment->employee_id,
+                    'assignment_id' => $assignment->id
+                ]);
+                return;
+            }
+
+            // Create and send notification
+            Notification::make()
+                ->title('New Asset Assignment')
+                ->icon('heroicon-o-clipboard-document-check')
+                ->info()
+                ->body(Str::markdown("Asset **{$assignment->asset->brand} {$assignment->asset->model}** has been assigned to you."))
+                ->actions([
+                    Action::make('view')
+                        ->button()
+                        ->url(route('filament.app.resources.assignments.view', ['record' => $assignment]))
+                        ->label('View Assignment'),
+
+                ])
+                ->sendToDatabase(User::where('id_num', $assignment->employee_id)->firstOrFail());
+            Log::info('Sent assignment notification', [
+                'assignment_id' => $assignment->id,
+                'employee_id' => $employee->id_num
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error sending assignment notification: " . $e->getMessage(), [
+                'assignment_id' => $assignment->id,
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
     }
 }

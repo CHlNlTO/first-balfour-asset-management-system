@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\AssignmentResource\Pages;
 
 use App\Filament\App\Resources\AssignmentResource;
+use App\Filament\App\Resources\AssignmentResource\Actions\ViewApprovalAction;
 use App\Models\AssetStatus;
 use App\Models\Assignment;
 use App\Models\AssignmentStatus;
@@ -81,7 +82,7 @@ class ViewAssignment extends ViewRecord
                                 return $assignmentStatus ? $assignmentStatus->assignment_status : 'N/A';
                             })
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
+                            ->color(fn(string $state): string => match ($state) {
                                 "Active" => "success",
                                 "Pending Approval" => "pending",
                                 "Pending Return" => "warning",
@@ -398,5 +399,12 @@ class ViewAssignment extends ViewRecord
                     ])
                     ->columns(2),
             ]);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            ViewApprovalAction::make(),
+        ];
     }
 }

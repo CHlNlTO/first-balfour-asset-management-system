@@ -2,23 +2,18 @@
 
 namespace App\Filament\App\Resources;
 
+use App\Filament\App\Resources\AssignmentResource\Actions\EmployeeTransferAction;
+use App\Filament\App\Resources\AssignmentResource\Actions\TableApprovalAction;
 use App\Filament\App\Resources\AssignmentResource\Pages;
 use App\Models\Assignment;
 use App\Models\AssignmentStatus;
-use App\Models\CEMREmployee;
-use App\Models\Transfer;
-use Carbon\Carbon;
-use Filament\Forms;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Filament\Notifications\Notification;
-use Filament\Support\Enums\Alignment;
 
 class AssignmentResource extends Resource
 {
@@ -95,167 +90,9 @@ class AssignmentResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\Action::make('manage')
-                    ->label('Approve')
-                    ->icon('heroicon-o-check-badge')
-                    ->requiresConfirmation()
-                    ->color('primary')
-                    ->visible(fn(Assignment $record): bool => $record->assignment_status == AssignmentStatus::where('assignment_status', 'Pending Approval')->first()->id)
-                    ->modalIcon('heroicon-o-cog')
-                    ->modalHeading(fn(Assignment $record) => "{$record->asset->id} - {$record->asset->brand} {$record->asset->model}")
-                    ->modalDescription('Approve if you’ve received the asset. Decline and state a reason if you haven’t.')
-                    ->modalAlignment(Alignment::Center)
-                    ->modalFooterActions([
-                        Tables\Actions\Action::make('approve')
-                            ->label('Approve')
-                            ->icon('heroicon-o-check-badge')
-                            ->color('success')
-                            ->requiresConfirmation()
-                            ->modalHeading('Approve Assignment')
-                            ->modalDescription('Are you sure you want to approve this assignment?')
-                            ->modalSubmitActionLabel('Yes, approve')
-                            ->action(function (Assignment $record) {
-                                $activeStatusId = AssignmentStatus::where('assignment_status', 'Active')->first()->id;
-                                $transferredStatusId = AssignmentStatus::where('assignment_status', 'Transferred')->first()->id;
-
-                                // Update the current assignment to Active
-                                $record->update(['assignment_status' => $activeStatusId, 'remarks' => 'Asset received.']);
-
-                                // Check for a matching transfer record
-                                $transfer = Transfer::where('to_employee', $record->employee_id)
-                                    ->whereHas('assignment', function ($query) use ($record) {
-                                        $query->where('asset_id', $record->asset_id);
-                                    })
-                                    ->first();
-
-                                if ($transfer) {
-                                    // Update the old assignment to Transferred
-                                    $oldAssignment = $transfer->assignment;
-                                    $oldAssignment->update(['assignment_status' => $transferredStatusId]);
-
-                                    // Update the transfer record status to Transferred
-                                    $transfer->update(['status' => $transferredStatusId]);
-
-                                    Notification::make()
-                                        ->title('Assignment Approved and Transfer Completed')
-                                        ->success()
-                                        ->send();
-                                } else {
-                                    Notification::make()
-                                        ->title('Assignment Approved')
-                                        ->success()
-                                        ->send();
-                                }
-
-                                return redirect()->to(AssignmentResource::getUrl('index'));
-                            }),
-                        Tables\Actions\Action::make('decline')
-                            ->label('Decline')
-                            ->icon('heroicon-o-x-circle')
-                            ->color('danger')
-                            ->form([
-                                Forms\Components\Textarea::make('reason')
-                                    ->label('Reason for decline')
-                                    ->required()
-                                    ->maxLength(255),
-                            ])
-                            ->requiresConfirmation()
-                            ->modalHeading('Decline Assignment')
-                            ->modalDescription('Please provide a reason for declining this assignment.')
-                            ->modalSubmitActionLabel('Decline')
-                            ->action(function (Assignment $record, array $data) {
-                                $declinedStatusId = AssignmentStatus::where('assignment_status', 'Declined')->first()->id;
-                                $inactiveStatusId = AssignmentStatus::where('assignment_status', 'Inactive')->first()->id;
-
-                                Log::info('Record: ', $record->toArray());
-
-                                // Update the current assignment to Declined
-                                $record->update([
-                                    'assignment_status' => $declinedStatusId,
-                                    'remarks' => $data['reason'],
-                                    'start_date' => Carbon::parse($record->start_date)->format('Y-m-d'),
-                                    'end_date' => Carbon::parse($record->end_date)->format('Y-m-d'),
-                                ]);
-
-                                // Check for a matching transfer record
-                                $transfer = Transfer::where('to_employee', $record->employee_id)
-                                    ->whereHas('assignment', function ($query) use ($record) {
-                                        $query->where('asset_id', $record->asset_id);
-                                    })
-                                    ->orderBy('id', 'desc')
-                                    ->first();
-
-                                if ($transfer) {
-                                    // Update the old assignment to Active
-                                    $oldAssignment = $transfer->assignment;
-                                    $oldAssignment->update([
-                                        'assignment_status' => $inactiveStatusId,
-                                        'remarks' => 'Assignment declined by the new assignee.',
-                                    ]);
-
-                                    // Update the transfer record status to Declined
-                                    $transfer->update(['status' => $declinedStatusId]);
-
-                                    Notification::make()
-                                        ->title('Assignment Declined and Transfer Cancelled')
-                                        ->success()
-                                        ->send();
-                                } else {
-                                    Notification::make()
-                                        ->title('Assignment Declined')
-                                        ->success()
-                                        ->send();
-                                }
-
-                                return redirect()->to(AssignmentResource::getUrl('index'));
-                            }),
-                    ])
-                    ->modalFooterActionsAlignment(Alignment::Center)
-                    ->modalWidth('max-w-sm'),
-                Tables\Actions\Action::make('transfer')
-                    ->label('Transfer')
-                    ->icon('heroicon-o-arrows-right-left')
-                    ->color('primary')
-                    ->visible(fn(Assignment $record): bool => $record->assignment_status == AssignmentStatus::where('assignment_status', 'Active')->first()->id)
-                    ->form([
-                        Hidden::make('from_employee_id')
-                            ->default(Auth::user()->id_num),
-                        Forms\Components\Select::make('to_employee_id')
-                            ->label('Transfer To')
-                            ->placeholder('Select from registered employees')
-                            ->relationship('employee', 'id_num')
-                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->id_num} - {$record->first_name} {$record->last_name}")
-                            ->searchable()
-                            ->required(),
-                    ])
-                    ->action(function (Assignment $record, array $data) {
-                        // Update current assignment status to "In Transfer"
-                        $inTransferStatusId = AssignmentStatus::where('assignment_status', 'In Transfer')->first()->id;
-                        $record->update([
-                            'employee_id' => $data['from_employee_id'],
-                            'assignment_status' => $inTransferStatusId
-                        ]);
-
-                        // Create a new transfer record
-                        Transfer::create([
-                            'assignment_id' => $record->id,
-                            'to_employee' => $data['to_employee_id'],
-                            'status' => $inTransferStatusId,
-                        ]);
-
-                        Notification::make()
-                            ->title('Transfer Initiated')
-                            ->body('The transfer request has been sent to the admin for approval.')
-                            ->success()
-                            ->send();
-
-                        return redirect()->to(AssignmentResource::getUrl('index'));
-                    })
-                    ->requiresConfirmation()
-                    ->modalHeading('Transfer Assignment')
-                    ->modalDescription('Are you sure you want to transfer this assignment?')
-                    ->modalSubmitActionLabel('Yes, transfer'),
-                Tables\Actions\ViewAction::make(),
+                TableApprovalAction::make(),
+                EmployeeTransferAction::make(),
+                ViewAction::make(),
             ])
             ->bulkActions([
                 //

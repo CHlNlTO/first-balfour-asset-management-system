@@ -8,6 +8,9 @@ use App\Models\Asset;
 use App\Models\AssignmentStatus;
 use Filament\Forms\Form;
 use Filament\Forms;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Group;
+use Filament\Forms\Components\Section;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,42 +37,62 @@ class EditAssignment extends EditRecord
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('asset_id')
-                    ->label('Assets')
-                    ->placeholder('Select from existing assets')
-                    ->relationship('asset', 'id')
-                    ->required()
-                    ->searchable()
-                    ->preload()
-                    ->getOptionLabelFromRecordUsing(fn (Asset $record) => $record->id . ' - ' . $record->brand . ' ' . $record->model),
-                Forms\Components\Select::make('employee_id')
-                    ->label('Employee')
-                    ->placeholder('Select from registered employees')
-                    ->relationship('employee', 'id_num')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->id_num} {$record->first_name} {$record->last_name}")
-                    ->searchable()
-                    ->required(),
-                Forms\Components\Select::make('assignment_status')
-                    ->label('Assignment Status')
-                    ->options(AssignmentStatus::all()->pluck('assignment_status', 'id')->toArray())
-                    ->default('1')
-                    ->required()
-                    ->columnSpan(1),
-                Forms\Components\Group::make()
+                Group::make()
                     ->schema([
-                        Forms\Components\DatePicker::make('start_date')
-                            ->label('Start Date')
-                            ->native()
-                            ->closeOnDateSelection()
-                            ->required(),
-                        Forms\Components\DatePicker::make('end_date')
-                            ->label('End Date')
-                            ->native()
-                            ->closeOnDateSelection(),
+                        Section::make('Asset Assignment Details')
+                            ->description('Manage asset assignments to employees')
+                            ->compact()
+                            ->schema([
+                                Forms\Components\Select::make('asset_id')
+                                    ->label('Assets')
+                                    ->placeholder('Select from existing assets')
+                                    ->relationship('asset', 'id')
+                                    ->required()
+                                    ->searchable()
+                                    ->preload()
+                                    ->getOptionLabelFromRecordUsing(fn(Asset $record) => $record->id . ' - ' . $record->brand . ' ' . $record->model),
+                                Forms\Components\Select::make('employee_id')
+                                    ->label('Employee')
+                                    ->placeholder('Select from registered employees')
+                                    ->relationship('employee', 'id_num')
+                                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->id_num} {$record->first_name} {$record->last_name}")
+                                    ->searchable()
+                                    ->required(),
+                                Forms\Components\Select::make('assignment_status')
+                                    ->label('Assignment Status')
+                                    ->options(AssignmentStatus::all()->pluck('assignment_status', 'id')->toArray())
+                                    ->default('1')
+                                    ->required()
+                                    ->columnSpan(1),
+                            ])->columns(2)
                     ])
-                    ->columns(2)
-                    ->columnSpanFull(),
-            ]);
+                    ->columnSpan(['lg' => 2]),
+                Group::make()
+                    ->schema([
+                        Section::make('Assignment Period')
+                            ->description('Specify the duration of the asset assignment')
+                            ->compact()
+                            ->schema([
+                                Grid::make(1)
+                                    ->schema([
+                                        Forms\Components\DatePicker::make('start_date')
+                                            ->label('Start Date')
+                                            ->native()
+                                            ->closeOnDateSelection()
+                                            ->required(),
+                                        Forms\Components\DatePicker::make('end_date')
+                                            ->label('End Date')
+                                            ->native()
+                                            ->closeOnDateSelection(),
+                                    ]),
+                            ]),
+                    ])
+                    ->columnSpan(['lg' => 1]),
+            ])
+            ->columns([
+                'lg' => 3
+            ])
+            ->inlineLabel();
     }
 
     protected function getRedirectUrl(): string
