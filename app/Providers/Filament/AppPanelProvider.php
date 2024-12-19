@@ -67,6 +67,9 @@ class AppPanelProvider extends PanelProvider
                 fn() => view('auth.socialite.app-google')
             )
             ->databaseNotifications()
-            ->databaseNotificationsPolling('30s');
+            ->viteTheme([
+                'resources/css/app.css',
+            ])
+            ->databaseNotificationsPolling('5s');
     }
 }

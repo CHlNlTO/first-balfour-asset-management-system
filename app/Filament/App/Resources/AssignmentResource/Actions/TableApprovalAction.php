@@ -112,7 +112,7 @@ class TableApprovalAction
         }
     }
 
-    protected static function handleDecline(Assignment $record, array $data): void
+    protected static function handleDecline(Assignment $record, array $data)
     {
         DB::beginTransaction();
 
@@ -130,6 +130,8 @@ class TableApprovalAction
             DB::commit();
 
             static::sendDeclineNotification($record);
+
+            return redirect()->to(AssignmentResource::getUrl('index'));
         } catch (\Exception $e) {
             DB::rollBack();
             static::handleError($e);

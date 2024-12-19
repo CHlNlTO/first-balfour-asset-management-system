@@ -7,20 +7,61 @@ body {
     font-family: "Inter", sans-serif;
 }
 
-.fi-sidebar-nav {
-    @apply bg-white lg:shadow-md lg:rounded-3xl m-0 lg:m-6 lg:border lg:border-gray-100/5 lg:ring-1 lg:ring-gray-950/5 !important;
+/* Filament custom styles */
+.fi-sidebar {
+    @apply bg-white ring-1 ring-gray-900/15 z-30 shadow-2xl !important;
+}
+
+.dark .fi-sidebar {
+    @apply bg-gray-900 ring-1 dark:ring-white/5 z-50 !important;
+}
+
+.fi-sidebar-header {
+    @apply bg-white ring-1 ring-gray-950/10 -z-10 shadow-sm !important;
+}
+
+.fi-sidebar-header .fi-icon-btn .fi-icon-btn-icon {
+    @apply text-blue-500 !important;
+}
+
+.fi-icon-btn .fi-icon-btn-icon {
+    @apply text-blue-500 !important;
+}
+
+.fi-active .fi-sidebar-item-active .fi-sidebar-item-button {
+    @apply bg-gradient-to-r from-cyan-500 to-blue-500 border border-cyan-400 hover:from-cyan-400 hover:to-blue-400 !important;
+}
+
+.fi-active .fi-sidebar-item-active .fi-sidebar-item-icon {
+    @apply text-white !important;
+}
+
+.fi-active .fi-sidebar-item-active .fi-sidebar-item-label {
+    @apply text-white !important;
+}
+
+.fi-sidebar-group-label {
+    @apply text-gray-700 dark:text-gray-400 !important;
+}
+
+.fi-sidebar-item-label {
+    @apply text-gray-900 dark:text-white !important;
+}
+
+.fi-header .fi-btn {
+    @apply bg-gradient-to-r from-cyan-500 to-blue-500 border border-cyan-400 hover:from-cyan-400 hover:to-blue-400 !important;
+}
+
+.dark .fi-sidebar-header {
+    @apply bg-gray-900 ring-1 dark:ring-gray-50/5 -z-10 shadow-none !important;
 }
 
 .dark .fi-sidebar-nav {
-    @apply bg-gray-900 lg:border-gray-700/5 lg:ring-1 lg:dark:ring-white/10 !important;
-}
-
-.fi-sidebar-nav {
-    @apply dark:bg-gray-900 bg-white;
+    @apply bg-gray-900 -z-10 ring-1 dark:ring-gray-50/5 !important;
 }
 
 .fi-sidebar-nav::-webkit-scrollbar {
-    width: 2px;
+    width: 1px;
 }
 
 .fi-sidebar-nav::-webkit-scrollbar-track {

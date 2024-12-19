@@ -1,14 +1,13 @@
 <?php
 
-// App/Filament/Resources/AssignmentResource/Actions/TransferAction.php
 namespace App\Filament\Resources\AssignmentResource\Actions;
 
+use App\Filament\Resources\AssignmentResource;
 use App\Models\Assignment;
 use App\Models\AssignmentStatus;
 use App\Models\Transfer;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -28,10 +27,13 @@ class TransferAction
             ->icon('heroicon-o-arrows-right-left')
             ->color('primary')
             ->form([
-                static::getAssetSection(),
-                static::getEmployeeSection(),
-                static::getStatusSection(),
-                static::getDatesSection(),
+                Group::make()
+                    ->schema([
+                        ...static::getAssetSection(),
+                        ...static::getEmployeeSection(),
+                        ...static::getStatusSection(),
+                        ...static::getDatesSection(),
+                    ]),
             ])
             ->visible(
                 fn(Assignment $record): bool =>
@@ -90,7 +92,6 @@ class TransferAction
                 )
                 ->searchable(['id_num', 'first_name', 'last_name'])
                 ->required()
-                ->different('from_employee_id')
                 ->helperText('Select the employee who will receive the asset'),
         ];
     }
@@ -149,7 +150,7 @@ class TransferAction
         ];
     }
 
-    protected static function handleTransfer(Assignment $record, array $data): void
+    protected static function handleTransfer(Assignment $record, array $data)
     {
         DB::beginTransaction();
 
@@ -166,6 +167,8 @@ class TransferAction
 
             DB::commit();
             static::sendSuccessNotification();
+
+            return redirect()->to(AssignmentResource::getUrl('index'));
         } catch (\Exception $e) {
             DB::rollBack();
             static::handleError($e);
@@ -175,13 +178,13 @@ class TransferAction
 
     protected static function validateTransferData(array $data): void
     {
-        if (empty($data['employee_id'])) {
-            throw new \InvalidArgumentException('Target employee must be specified');
-        }
+        // if (empty($data['employee_id'])) {
+        //     throw new \InvalidArgumentException('Target employee must be specified');
+        // }
 
-        if (empty($data['start_date'])) {
-            throw new \InvalidArgumentException('Start date must be specified');
-        }
+        // if (empty($data['start_date'])) {
+        //     throw new \InvalidArgumentException('Start date must be specified');
+        // }
     }
 
     protected static function updateCurrentAssignment(Assignment $record): void
