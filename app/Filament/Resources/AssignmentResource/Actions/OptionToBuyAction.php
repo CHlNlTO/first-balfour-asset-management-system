@@ -19,9 +19,9 @@ class OptionToBuyAction
     public static function make(): Action
     {
         return Action::make('Option to Buy')
-            ->form([
+            ->form(
                 static::getFormSchema(),
-            ])
+            )
             ->action(function (Assignment $record, array $data): void {
                 static::handleOptionToBuy($record, $data);
             })
@@ -82,6 +82,8 @@ class OptionToBuyAction
             TextInput::make('asset_cost')
                 ->label('Asset Cost')
                 ->prefix('₱')
+                ->placeholder('0.00')
+                ->hint(fn(Model $record): string =>  "Original Price: ₱" . ($record->asset->purchases->first()->purchase_order_amount ?? 0) . ".00")
                 ->numeric()
                 ->required(),
         ];

@@ -7,8 +7,10 @@ use App\Filament\Resources\AssetResource\Forms\CommonFormComponents;
 use App\Models\HardwareType;
 use App\Models\Asset;
 use App\Models\Hardware;
+use App\Models\HardwareSoftware;
 use App\Models\Purchase;
 use App\Models\Lifecycle;
+use App\Models\Software;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -28,9 +30,9 @@ class CreateHardwareAsset extends CreateRecord
     protected static string $resource = AssetResource::class;
     public ?string $assetType = 'hardware';
 
-    public ?string $brandPlaceholder = 'e.g. Dell, HP, Lenovo';
+    public ?string $brandPlaceholder = 'Dell, HP, Lenovo';
 
-    public ?string $modelPlaceholder = 'e.g. Optiplex 7010, EliteBook 840 G7, ThinkPad X1 Carbon';
+    public ?string $modelPlaceholder = 'Optiplex 7010, EliteBook 840 G7, ThinkPad X1 Carbon';
 
     public function form(Form $form): Form
     {
@@ -53,7 +55,7 @@ class CreateHardwareAsset extends CreateRecord
                                             ->createOptionForm([
                                                 TextInput::make('hardware_type')
                                                     ->required()
-                                                    ->placeholder('e.g. Desktop, Laptop, Server'),
+                                                    ->placeholder('Desktop, Laptop, Server'),
                                             ])
                                             ->createOptionUsing(function ($data) {
                                                 $hardwareType = HardwareType::create(['hardware_type' => $data['hardware_type']]);
@@ -72,19 +74,19 @@ class CreateHardwareAsset extends CreateRecord
                                         TextInput::make('serial_number')
                                             ->label('Serial No.')
                                             ->required()
-                                            ->placeholder('e.g. SN123456789')
+                                            ->placeholder('SN123456789')
                                             ->inlineLabel(),
                                         TextInput::make('manufacturer')
                                             ->required()
-                                            ->placeholder('e.g. Dell, HP, Lenovo')
+                                            ->placeholder('Dell, HP, Lenovo')
                                             ->inlineLabel(),
                                         TextInput::make('mac_address')
                                             ->nullable()
-                                            ->placeholder('e.g. 00:1A:2B:3C:4D:5E')
+                                            ->placeholder('00:1A:2B:3C:4D:5E')
                                             ->inlineLabel(),
                                         TextInput::make('pc_name')
                                             ->nullable()
-                                            ->placeholder('e.g. DESKTOP-ABC123')
+                                            ->placeholder('DESKTOP-ABC123')
                                             ->inlineLabel(),
                                         DatePicker::make('warranty_expiration')
                                             ->label('Warranty Exp.')
@@ -97,14 +99,32 @@ class CreateHardwareAsset extends CreateRecord
                                     ->schema([
                                         Textarea::make('specifications')
                                             ->required()
-                                            ->placeholder('e.g. Intel Core i7-12700K, 32GB RAM, 1TB NVMe SSD')
+                                            ->placeholder('Intel Core i7-12700K, 32GB RAM, 1TB NVMe SSD')
                                             ->inlineLabel(),
                                         TextInput::make('accessories')
                                             ->nullable()
-                                            ->placeholder('e.g. Keyboard, Mouse, Monitor')
+                                            ->placeholder('Keyboard, Mouse, Monitor')
                                             ->inlineLabel(),
                                     ]),
                             ]),
+                        Section::make("Attach Software")
+                            ->icon('heroicon-o-link')
+                            ->schema([
+                                Grid::make(2)
+                                    ->schema([
+                                        Select::make('software')
+                                            ->label('Software')
+                                            ->options(function () {
+                                                return Asset::where('asset_type', 'software')
+                                                    ->get()
+                                                    ->pluck('asset', 'id'); // Using the getAssetAttribute accessor you defined
+                                            })
+                                            ->searchable()
+                                            ->multiple() // Since it's many-to-many relationship
+                                            ->preload() // For better performance
+                                            ->inlineLabel()
+                                    ]),
+                            ])
                     ])
                     ->columnSpan(['lg' => 2]),
 
@@ -133,46 +153,69 @@ class CreateHardwareAsset extends CreateRecord
         Log::info("Creating Hardware Asset with data:", $data);
 
         return DB::transaction(function () use ($data) {
-            // Create the main asset record
-            $asset = Asset::create([
-                'asset_type' => $this->assetType,
-                'asset_status' => $data['asset_status'],
-                'brand' => $data['brand'],
-                'model' => $data['model'],
-                'department_project_code' => $data['department_project_code'],
-            ]);
+            try {
+                // Create the main asset record
+                $asset = Asset::create([
+                    'asset_type' => $this->assetType,
+                    'asset_status' => $data['asset_status'],
+                    'brand' => $data['brand'],
+                    'model' => $data['model'],
+                    'department_project_code' => $data['department_project_code'],
+                    'tag_number' => $data['tag_number'],
+                ]);
 
-            // Create the hardware record
-            Hardware::create([
-                'asset_id' => $asset->id,
-                'hardware_type' => $data['hardware_type'],
-                'serial_number' => $data['serial_number'],
-                'specifications' => $data['specifications'],
-                'accessories' => $data['accessories'] ?? null,
-                'manufacturer' => $data['manufacturer'],
-                'mac_address' => $data['mac_address'] ?? null,
-                'pc_name' => $data['pc_name'] ?? null,
-                'warranty_expiration' => $data['warranty_expiration'] ?? null,
-            ]);
+                Log::info("Asset created with data:", $asset->toArray());
 
-            // Create lifecycle record
-            Lifecycle::create([
-                'asset_id' => $asset->id,
-                'acquisition_date' => $data['acquisition_date'],
-                'retirement_date' => $data['retirement_date'] ?? null,
-            ]);
+                // Create the hardware record
+                $hardware = Hardware::create([
+                    'asset_id' => $asset->id,
+                    'hardware_type' => $data['hardware_type'],
+                    'serial_number' => $data['serial_number'],
+                    'specifications' => $data['specifications'],
+                    'accessories' => $data['accessories'] ?? null,
+                    'manufacturer' => $data['manufacturer'],
+                    'mac_address' => $data['mac_address'] ?? null,
+                    'pc_name' => $data['pc_name'] ?? null,
+                    'warranty_expiration' => $data['warranty_expiration'] ?? null,
+                ]);
 
-            // Create purchase record
-            Purchase::create([
-                'asset_id' => $asset->id,
-                'purchase_order_no' => $data['purchase_order_no'],
-                'sales_invoice_no' => $data['sales_invoice_no'],
-                'purchase_order_date' => $data['purchase_order_date'],
-                'purchase_order_amount' => $data['purchase_order_amount'],
-                'vendor_id' => $data['vendor_id'],
-            ]);
+                // Attach software if selected
+                if (!empty($data['software'])) {
+                    $softwareRecords = Software::whereIn('asset_id', $data['software'])->pluck('asset_id');
 
-            return $asset;
+                    if ($softwareRecords->isNotEmpty()) {
+                        foreach ($softwareRecords as $softwareAssetId) {
+                            HardwareSoftware::create([
+                                'hardware_asset_id' => $asset->id,
+                                'software_asset_id' => $softwareAssetId
+                            ]);
+                        }
+                    }
+                }
+
+                // Create lifecycle record
+                Lifecycle::create([
+                    'asset_id' => $asset->id,
+                    'acquisition_date' => $data['acquisition_date'],
+                    'retirement_date' => $data['retirement_date'] ?? null,
+                ]);
+
+                // Create purchase record
+                Purchase::create([
+                    'asset_id' => $asset->id,
+                    'purchase_order_no' => $data['purchase_order_no'],
+                    'sales_invoice_no' => $data['sales_invoice_no'],
+                    'purchase_order_date' => $data['purchase_order_date'],
+                    'purchase_order_amount' => $data['purchase_order_amount'],
+                    'vendor_id' => $data['vendor_id'],
+                    'requestor' => $data['requestor'],
+                ]);
+
+                return $asset;
+            } catch (\Exception $e) {
+                Log::error('Error in handleRecordCreation: ' . $e->getMessage());
+                throw new \Exception('Error Processing Request');
+            }
         });
     }
 
@@ -183,7 +226,7 @@ class CreateHardwareAsset extends CreateRecord
         return Notification::make()
             ->success()
             ->title('Hardware Asset Created')
-            ->body(Str::markdown("*{$this->record->brand} {$this->record->model}*"))
+            ->body(Str::markdown("**{$this->record->brand} {$this->record->model}** has been created."))
             ->color('success')
             ->sendToDatabase($recipient);
     }

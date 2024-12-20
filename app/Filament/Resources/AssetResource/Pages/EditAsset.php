@@ -7,18 +7,10 @@ use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
 use App\Models\Hardware;
+use App\Models\HardwareSoftware;
 use App\Models\Software;
 use App\Models\Peripheral;
-use App\Models\HardwareType;
-use App\Models\SoftwareType;
-use App\Models\LicenseType;
-use App\Models\PeripheralType;
-use App\Models\AssetStatus;
 use Filament\Forms\Form;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Fieldset;
 use Illuminate\Support\Facades\Log;
 
 class EditAsset extends EditRecord
@@ -34,37 +26,109 @@ class EditAsset extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        Log::info('Initial Record Data: ', $this->record->toArray());
+        Log::info('Initial Record Data:', $this->record->toArray());
 
-        $data['asset_type'] = $this->record->asset_type;
-        $data['asset_status'] = $this->record->assetStatus->id;
-        $data['brand'] = $this->record->brand;
-        $data['model'] = $this->record->model;
-        $data['acquisition_date'] = $this->record->lifecycle->acquisition_date ?? '';
-        $data['retirement_date'] = $this->record->lifecycle->retirement_date ?? '';
+        // Common data mutation for all asset types
+        $data = $this->mutateCommonData($data);
 
-        Log::info('Mutated Data Before Fill: ', $data);
-
-        if ($this->record->asset_type === 'hardware') {
-            $hardware = Hardware::where('asset_id', $this->record->id)->first();
-            $data['hardware'] = $hardware ? $hardware->toArray() : [];
-            $data['hardware_type'] = $hardware ? $hardware->hardware_type : null;
-            Log::info('Hardware Data: ', $data['hardware']);
+        // Asset type specific mutations
+        switch ($this->record->asset_type) {
+            case 'hardware':
+                $data = $this->mutateHardwareData($data);
+                break;
+            case 'software':
+                $data = $this->mutateSoftwareData($data);
+                break;
+            case 'peripherals':
+                $data = $this->mutatePeripheralsData($data);
+                break;
         }
 
-        if ($this->record->asset_type === 'software') {
-            $software = Software::where('asset_id', $this->record->id)->first();
-            $data['software'] = $software ? $software->toArray() : [];
-            $data['software_type'] = $software ? $software->software_type : null;
-            $data['license_type'] = $software ? $software->license_type : null;
-            Log::info('Software Data: ', $data['software']);
+        // Purchase data mutation
+        $data = $this->mutatePurchaseData($data);
+
+        Log::info('Final Mutated Data:', $data);
+        return $data;
+    }
+
+    protected function mutateCommonData(array $data): array
+    {
+        return array_merge($data, [
+            'asset_type' => $this->record->asset_type,
+            'asset_status' => $this->record->asset_status,
+            'brand' => $this->record->brand,
+            'model' => $this->record->model,
+            'department_project_code' => $this->record->department_project_code,
+            'tag_number' => $this->record->tag_number,
+            'acquisition_date' => $this->record->lifecycle?->acquisition_date,
+            'retirement_date' => $this->record->lifecycle?->retirement_date,
+            'vendor_id' => $this->record->purchases()->first()->vendor_id,
+            'purchase_order_no' => $this->record->purchases()->first()->purchase_order_no,
+            'sales_invoice_no' => $this->record->purchases()->first()->sales_invoice_no,
+            'purchase_order_date' => $this->record->purchases()->first()->purchase_order_date,
+            'purchase_order_amount' => $this->record->purchases()->first()->purchase_order_amount,
+            'requestor' => $this->record->purchases()->first()->requestor,
+        ]);
+    }
+
+    protected function mutateHardwareData(array $data): array
+    {
+        $hardware = $this->record->hardware;
+
+        if ($hardware) {
+            $data['hardware_type'] = $hardware->hardware_type;
+            $data['serial_number'] = $hardware->serial_number;
+            $data['manufacturer'] = $hardware->manufacturer;
+            $data['specifications'] = $hardware->specifications;
+            $data['accessories'] = $hardware->accessories;
+            $data['mac_address'] = $hardware->mac_address;
+            $data['pc_name'] = $hardware->pc_name;
+            $data['warranty_expiration'] = $hardware->warranty_expiration;
         }
 
-        if ($this->record->asset_type === 'peripherals') {
-            $peripherals = Peripheral::where('asset_id', $this->record->id)->first();
-            $data['peripherals'] = $peripherals ? $peripherals->toArray() : [];
-            $data['peripherals_type'] = $peripherals ? $peripherals->peripherals_type : null;
-            Log::info('Peripheral Data: ', $data['peripherals']);
+        return $data;
+    }
+
+    protected function mutateSoftwareData(array $data): array
+    {
+        $software = $this->record->software;
+
+        if ($software) {
+            $data['software_type'] = $software->software_type;
+            $data['license_type'] = $software->license_type;
+            $data['version'] = $software->version;
+            $data['license_key'] = $software->license_key;
+            $data['pc_name'] = $software->pc_name;
+        }
+
+        return $data;
+    }
+
+    protected function mutatePeripheralsData(array $data): array
+    {
+        $peripheral = $this->record->peripherals;
+
+        if ($peripheral) {
+            $data['peripherals_type'] = $peripheral->peripherals_type;
+            $data['serial_number'] = $peripheral->serial_number;
+            $data['manufacturer'] = $peripheral->manufacturer;
+            $data['specifications'] = $peripheral->specifications;
+            $data['warranty_expiration'] = $peripheral->warranty_expiration;
+        }
+
+        return $data;
+    }
+
+    protected function mutatePurchaseData(array $data): array
+    {
+        $purchase = $this->record->purchase;
+
+        if ($purchase) {
+            $data['purchase_order_no'] = $purchase->purchase_order_no;
+            $data['sales_invoice_no'] = $purchase->sales_invoice_no;
+            $data['purchase_order_date'] = $purchase->purchase_order_date;
+            $data['purchase_order_amount'] = $purchase->purchase_order_amount;
+            $data['requestor'] = $purchase->requestor;
         }
 
         return $data;
@@ -72,67 +136,50 @@ class EditAsset extends EditRecord
 
     protected function handleRecordUpdate(\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model
     {
-        Log::info('Update Data Before Processing: ', $data);
+        Log::info('Update Data Before Processing:', $data);
 
-        $assetData = [
-            'asset_status' => $data['asset_status'],
-            'brand' => $data['brand'],
-            'model' => $data['model'],
-            'department_project_code' => $data['department_project_code'] ?? null,
-        ];
+        return DB::transaction(function () use ($record, $data) {
+            // Update common asset fields
+            $record->update([
+                'asset_status' => $data['asset_status'],
+                'brand' => $data['brand'],
+                'model' => $data['model'],
+                'department_project_code' => $data['department_project_code'] ?? null,
+                'tag_number' => $data['tag_number'] ?? null,
+            ]);
 
-        return DB::transaction(function () use ($record, $data, $assetData) {
-            $record->update($assetData);
-
-            $assetType = $record->asset_type;  // Use the existing asset_type from the record
-
-            if ($assetType === 'hardware') {
-                $record->hardware()->updateOrCreate(
-                    ['asset_id' => $record->id],
-                    [
-                        'hardware_type' => $data['hardware_type'],
-                        'serial_number' => $data['hardware']['serial_number'],
-                        'specifications' => $data['hardware']['specifications'],
-                        'manufacturer' => $data['hardware']['manufacturer'],
-                        'mac_address' => $data['hardware']['mac_address'] ?? null,
-                        'accessories' => $data['hardware']['accessories'] ?? null,
-                        'pc_name' => $data['hardware']['pc_name'] ?? null,
-                        'warranty_expiration' => $data['hardware']['warranty_expiration'],
-                    ]
-                );
+            // Update type-specific data
+            switch ($record->asset_type) {
+                case 'hardware':
+                    $this->updateHardwareData($record, $data);
+                    break;
+                case 'software':
+                    $this->updateSoftwareData($record, $data);
+                    break;
+                case 'peripherals':
+                    $this->updatePeripheralsData($record, $data);
+                    break;
             }
 
-            if ($assetType === 'software') {
-                $record->software()->updateOrCreate(
-                    ['asset_id' => $record->id],
-                    [
-                        'version' => $data['software']['version'],
-                        'software_type' => $data['software_type'],
-                        'license_type' => $data['license_type'],
-                        'license_key' => $data['software']['license_key'],
-                        'pc_name' => $data['software']['pc_name'] ?? null,
-                    ]
-                );
-            }
-
-            if ($assetType === 'peripherals') {
-                $record->peripherals()->updateOrCreate(
-                    ['asset_id' => $record->id],
-                    [
-                        'peripherals_type' => $data['peripherals_type'],
-                        'serial_number' => $data['peripherals']['serial_number'],
-                        'specifications' => $data['peripherals']['specifications'],
-                        'manufacturer' => $data['peripherals']['manufacturer'],
-                        'warranty_expiration' => $data['peripherals']['warranty_expiration'],
-                    ]
-                );
-            }
-
+            // Update lifecycle data
             $record->lifecycle()->updateOrCreate(
                 ['asset_id' => $record->id],
                 [
                     'acquisition_date' => $data['acquisition_date'],
-                    'retirement_date' => $data['retirement_date'],
+                    'retirement_date' => $data['retirement_date'] ?? null,
+                ]
+            );
+
+            // Update purchase data
+            $record->purchases()->updateOrCreate(
+                ['asset_id' => $record->id],
+                [
+                    'purchase_order_no' => $data['purchase_order_no'],
+                    'sales_invoice_no' => $data['sales_invoice_no'],
+                    'purchase_order_date' => $data['purchase_order_date'],
+                    'purchase_order_amount' => $data['purchase_order_amount'],
+                    'vendor_id' => $data['vendor_id'],
+                    'requestor' => $data['requestor'] ?? null,
                 ]
             );
 
@@ -140,111 +187,99 @@ class EditAsset extends EditRecord
         });
     }
 
+    protected function updateHardwareData($record, array $data): void
+    {
+        $record->hardware()->updateOrCreate(
+            ['asset_id' => $record->id],
+            [
+                'hardware_type' => $data['hardware_type'],
+                'serial_number' => $data['serial_number'],
+                'specifications' => $data['specifications'],
+                'manufacturer' => $data['manufacturer'],
+                'mac_address' => $data['mac_address'] ?? null,
+                'accessories' => $data['accessories'] ?? null,
+                'pc_name' => $data['pc_name'] ?? null,
+                'warranty_expiration' => $data['warranty_expiration'] ?? null,
+            ]
+        );
+
+        // Update software relationships if provided
+        if (!empty($data['software'])) {
+            $softwareRecords = Software::whereIn('asset_id', $data['software'])->pluck('asset_id');
+
+            if ($softwareRecords->isNotEmpty()) {
+                foreach ($softwareRecords as $softwareAssetId) {
+                    HardwareSoftware::create([
+                        'hardware_asset_id' => $record->id,
+                        'software_asset_id' => $softwareAssetId
+                    ]);
+                }
+            }
+        }
+    }
+
+    protected function updateSoftwareData($record, array $data): void
+    {
+        $record->software()->updateOrCreate(
+            ['asset_id' => $record->id],
+            [
+                'software_type' => $data['software_type'],
+                'license_type' => $data['license_type'],
+                'version' => $data['version'] ?? null,
+                'license_key' => $data['license_key'] ?? null,
+                'pc_name' => $data['pc_name'] ?? null,
+            ]
+        );
+
+        // Attach software if selected
+        if (!empty($data['hardware'])) {
+            Log::info("Attaching software to hardware", $data['hardware']);
+
+            // Get the hardware records
+            $hardwareRecords = Hardware::whereIn('asset_id', $data['hardware'])
+                ->pluck('asset_id');
+
+            if ($hardwareRecords->isNotEmpty()) {
+                // Get the software record we just created
+                $software = Software::where('asset_id', $record->id)->first();
+
+                // Attach hardware to software
+                $software->hardware()->attach(
+                    $hardwareRecords->mapWithKeys(function ($hardwareAssetId) use ($record) {
+                        return [$hardwareAssetId => [
+                            'hardware_asset_id' => $hardwareAssetId,
+                            'software_asset_id' => $record->id
+                        ]];
+                    })->all()
+                );
+            }
+        }
+    }
+
+    protected function updatePeripheralsData($record, array $data): void
+    {
+        $record->peripherals()->updateOrCreate(
+            ['asset_id' => $record->id],
+            [
+                'peripherals_type' => $data['peripherals_type'],
+                'serial_number' => $data['serial_number'],
+                'specifications' => $data['specifications'],
+                'manufacturer' => $data['manufacturer'],
+                'warranty_expiration' => $data['warranty_expiration'] ?? null,
+            ]
+        );
+    }
+
     public function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Select::make('asset_type')
-                    ->options([
-                        'hardware' => 'Hardware',
-                        'software' => 'Software',
-                        'peripherals' => 'Peripherals',
-                    ])
-                    ->required()
-                    ->label('Asset Type')
-                    ->reactive()
-                    ->autofocus()
-                    ->disabled(),
-                Select::make('asset_status')
-                    ->label('Asset Status')
-                    ->options(function () {
-                        return AssetStatus::all()->pluck('asset_status', 'id');
-                    })
-                    ->required()
-                    ->reactive()
-                    ->live(),
-                TextInput::make('brand')->label('Brand')->required(),
-                TextInput::make('model')->label('Model')->required(),
-                TextInput::make('department_project_code')
-                    ->label('Department/Project Code')
-                    ->nullable(),
-                Fieldset::make('Hardware Details')
-                    ->hidden(fn(callable $get) => $get('asset_type') !== 'hardware')
-                    ->schema([
-                        Select::make('hardware_type')
-                            ->label('Hardware Type')
-                            ->options(HardwareType::all()->pluck('hardware_type', 'id')->toArray())
-                            ->required()
-                            ->default(function ($get) {
-                                return $get('hardware_type') ?? null;
-                            }),
-                        TextInput::make('hardware.serial_number')->label('Serial Number')->required(),
-                        TextInput::make('hardware.specifications')->label('Specifications')->required(),
-                        TextInput::make('hardware.manufacturer')->label('Manufacturer')->required(),
-                        TextInput::make('hardware.mac_address')->label('MAC Address')->nullable(),
-                        TextInput::make('hardware.accessories')->label('Accessories')->nullable(),
-                        TextInput::make('hardware.pc_name')->label('PC Name')->nullable(),
-                        DatePicker::make('hardware.warranty_expiration')
-                            ->label('Warranty Expiration')
-                            ->displayFormat('m/d/Y')
-                            ->format('Y-m-d')
-                            ->nullable(),
-                    ]),
-                Fieldset::make('Software Details')
-                    ->hidden(fn(callable $get) => $get('asset_type') !== 'software')
-                    ->schema([
-                        TextInput::make('software.version')
-                            ->label('Version'),
-                        TextInput::make('software.license_key')
-                            ->label('License Key'),
-                        Select::make('software_type')
-                            ->label('Software Type')
-                            ->options(SoftwareType::all()->pluck('software_type', 'id')->toArray())
-                            ->required()
-                            ->default(function ($get) {
-                                return $get('software_type') ?? null;
-                            }),
-                        Select::make('license_type')
-                            ->label('License Type')
-                            ->options(LicenseType::all()->pluck('license_type', 'id')->toArray())
-                            ->required()
-                            ->default(function ($get) {
-                                return $get('license_type') ?? null;
-                            }),
-                        TextInput::make('software.pc_name')->label('PC Name')->nullable(),
-                    ]),
-                Fieldset::make('Peripherals Details')
-                    ->hidden(fn(callable $get) => $get('asset_type') !== 'peripherals')
-                    ->schema([
-                        Select::make('peripherals_type')
-                            ->label('Peripherals Type')
-                            ->options(PeripheralType::all()->pluck('peripherals_type', 'id')->toArray())
-                            ->required()
-                            ->default(function ($get) {
-                                return $get('peripherals_type') ?? null;
-                            }),
-                        TextInput::make('peripherals.serial_number')->label('Serial Number')->required(),
-                        TextInput::make('peripherals.specifications')->label('Specifications')->required(),
-                        TextInput::make('peripherals.manufacturer')->label('Manufacturer')->required(),
-                        DatePicker::make('peripherals.warranty_expiration')
-                            ->label('Warranty Expiration')
-                            ->displayFormat('m/d/Y')
-                            ->format('Y-m-d')
-                            ->nullable(),
-                    ]),
-                Fieldset::make('Lifecycle Information')
-                    ->schema([
-                        DatePicker::make('acquisition_date')
-                            ->label('Acquisition Date')
-                            ->required()
-                            ->afterStateUpdated(function ($state, callable $set) {
-                                $set('retirement_date', null);
-                            }),
-                        DatePicker::make('retirement_date')
-                            ->label('Retirement Date')
-                            ->minDate(fn($get) => $get('acquisition_date'))
-                    ])->reactive(),
-            ]);
+        switch ($this->record->asset_type) {
+            case 'hardware':
+                return (new CreateHardwareAsset())->form($form);
+            case 'software':
+                return (new CreateSoftwareAsset())->form($form);
+            default:
+                return (new CreatePeripheralsAsset())->form($form);
+        }
     }
 
     protected function getRedirectUrl(): string

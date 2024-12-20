@@ -24,13 +24,40 @@ class ListAssignments extends ListRecords
         return [
             'All' => Tab::make(),
             'Active' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('assignment_status', '1')),
+                ->modifyQueryUsing(
+                    fn(Builder $query) => $query
+                        ->whereHas('status', fn($q) => $q->where('assignment_status', 'Active'))
+                ),
+            'In Transfer' => Tab::make()
+                ->modifyQueryUsing(
+                    fn(Builder $query) => $query
+                        ->whereHas('status', fn($q) => $q->where('assignment_status', 'In Transfer'))
+                ),
             'Inactive' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('assignment_status', '2')),
+                ->modifyQueryUsing(
+                    fn(Builder $query) => $query
+                        ->whereHas('status', fn($q) => $q->where('assignment_status', 'Inactive'))
+                ),
             'Pending Approval' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('assignment_status', '3')),
+                ->modifyQueryUsing(
+                    fn(Builder $query) => $query
+                        ->whereHas('status', fn($q) => $q->where('assignment_status', 'Pending Approval'))
+                ),
             'Pending Return' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('assignment_status', '4')),
+                ->modifyQueryUsing(
+                    fn(Builder $query) => $query
+                        ->whereHas('status', fn($q) => $q->where('assignment_status', 'Pending Return'))
+                ),
+            'Option To Buy' => Tab::make()
+                ->modifyQueryUsing(
+                    fn(Builder $query) => $query
+                        ->whereHas('status', fn($q) => $q->where('assignment_status', 'Option to Buy'))
+                ),
+            'Asset Sold' => Tab::make()
+                ->modifyQueryUsing(
+                    fn(Builder $query) => $query
+                        ->whereHas('status', fn($q) => $q->where('assignment_status', 'Asset Sold'))
+                ),
         ];
     }
 }

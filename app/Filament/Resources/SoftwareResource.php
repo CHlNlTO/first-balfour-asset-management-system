@@ -20,7 +20,7 @@ class SoftwareResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-cpu-chip';
 
-    protected static ?string $navigationParentItem = 'Assets';
+    // protected static ?string $navigationParentItem = 'Assets';
 
     protected static ?string $navigationGroup = 'Manage Assets';
 
@@ -174,9 +174,9 @@ class SoftwareResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->url(fn (Software $record) => route('filament.admin.resources.assets.edit', ['record' => $record])),
+                    ->url(fn(Software $record) => route('filament.admin.resources.assets.edit', ['record' => $record])),
                 Tables\Actions\ViewAction::make()
-                    ->url(fn (Software $record) => route('filament.admin.resources.assets.view', ['record' => $record])),
+                    ->url(fn(Software $record) => route('filament.admin.resources.assets.view', ['record' => $record])),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),

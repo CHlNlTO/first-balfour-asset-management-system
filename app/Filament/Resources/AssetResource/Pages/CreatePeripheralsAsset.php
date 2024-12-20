@@ -29,9 +29,9 @@ class CreatePeripheralsAsset extends CreateRecord
 
     public ?string $assetType = 'peripherals';
 
-    public ?string $brandPlaceholder = 'e.g. Dell, HP, Lenovo';
+    public ?string $brandPlaceholder = 'Dell, HP, Lenovo';
 
-    public ?string $modelPlaceholder = 'e.g. Techno Bag, HP Keyboard, Lenovo Mouse';
+    public ?string $modelPlaceholder = 'Techno Bag, HP Keyboard, Lenovo Mouse';
 
     public function form(Form $form): Form
     {
@@ -54,7 +54,7 @@ class CreatePeripheralsAsset extends CreateRecord
                                             ->createOptionForm([
                                                 TextInput::make('peripherals_type')
                                                     ->required()
-                                                    ->placeholder('e.g. Monitor, Printer'),
+                                                    ->placeholder('Monitor, Printer'),
                                             ])
                                             ->reactive()
                                             ->searchable()
@@ -62,11 +62,11 @@ class CreatePeripheralsAsset extends CreateRecord
                                         TextInput::make('serial_number')
                                             ->label('Serial No.')
                                             ->required()
-                                            ->placeholder('e.g. SN123456789')
+                                            ->placeholder('SN123456789')
                                             ->inlineLabel(),
                                         TextInput::make('manufacturer')
                                             ->required()
-                                            ->placeholder('e.g. Dell, HP')
+                                            ->placeholder('Dell, HP')
                                             ->inlineLabel(),
                                         DatePicker::make('warranty_expiration')
                                             ->label('Warranty Exp.')
@@ -79,7 +79,7 @@ class CreatePeripheralsAsset extends CreateRecord
                                     ->schema([
                                         Textarea::make('specifications')
                                             ->required()
-                                            ->placeholder("e.g. 27'' 4K Monitor, 144Hz refresh rate")
+                                            ->placeholder("27'' 4K Monitor, 144Hz refresh rate")
                                             ->inlineLabel(),
                                     ]),
                             ]),
@@ -112,6 +112,7 @@ class CreatePeripheralsAsset extends CreateRecord
                 'brand' => $data['brand'],
                 'model' => $data['model'],
                 'department_project_code' => $data['department_project_code'],
+                'tag_number' => $data['tag_number'],
             ]);
 
             // Create the peripherals record
@@ -139,6 +140,7 @@ class CreatePeripheralsAsset extends CreateRecord
                 'purchase_order_date' => $data['purchase_order_date'],
                 'purchase_order_amount' => $data['purchase_order_amount'],
                 'vendor_id' => $data['vendor_id'],
+                'requestor' => $data['requestor'] ?? null,
             ]);
 
             return $asset;
@@ -158,7 +160,7 @@ class CreatePeripheralsAsset extends CreateRecord
         return Notification::make()
             ->success()
             ->title('Peripheral Asset Created')
-            ->body(Str::markdown("*{$this->record->brand} {$this->record->model}*"))
+            ->body(Str::markdown("**{$this->record->brand} {$this->record->model}** has been created."))
             ->color('success')
             ->sendToDatabase($recipient);
     }

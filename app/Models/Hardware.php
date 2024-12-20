@@ -18,6 +18,16 @@ class Hardware extends Model
         return $this->belongsTo(Asset::class, 'asset_id', 'id');
     }
 
+    public function software()
+    {
+        return $this->belongsToMany(
+            Software::class,
+            'hardware_software',
+            'hardware_asset_id',
+            'software_asset_id'
+        );
+    }
+
     public function hardwareType()
     {
         return $this->belongsTo(HardwareType::class, 'hardware_type', 'hardware_type');

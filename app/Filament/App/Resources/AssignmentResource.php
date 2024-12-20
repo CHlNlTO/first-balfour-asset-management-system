@@ -56,7 +56,7 @@ class AssignmentResource extends Resource
                         "Pending Approval" => "pending",
                         "Pending Return" => "warning",
                         "In Transfer" => "primary",
-                        "Transferred" => "success",
+                        "Transferred" => "gray",
                         "Declined" => "danger",
                         'Unknown' => 'gray',
                         'Asset Sold' => 'success',

@@ -19,32 +19,32 @@ class AssignmentsRelationManager extends RelationManager
         return $form
             ->schema([
                 Forms\Components\Select::make('employee_id')
-                ->label('Employee')
-                ->placeholder('Select from registered employees')
-                ->relationship('employee', 'id_num')
-                ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->id_num} {$record->first_name} {$record->last_name}")
-                ->searchable()
-                ->required(),
-            Forms\Components\Select::make('assignment_status')
-                ->label('Assignment Status')
-                ->options(AssignmentStatus::all()->pluck('assignment_status', 'id')->toArray())
-                ->default('1')
-                ->required()
-                ->columnSpan(1), // Span the entire width of the form
-            Forms\Components\Group::make()
-                ->schema([
-                    Forms\Components\DatePicker::make('start_date')
-                        ->label('Start Date')
-                        ->native()
-                        ->closeOnDateSelection()
-                        ->required(),
-                    Forms\Components\DatePicker::make('end_date')
-                        ->label('End Date')
-                        ->native()
-                        ->closeOnDateSelection(),
-                ])
-                ->columns(2) // Specify two columns for the group
-                ->columnSpanFull(),
+                    ->label('Employee')
+                    ->placeholder('Select from registered employees')
+                    ->relationship('employee', 'id_num')
+                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->id_num} {$record->first_name} {$record->last_name}")
+                    ->searchable()
+                    ->required(),
+                Forms\Components\Select::make('assignment_status')
+                    ->label('Assignment Status')
+                    ->options(AssignmentStatus::all()->pluck('assignment_status', 'id')->toArray())
+                    ->default('1')
+                    ->required()
+                    ->columnSpan(1), // Span the entire width of the form
+                Forms\Components\Group::make()
+                    ->schema([
+                        Forms\Components\DatePicker::make('start_date')
+                            ->label('Start Date')
+                            ->native()
+                            ->closeOnDateSelection()
+                            ->required(),
+                        Forms\Components\DatePicker::make('end_date')
+                            ->label('End Date')
+                            ->native()
+                            ->closeOnDateSelection(),
+                    ])
+                    ->columns(2) // Specify two columns for the group
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -60,7 +60,7 @@ class AssignmentsRelationManager extends RelationManager
                     ->label('Employee ID')
                     ->sortable()
                     ->searchable()
-                    ->url(fn (Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id])),
+                    ->url(fn(Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id])),
                 Tables\Columns\TextColumn::make('employee')
                     ->numeric()
                     ->sortable()
@@ -69,7 +69,7 @@ class AssignmentsRelationManager extends RelationManager
                         $employee = $record->employee->first_name . ' ' . $record->employee->last_name;
                         return $employee ? $employee : 'N/A';
                     })
-                    ->url(fn (Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id])),
+                    ->url(fn(Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id])),
                 Tables\Columns\TextColumn::make('assignment_status')
                     ->label('Assignment Status')
                     ->getStateUsing(function (Assignment $record): string {
@@ -79,7 +79,7 @@ class AssignmentsRelationManager extends RelationManager
                     ->sortable()
                     ->searchable()
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         "Active" => "success",
                         "Pending Approval" => "pending",
                         "Pending Return" => "warning",
@@ -114,7 +114,7 @@ class AssignmentsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

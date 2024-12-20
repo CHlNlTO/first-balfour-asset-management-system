@@ -22,6 +22,8 @@ use Filament\Forms\Components\Repeater;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Textarea;
 use App\Filament\Resources\AssetResource\RelationManagers\AssignmentsRelationManager;
+use App\Filament\Resources\AssetResource\RelationManagers\HardwareRelationManager;
+use App\Filament\Resources\AssetResource\RelationManagers\SoftwareRelationmanager;
 use Filament\Forms\Components\Grid;
 use Filament\Notifications\Notification;
 use Filament\Tables\Filters\SelectFilter;
@@ -32,7 +34,7 @@ class AssetResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-cube';
 
-    protected static ?string $navigationGroup = 'Manage Assets';
+    // protected static ?string $navigationGroup = 'Manage Assets';
 
     protected static ?int $navigationSort = 1;
 
@@ -331,10 +333,16 @@ class AssetResource extends Resource
                 TextColumn::make('id')
                     ->label('Asset ID')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->orWhere('assets.id', 'like', "%{$search}%");
                     })
+                    ->placeholder('N/A'),
+                TextColumn::make('tag_number')
+                    ->label('Tag Number')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->placeholder('N/A'),
                 TextColumn::make('asset_type')
                     ->label('Asset Type')
@@ -450,6 +458,8 @@ class AssetResource extends Resource
     {
         return [
             AssignmentsRelationManager::class,
+            SoftwareRelationmanager::class,
+            HardwareRelationManager::class,
         ];
     }
 

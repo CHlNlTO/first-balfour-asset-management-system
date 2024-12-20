@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\AssignmentResource\Actions\ApproveSaleAction;
+use App\Filament\Resources\AssignmentResource\Actions\ApproveSaleActionInOptionToBuy;
 use App\Filament\Resources\OptionToBuyResource\Pages;
 use App\Models\OptionToBuy;
 use App\Models\Assignment;
@@ -78,7 +80,7 @@ class OptionToBuyResource extends Resource
                         $employee = $record->assignment->employee->first_name . ' ' . $record->assignment->employee->last_name;
                         return $employee ? $employee : 'N/A';
                     })
-                    ->url(fn (OptionToBuy $record): string => route('filament.admin.resources.employees.view', ['record' => $record->assignment->employee->id_num])),
+                    ->url(fn(OptionToBuy $record): string => route('filament.admin.resources.employees.view', ['record' => $record->assignment->employee->id_num])),
                 Tables\Columns\TextColumn::make('asset')
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->whereHas('assignment', function (Builder $query) use ($search) {
@@ -91,7 +93,7 @@ class OptionToBuyResource extends Resource
                         $asset = $record->assignment->asset->brand . ' ' . $record->assignment->asset->model;
                         return $asset ? $asset : 'N/A';
                     })
-                    ->url(fn (OptionToBuy $record): string => route('filament.admin.resources.assets.view', ['record' => $record->assignment->asset_id])),
+                    ->url(fn(OptionToBuy $record): string => route('filament.admin.resources.assets.view', ['record' => $record->assignment->asset_id])),
                 Tables\Columns\TextColumn::make('asset_cost')
                     ->money('php')
                     ->sortable()
@@ -101,7 +103,7 @@ class OptionToBuyResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         "Active" => "success",
                         "Pending Approval" => "pending",
                         "Pending Return" => "warning",
@@ -157,6 +159,7 @@ class OptionToBuyResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                ApproveSaleActionInOptionToBuy::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -182,5 +185,4 @@ class OptionToBuyResource extends Resource
             'edit' => Pages\EditOptionToBuy::route('/{record}/edit'),
         ];
     }
-
 }

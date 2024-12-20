@@ -17,7 +17,7 @@ class PeripheralResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
 
-    protected static ?string $navigationParentItem = 'Assets';
+    // protected static ?string $navigationParentItem = 'Assets';
 
     protected static ?string $navigationGroup = 'Manage Assets';
 
@@ -142,9 +142,9 @@ class PeripheralResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->url(fn (Peripheral $record) => route('filament.admin.resources.assets.edit', ['record' => $record])),
+                    ->url(fn(Peripheral $record) => route('filament.admin.resources.assets.edit', ['record' => $record])),
                 Tables\Actions\ViewAction::make()
-                    ->url(fn (Peripheral $record) => route('filament.admin.resources.assets.view', ['record' => $record])),
+                    ->url(fn(Peripheral $record) => route('filament.admin.resources.assets.view', ['record' => $record])),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),

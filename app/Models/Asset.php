@@ -9,7 +9,7 @@ class Asset extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['asset_type', 'asset_status', 'brand', 'model', 'department_project_code'];
+    protected $fillable = ['asset_type', 'asset_status', 'brand', 'model', 'department_project_code', 'tag_number'];
 
     protected $with = ['hardware', 'software', 'peripherals', 'lifecycle', 'purchases', 'assetStatus']; // Eager load relationships
 
@@ -26,6 +26,31 @@ class Asset extends Model
     {
         return $this->hasOne(Peripheral::class);
     }
+
+    public function installedSoftware()
+    {
+        return $this->hasManyThrough(
+            Software::class,
+            HardwareSoftware::class,
+            'hardware_asset_id', // Foreign key on hardware_software
+            'asset_id', // Foreign key on software
+            'id', // Local key on hardware
+            'software_asset_id' // Local key on pivot
+        );
+    }
+
+    public function installedHardware()
+    {
+        return $this->hasManyThrough(
+            Hardware::class,
+            HardwareSoftware::class,
+            'software_asset_id', // Foreign key on hardware_software
+            'asset_id', // Foreign key on hardware
+            'id', // Local key on assets
+            'hardware_asset_id' // Local key on pivot
+        );
+    }
+
 
     public function purchases()
     {

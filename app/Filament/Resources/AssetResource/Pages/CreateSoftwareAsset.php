@@ -14,6 +14,7 @@ use App\Models\SoftwareType;
 use App\Models\LicenseType;
 use Filament\Forms\Components\Group;
 use App\Models\Asset;
+use App\Models\Hardware;
 use App\Models\Software;
 use App\Models\Purchase;
 use App\Models\Lifecycle;
@@ -28,9 +29,9 @@ class CreateSoftwareAsset extends CreateRecord
 
     public ?string $assetType = 'software';
 
-    public ?string $brandPlaceholder = 'e.g. Microsoft, Adobe, Autodesk';
+    public ?string $brandPlaceholder = 'Microsoft, Adobe, Autodesk';
 
-    public ?string $modelPlaceholder = 'e.g. Windows, Adobe Photoshop, AutoCAD';
+    public ?string $modelPlaceholder = 'Windows, Adobe Photoshop, AutoCAD';
 
     public function form(Form $form): Form
     {
@@ -53,7 +54,7 @@ class CreateSoftwareAsset extends CreateRecord
                                             ->createOptionForm([
                                                 TextInput::make('software_type')
                                                     ->required()
-                                                    ->placeholder('e.g. Operating System, Application'),
+                                                    ->placeholder('Operating System, Application'),
                                             ])
                                             ->reactive()
                                             ->inlineLabel(),
@@ -64,24 +65,43 @@ class CreateSoftwareAsset extends CreateRecord
                                             ->createOptionForm([
                                                 TextInput::make('license_type')
                                                     ->required()
-                                                    ->placeholder('e.g. Perpetual, Subscription'),
+                                                    ->placeholder('Perpetual, Subscription'),
                                             ])
                                             ->reactive()
                                             ->inlineLabel(),
                                         TextInput::make('version')
                                             ->nullable()
-                                            ->placeholder('e.g. 2.1.0, v3.5')
+                                            ->placeholder('2.1.0, v3.5')
                                             ->inlineLabel(),
                                         TextInput::make('license_key')
                                             ->nullable()
-                                            ->placeholder('e.g. XXXX-YYYY-ZZZZ')
+                                            ->placeholder('XXXX-YYYY-ZZZZ')
                                             ->inlineLabel(),
                                         TextInput::make('pc_name')
                                             ->nullable()
-                                            ->placeholder('e.g. DESKTOP-ABC123')
+                                            ->placeholder('DESKTOP-ABC123')
                                             ->inlineLabel(),
                                     ]),
                             ]),
+
+                        Section::make("Attach to Hardware")
+                            ->icon('heroicon-o-link')
+                            ->schema([
+                                Grid::make(2)
+                                    ->schema([
+                                        Select::make('hardware')
+                                            ->label('Hardware')
+                                            ->options(function () {
+                                                return Asset::where('asset_type', 'hardware')
+                                                    ->get()
+                                                    ->pluck('asset', 'id');
+                                            })
+                                            ->searchable(['id', 'brand', 'model'])
+                                            ->multiple()
+                                            ->preload()
+                                            ->inlineLabel(),
+                                    ]),
+                            ])
                     ])
                     ->columnSpan(['lg' => 2]),
 
@@ -123,6 +143,34 @@ class CreateSoftwareAsset extends CreateRecord
                 'pc_name' => $data['pc_name'] ?? null,
             ]);
 
+
+            Log:
+            info("Hardware here!", $data['hardware']);
+
+            // Attach software if selected
+            if (!empty($data['hardware'])) {
+                Log::info("Attaching software to hardware", $data['hardware']);
+
+                // Get the hardware records
+                $hardwareRecords = Hardware::whereIn('asset_id', $data['hardware'])
+                    ->pluck('asset_id');
+
+                if ($hardwareRecords->isNotEmpty()) {
+                    // Get the software record we just created
+                    $software = Software::where('asset_id', $asset->id)->first();
+
+                    // Attach hardware to software
+                    $software->hardware()->attach(
+                        $hardwareRecords->mapWithKeys(function ($hardwareAssetId) use ($asset) {
+                            return [$hardwareAssetId => [
+                                'hardware_asset_id' => $hardwareAssetId,
+                                'software_asset_id' => $asset->id
+                            ]];
+                        })->all()
+                    );
+                }
+            }
+
             // Create lifecycle record
             Lifecycle::create([
                 'asset_id' => $asset->id,
@@ -138,6 +186,7 @@ class CreateSoftwareAsset extends CreateRecord
                 'purchase_order_date' => $data['purchase_order_date'],
                 'purchase_order_amount' => $data['purchase_order_amount'],
                 'vendor_id' => $data['vendor_id'],
+                'requestor' => $data['requestor'] ?? null,
             ]);
 
             return $asset;
@@ -157,7 +206,7 @@ class CreateSoftwareAsset extends CreateRecord
         return Notification::make()
             ->success()
             ->title('Software Asset Created')
-            ->body(Str::markdown("*{$this->record->brand} {$this->record->model}*"))
+            ->body(Str::markdown("**{$this->record->brand} {$this->record->model}** has been created"))
             ->color('success')
             ->sendToDatabase($recipient);
     }

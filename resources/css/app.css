@@ -28,9 +28,54 @@ body {
     @apply text-blue-500 !important;
 }
 
+/* .fi-active .fi-sidebar-item-active .fi-sidebar-item-button {
+    @apply bg-gradient-to-r from-cyan-500 to-blue-500 border border-cyan-400 hover:from-cyan-400 hover:to-blue-400 !important;
+} */
+
+/* .fi-sidebar-sub-group-items .fi-sidebar-item .fi-sidebar-item-button {
+    @apply bg-transparent text-black !important;
+} */
+
+/* Default active buttons */
 .fi-active .fi-sidebar-item-active .fi-sidebar-item-button {
     @apply bg-gradient-to-r from-cyan-500 to-blue-500 border border-cyan-400 hover:from-cyan-400 hover:to-blue-400 !important;
 }
+
+/* Default styles for sub-group items */
+.fi-sidebar-sub-group-items .fi-sidebar-item .fi-sidebar-item-button {
+    @apply bg-transparent border-0 z-50 !important;
+    background-image: none !important; /* Ensure gradient is removed */
+}
+
+/* Active buttons in sub-group items */
+.fi-sidebar-sub-group-items
+    .fi-sidebar-item.fi-active
+    .fi-sidebar-item-active
+    .fi-sidebar-item-button {
+    @apply bg-gradient-to-r from-cyan-500 to-blue-500 border border-cyan-400 hover:from-cyan-400 hover:to-blue-400 !important;
+}
+
+.fi-sidebar-sub-group-items
+    .fi-sidebar-item
+    .fi-sidebar-item-button
+    .fi-sidebar-item-label {
+    @apply bg-transparent text-black !important;
+}
+
+.dark
+    .fi-sidebar-sub-group-items
+    .fi-sidebar-item
+    .fi-sidebar-item-button
+    .fi-sidebar-item-label {
+    @apply bg-transparent text-white !important;
+}
+
+/* .fi-active
+    .fi-sidebar-item-active
+    .fi-sidebar-item-button
+    .fi-sidebar-sub-group-items {
+    @apply bg-gray-100 dark:bg-gray-800 !important;
+} */
 
 .fi-active .fi-sidebar-item-active .fi-sidebar-item-icon {
     @apply text-white !important;

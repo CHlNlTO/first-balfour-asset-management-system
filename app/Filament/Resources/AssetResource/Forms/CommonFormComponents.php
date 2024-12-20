@@ -1,8 +1,5 @@
 <?php
 
-// First, let's create common sections that all asset types share.
-// app/Filament/Resources/AssetResource/Forms/CommonFormComponents.php
-
 namespace App\Filament\Resources\AssetResource\Forms;
 
 use Filament\Forms\Components\Grid;
@@ -37,7 +34,7 @@ class CommonFormComponents
                             ->createOptionForm([
                                 TextInput::make('asset_status')
                                     ->required()
-                                    ->placeholder('e.g. Active, Inactive'),
+                                    ->placeholder('Active, Inactive'),
                             ])
                             ->createOptionUsing(function ($data) {
                                 $assetStatus = AssetStatus::create([
@@ -67,8 +64,14 @@ class CommonFormComponents
                         TextInput::make('department_project_code')
                             ->label('Dept/Project Code')
                             ->nullable()
-                            ->placeholder('e.g. IT-2021-001')
+                            ->placeholder('IT-2021-001')
                             ->inlineLabel(),
+                        TextInput::make('tag_number')
+                            ->label('Tag Number')
+                            ->nullable()
+                            ->placeholder('#A21BQWXGA')
+                            ->inlineLabel()
+                            ->visible($assetType == 'hardware' || $assetType == 'peripherals'),
                     ]),
             ]);
     }
@@ -83,12 +86,12 @@ class CommonFormComponents
                         TextInput::make('purchase_order_no')
                             ->required()
                             ->numeric()
-                            ->placeholder('e.g. 20230001')
+                            ->placeholder('20230001')
                             ->inlineLabel(),
                         TextInput::make('sales_invoice_no')
                             ->required()
                             ->numeric()
-                            ->placeholder('e.g. 74920001')
+                            ->placeholder('74920001')
                             ->inlineLabel(),
                         DatePicker::make('purchase_order_date')
                             ->required()
@@ -98,11 +101,11 @@ class CommonFormComponents
                             ->label('Purchase Cost')
                             ->required()
                             ->numeric()
-                            ->placeholder('e.g. 50000')
+                            ->placeholder('50000')
                             ->inlineLabel(),
                         TextInput::make('requestor')
                             ->nullable()
-                            ->placeholder('e.g. John Smith')
+                            ->placeholder('John Smith')
                             ->inlineLabel(),
                     ]),
             ]);
@@ -145,18 +148,18 @@ class CommonFormComponents
                                         TextInput::make('name')
                                             ->label('Vendor Name')
                                             ->required()
-                                            ->placeholder('e.g. ABC Computer Solutions')
+                                            ->placeholder('ABC Computer Solutions')
                                             ->inlineLabel(),
                                         TextInput::make('contact_person')
-                                            ->placeholder('e.g. John Smith')
+                                            ->placeholder('John Smith')
                                             ->inlineLabel(),
                                         TextInput::make('email')
                                             ->email()
-                                            ->placeholder('e.g. contact@abc.com')
+                                            ->placeholder('contact@abc.com')
                                             ->inlineLabel(),
                                         TextInput::make('url')
                                             ->label('URL')
-                                            ->placeholder('e.g. www.abccomputers.com')
+                                            ->placeholder('www.abccomputers.com')
                                             ->inlineLabel(),
                                     ]),
 
@@ -169,16 +172,16 @@ class CommonFormComponents
                                         TextInput::make('tel_no_1')
                                             ->label('Telephone No. 1')
                                             ->tel()
-                                            ->placeholder('e.g. (02) 8123-4567')
+                                            ->placeholder('(02) 8123-4567')
                                             ->inlineLabel(),
                                         TextInput::make('tel_no_2')
                                             ->label('Telephone No. 2')
                                             ->tel()
-                                            ->placeholder('e.g. (02) 8765-4321')
+                                            ->placeholder('(02) 8765-4321')
                                             ->inlineLabel(),
                                         TextInput::make('mobile_number')
                                             ->numeric()
-                                            ->placeholder('e.g. 09123456789')
+                                            ->placeholder('09123456789')
                                             ->inlineLabel(),
                                     ]),
                             ]),
@@ -191,14 +194,14 @@ class CommonFormComponents
                                         TextInput::make('address_1')
                                             ->label('Address 1')
                                             ->required()
-                                            ->placeholder('e.g. 123 Main Street')
+                                            ->placeholder('123 Main Street')
                                             ->inlineLabel(),
                                         TextInput::make('address_2')
                                             ->label('Address 2')
-                                            ->placeholder('e.g. Floor 2, Suite 205')
+                                            ->placeholder('Floor 2, Suite 205')
                                             ->inlineLabel(),
                                         TextInput::make('city')
-                                            ->placeholder('e.g. Makati City')
+                                            ->placeholder('Makati City')
                                             ->inlineLabel(),
                                     ]),
 
@@ -206,7 +209,7 @@ class CommonFormComponents
                         Section::make('Additional Information')
                             ->schema([
                                 Textarea::make('remarks')
-                                    ->placeholder('e.g. Preferred vendor for IT equipment')
+                                    ->placeholder('Preferred vendor for IT equipment')
                                     ->inlineLabel(),
                             ]),
                     ])
@@ -247,7 +250,7 @@ class CommonFormComponents
             ->createOptionForm([
                 TextInput::make('hardware_type')
                     ->required()
-                    ->placeholder('e.g. Desktop, Laptop, Server'),
+                    ->placeholder('Desktop, Laptop, Server'),
             ])
             ->createOptionUsing(function ($data) {
                 $hardwareType = HardwareType::create([
@@ -260,7 +263,6 @@ class CommonFormComponents
                     ->success()
                     ->send();
 
-                // Return the ID which will automatically select the newly created option
                 return $hardwareType->id;
             })
             ->searchable()
