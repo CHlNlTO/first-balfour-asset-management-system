@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\HardwareTypesResource\Pages;
 use App\Models\HardwareType;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Form;
@@ -25,9 +26,13 @@ class HardwareTypesResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('hardware_type')
-                    ->required()
-                    ->label("Hardware Type"),
+                Grid::make()
+                    ->columns(1)
+                    ->schema([
+                        TextInput::make('hardware_type')
+                            ->required()
+                            ->label("Hardware Type"),
+                    ]),
             ]);
     }
 
@@ -64,7 +69,7 @@ class HardwareTypesResource extends Resource
     {
         return [
             'index' => Pages\ListHardwareTypes::route('/'),
-            'create' => Pages\CreateHardwareTypes::route('/create'),
+            // 'create' => Pages\CreateHardwareTypes::route('/create'),
             'edit' => Pages\EditHardwareTypes::route('/{record}/edit'),
         ];
     }

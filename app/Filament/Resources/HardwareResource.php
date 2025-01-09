@@ -37,14 +37,14 @@ class HardwareResource extends Resource
                     ->copyMessage('Copied!')
                     ->tooltip('Click to copy')
                     ->placeholder('N/A'),
-                TextColumn::make('asset.asset_status')
+                TextColumn::make('asset.assetStatus.asset_status')
                     ->label('Asset Status')
                     ->sortable()
                     ->searchable()
-                    ->getStateUsing(function (Hardware $record): string {
-                        $assetStatus = AssetStatus::find($record->asset->asset_status);
-                        return $assetStatus ? $assetStatus->asset_status : 'N/A';
-                    })
+                    // ->getStateUsing(function (Hardware $record): string {
+                    //     $assetStatus = AssetStatus::find($record->asset->assetStatus->asset_status);
+                    //     return $assetStatus ? $assetStatus->asset_status : 'N/A';
+                    // })
                     ->copyable()
                     ->copyMessage('Copied!')
                     ->tooltip('Click to copy')

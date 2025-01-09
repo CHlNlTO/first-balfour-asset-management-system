@@ -136,7 +136,6 @@ class TransferAction
                         ->native(false)
                         ->closeOnDateSelection()
                         ->required()
-                        ->minDate(now())
                         ->default(now()),
 
                     DatePicker::make('end_date')
@@ -189,7 +188,7 @@ class TransferAction
 
     protected static function updateCurrentAssignment(Assignment $record): void
     {
-        $inTransferStatus = AssignmentStatus::where('assignment_status', 'In Transfer')->first();
+        $inTransferStatus = AssignmentStatus::where('assignment_status', 'Transferred')->first();
 
         $record->update([
             'assignment_status' => $inTransferStatus->id,

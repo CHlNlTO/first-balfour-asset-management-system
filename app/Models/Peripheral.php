@@ -20,7 +20,7 @@ class Peripheral extends Model
 
     public function peripheralsType()
     {
-        return $this->belongsTo(PeripheralType::class, 'peripherals_type', 'peripherals_type');
+        return $this->belongsTo(PeripheralType::class, 'peripherals_type', 'id');
     }
 
     // Override the getRouteKeyName method

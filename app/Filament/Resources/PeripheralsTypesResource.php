@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PeripheralsTypesResource\Pages;
 use App\Models\PeripheralType;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -25,9 +26,13 @@ class PeripheralsTypesResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('peripherals_type')
-                    ->required()
-                    ->label("Peripherals Type"),
+                Grid::make()
+                    ->columns(1)
+                    ->schema([
+                        TextInput::make('peripherals_type')
+                            ->required()
+                            ->label("Peripherals Type"),
+                    ]),
             ]);
     }
 
@@ -64,7 +69,7 @@ class PeripheralsTypesResource extends Resource
     {
         return [
             'index' => Pages\ListPeripheralsTypes::route('/'),
-            'create' => Pages\CreatePeripheralsTypes::route('/create'),
+            // 'create' => Pages\CreatePeripheralsTypes::route('/create'),
             'edit' => Pages\EditPeripheralsTypes::route('/{record}/edit'),
         ];
     }

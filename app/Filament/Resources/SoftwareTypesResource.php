@@ -7,6 +7,7 @@ use App\Filament\Resources\SoftwareTypesResource\RelationManagers;
 use App\Models\SoftwareType;
 use Faker\Provider\ar_EG\Text;
 use Filament\Forms;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -28,9 +29,13 @@ class SoftwareTypesResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('software_type')
-                    ->required()
-                    ->label("Software Type"),
+                Grid::make()
+                    ->columns(1)
+                    ->schema([
+                        TextInput::make('software_type')
+                            ->required()
+                            ->label("Software Type"),
+                    ]),
             ]);
     }
 
@@ -67,7 +72,7 @@ class SoftwareTypesResource extends Resource
     {
         return [
             'index' => Pages\ListSoftwareTypes::route('/'),
-            'create' => Pages\CreateSoftwareTypes::route('/create'),
+            // 'create' => Pages\CreateSoftwareTypes::route('/create'),
             'edit' => Pages\EditSoftwareTypes::route('/{record}/edit'),
         ];
     }

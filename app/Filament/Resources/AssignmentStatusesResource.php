@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AssignmentStatusesResource\Pages;
 use App\Models\AssignmentStatus;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Form;
@@ -24,22 +25,26 @@ class AssignmentStatusesResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
-            TextInput::make('assignment_status')
-                ->required()
-                ->label("Assignment Status"),
-        ]);
+            ->schema([
+                Grid::make()
+                    ->columns(1)
+                    ->schema([
+                        TextInput::make('assignment_status')
+                            ->required()
+                            ->label("Assignment Status"),
+                    ]),
+            ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-        ->columns([
-            TextColumn::make('id')->label('ID')->sortable()->searchable(),
-            TextColumn::make('assignment_status')->label('Assignment Status')->sortable()->searchable(),
-            TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: false)->searchable(),
-            TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: false)->searchable(),
-        ])
+            ->columns([
+                TextColumn::make('id')->label('ID')->sortable()->searchable(),
+                TextColumn::make('assignment_status')->label('Assignment Status')->sortable()->searchable(),
+                TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: false)->searchable(),
+                TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: false)->searchable(),
+            ])
             ->filters([
                 //
             ])
@@ -64,7 +69,7 @@ class AssignmentStatusesResource extends Resource
     {
         return [
             'index' => Pages\ListAssignmentStatuses::route('/'),
-            'create' => Pages\CreateAssignmentStatuses::route('/create'),
+            // 'create' => Pages\CreateAssignmentStatuses::route('/create'),
             'edit' => Pages\EditAssignmentStatuses::route('/{record}/edit'),
         ];
     }

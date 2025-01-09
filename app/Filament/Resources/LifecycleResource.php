@@ -25,21 +25,21 @@ class LifecycleResource extends Resource
 
     protected static ?int $navigationSort = 5;
 
-    public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\DatePicker::make('acquisition_date')
-                    ->label('Acquisition Date')
-                    ->displayFormat('m/d/Y')
-                    ->required(),
-                Forms\Components\DatePicker::make('retirement_date')
-                    ->label('Retirement Date')
-                    ->displayFormat('m/d/Y')
-                    ->default(now()->addYears(5))
-                    ->required(),
-            ]);
-    }
+    // public static function form(Form $form): Form
+    // {
+    //     return $form
+    //         ->schema([
+    //             Forms\Components\DatePicker::make('acquisition_date')
+    //                 ->label('Acquisition Date')
+    //                 ->displayFormat('m/d/Y')
+    //                 ->required(),
+    //             Forms\Components\DatePicker::make('retirement_date')
+    //                 ->label('Retirement Date')
+    //                 ->displayFormat('m/d/Y')
+    //                 ->default(now()->addYears(5))
+    //                 ->required(),
+    //         ]);
+    // }
 
     public static function table(Table $table): Table
     {
@@ -66,24 +66,18 @@ class LifecycleResource extends Resource
                         return $asset ? " {$asset->brand} {$asset->model}" : 'N/A';
                     })
                     ->url(fn(Lifecycle $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
-                TextColumn::make('asset_status')
+                TextColumn::make('asset.assetStatus.asset_status')
                     ->label('Asset Status')
-                    ->getStateUsing(function (Lifecycle $record): string {
-                        $assetStatus = AssetStatus::find($record->asset->asset_status);
-                        return $assetStatus ? $assetStatus->asset_status : 'N/A';
-                    })
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'Active' => 'success',
-                        'Inactive' => 'gray',
-                        'In Transfer' => 'primary',
-                        'Maintenance' => 'warning',
-                        'Lost' => 'gray',
-                        'Disposed' => 'gray',
-                        'Stolen' => 'danger',
-                        'Unknown' => 'gray',
-                        default => 'gray',
-                    }),
+                    ->sortable()
+                    ->searchable()
+                    // ->getStateUsing(function (Hardware $record): string {
+                    //     $assetStatus = AssetStatus::find($record->asset->assetStatus->asset_status);
+                    //     return $assetStatus ? $assetStatus->asset_status : 'N/A';
+                    // })
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
                 TextColumn::make('asset.software.license_type')
                     ->label('Software License Type')
                     ->sortable()
@@ -275,7 +269,7 @@ class LifecycleResource extends Resource
     {
         return [
             'index' => Pages\ListLifecycles::route('/'),
-            'create' => Pages\CreateLifecycle::route('/create'),
+            // 'create' => Pages\CreateLifecycle::route('/create'),
             'edit' => Pages\EditLifecycle::route('/{record}/edit'),
         ];
     }

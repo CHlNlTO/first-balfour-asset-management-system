@@ -15,6 +15,8 @@ class PendingReturns extends BaseWidget
 
     protected int | string | array $columnSpan = 'half';
 
+    protected static ?string $heading = 'Assets To Return by Employees';
+
     protected static ?int $sort = 3;
 
     protected function getTableQuery(): Builder

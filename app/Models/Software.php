@@ -30,7 +30,7 @@ class Software extends Model
 
     public function softwareType()
     {
-        return $this->belongsTo(SoftwareType::class, 'software_type', 'software_type');
+        return $this->belongsTo(SoftwareType::class, 'software_type', 'id');
     }
 
     public function licenseType()

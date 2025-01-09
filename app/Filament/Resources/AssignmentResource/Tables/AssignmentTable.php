@@ -66,10 +66,14 @@ class AssignmentTable
                 ->sortable()
                 ->searchable()
                 ->getStateUsing(function (Assignment $record): string {
-                    $employee = $record->employee->id_num;
-                    return $employee ? $employee : 'N/A';
+                    // Add null check
+                    return $record->employee?->id_num ?? 'N/A';
                 })
-                ->url(fn(Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num])),
+                ->url(function (Assignment $record): ?string {
+                    // Only generate URL if employee exists
+                    if (!$record->employee) return null;
+                    return route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num]);
+                }),
             TextColumn::make('employee')
                 ->label('Employee Name')
                 ->searchable(query: function (Builder $query, string $search): Builder {

@@ -8,6 +8,8 @@ use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Section;
 use App\Models\Asset;
 use App\Models\AssignmentStatus;
+use App\Models\CEMREmployee;
+use App\Models\Employee;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Carbon\Carbon;
@@ -48,9 +50,38 @@ class AssignmentForm
                         Select::make('employee_id')
                             ->label('Employee')
                             ->placeholder('Search by ID or name')
-                            ->relationship('employee', 'id_num')
-                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->id_num} {$record->first_name} {$record->last_name}")
-                            ->searchable(['id_num', 'first_name', 'last_name'])
+                            ->searchable()
+                            ->getSearchResultsUsing(function (string $search) {
+                                return CEMREmployee::query()
+                                    ->where(function ($query) use ($search) {
+                                        $searchTerms = explode(' ', $search);
+
+                                        foreach ($searchTerms as $term) {
+                                            $query->where(function ($query) use ($term) {
+                                                $query->where('id_num', 'like', "%{$term}%")
+                                                    ->orWhere('first_name', 'like', "%{$term}%")
+                                                    ->orWhere('last_name', 'like', "%{$term}%")
+                                                    ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$term}%"]);
+                                            });
+                                        }
+                                    })
+                                    ->limit(50)
+                                    ->get()
+                                    ->filter() // Remove any null values
+                                    ->mapWithKeys(function ($employee) {
+                                        // Add null check
+                                        if (!$employee) return [];
+                                        return [$employee->id_num => "{$employee->id_num} {$employee->first_name} {$employee->last_name}"];
+                                    })
+                                    ->toArray();
+                            })
+                            ->getOptionLabelUsing(function ($value) {
+                                // Add more robust error checking
+                                $employee = CEMREmployee::find($value);
+                                if (!$employee) return null;
+
+                                return "{$employee->id_num} {$employee->first_name} {$employee->last_name}";
+                            })
                             ->required()
                             ->inlineLabel(),
 
@@ -63,7 +94,7 @@ class AssignmentForm
                             ->placeholder('Select status'),
                     ])->columns(2)
             ])
-            ->columnSpan(['lg' => 2]);
+            ->columnSpanFull();
     }
 
     protected static function getAssignmentPeriodSection(): Group
@@ -95,6 +126,6 @@ class AssignmentForm
                             ]),
                     ]),
             ])
-            ->columnSpan(['lg' => 1]);
+            ->columnSpanFull();
     }
 }

@@ -22,6 +22,14 @@ class ViewAsset extends ViewRecord
 {
     protected static string $resource = AssetResource::class;
 
+    protected static string $view = 'filament.resources.asset-resource.pages.view-asset';
+
+    public ?string $activeTab = 'assignments';
+
+    protected $queryString = [
+        'activeTab',
+    ];
+
     protected function getHeaderActions(): array
     {
         return [
@@ -55,7 +63,6 @@ class ViewAsset extends ViewRecord
                                             return null;
                                         }
 
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('model')
@@ -74,7 +81,6 @@ class ViewAsset extends ViewRecord
                                             return null;
                                         }
 
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('asset_type')
@@ -93,7 +99,6 @@ class ViewAsset extends ViewRecord
                                             return null;
                                         }
 
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('asset_status')
@@ -119,7 +124,6 @@ class ViewAsset extends ViewRecord
                                             return null;
                                         }
 
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('department_project_code')
@@ -138,7 +142,6 @@ class ViewAsset extends ViewRecord
                                             return null;
                                         }
 
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                             ])
@@ -167,8 +170,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('hardware.serial_number')
@@ -186,8 +187,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('hardware.specifications')
@@ -205,8 +204,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('hardware.manufacturer')
@@ -224,8 +221,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('hardware.mac_address')
@@ -243,8 +238,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('hardware.accessories')
@@ -262,8 +255,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('hardware.pc_name')
@@ -281,8 +272,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('hardware.warranty_expiration')
@@ -301,8 +290,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                             ])
@@ -338,6 +325,7 @@ class ViewAsset extends ViewRecord
                         //     ->visible(fn($record) => $record->asset_type === 'hardware'), // Only show for hardware assets
 
                         Section::make('Software Details')
+                            ->icon('heroicon-o-code-bracket')
                             ->schema([
                                 TextEntry::make('software.version')
                                     ->label('Version')
@@ -354,8 +342,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('software.license_key')
@@ -373,8 +359,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('software_type')
@@ -397,8 +381,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('license_type')
@@ -421,8 +403,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('software.pc_name')
@@ -440,8 +420,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                             ])
@@ -470,8 +448,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('peripherals.serial_number')
@@ -489,8 +465,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('peripherals.specifications')
@@ -508,8 +482,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('peripherals.manufacturer')
@@ -527,8 +499,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('peripherals.warranty_expiration')
@@ -547,8 +517,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                             ])
@@ -558,6 +526,7 @@ class ViewAsset extends ViewRecord
                 Group::make()
                     ->schema([
                         Section::make('Lifecycle Information')
+                            ->icon('heroicon-o-clock')
                             ->schema([
                                 TextEntry::make('lifecycle.acquisition_date')
                                     ->label('Acquired Date')
@@ -575,8 +544,6 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                                 TextEntry::make('lifecycle.retirement_date')
@@ -595,14 +562,13 @@ class ViewAsset extends ViewRecord
                                         if (strlen($state) <= $component->getCharacterLimit()) {
                                             return null;
                                         }
-
-                                        // Only render the tooltip if the entry contents exceeds the length limit.
                                         return $state;
                                     }),
                             ])
                             ->columns(2),
 
                         Section::make('Purchase Information')
+                            ->icon('heroicon-o-banknotes')
                             ->schema([
                                 TextEntry::make('purchases.purchase_order_no')
                                     ->label('PO. No.')
@@ -646,6 +612,7 @@ class ViewAsset extends ViewRecord
                             ->columns(2),
 
                         Section::make('Vendor Information')
+                            ->icon('heroicon-o-shopping-cart')
                             ->schema([
                                 TextEntry::make('purchases.vendor.name')
                                     ->label('Vendor Name')

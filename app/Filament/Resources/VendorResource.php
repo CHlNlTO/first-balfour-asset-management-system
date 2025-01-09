@@ -6,6 +6,7 @@ use App\Filament\Resources\VendorResource\Pages;
 use App\Filament\Resources\VendorResource\RelationManagers;
 use App\Models\Vendor;
 use Filament\Forms;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -25,36 +26,75 @@ class VendorResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255)
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('address_1')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('address_2')
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\TextInput::make('city')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('tel_no_1')
-                    ->tel()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('tel_no_2')
-                    ->tel()
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\TextInput::make('contact_person')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('mobile_number')
-                    ->numeric(),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('url')
-                    ->maxLength(255)
-                    ->prefix('https://')
-                    ->default(null),
+                Section::make('Vendor Information')
+                    ->icon('heroicon-o-shopping-cart')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->inlineLabel()
+                            ->required()
+                            ->placeholder('Gigahertz Computers')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('url')
+                            ->label('Website URL')
+                            ->inlineLabel()
+                            ->placeholder('www.gigahertzcomputers.com')
+                            ->maxLength(255)
+                            ->prefix('https://')
+                            ->default(null),
+                        Forms\Components\TextInput::make('contact_person')
+                            ->inlineLabel()
+                            ->placeholder('Juan Dela Cruz')
+                            ->maxLength(255),
+
+                    ]),
+                Section::make('Address Information')
+                    ->icon('heroicon-o-map-pin')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('address_1')
+                            ->inlineLabel()
+                            ->required()
+                            ->placeholder('No. 123, Street, City')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('address_2')
+                            ->inlineLabel()
+                            ->placeholder('Barangay, District')
+                            ->maxLength(255)
+                            ->default(null),
+                        Forms\Components\TextInput::make('city')
+                            ->inlineLabel()
+                            ->placeholder('Paranaque City')
+                            ->maxLength(255),
+                    ]),
+
+                Section::make('Contact Information')
+                    ->icon('heroicon-o-phone')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('email')
+                            ->inlineLabel()
+                            ->email()
+                            ->placeholder('juandelacruz@gmail.com')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('mobile_number')
+                            ->inlineLabel()
+                            ->placeholder('09123456789')
+                            ->numeric(),
+                        Forms\Components\TextInput::make('tel_no_1')
+                            ->label('Telephone #1')
+                            ->inlineLabel()
+                            ->tel()
+                            ->placeholder('123-4567')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('tel_no_2')
+                            ->label('Telephone #2')
+                            ->inlineLabel()
+                            ->tel()
+                            ->placeholder('765-4321')
+                            ->maxLength(255)
+                            ->default(null),
+                    ]),
                 Forms\Components\Textarea::make('remarks')
                     ->columnSpanFull(),
             ]);
@@ -180,7 +220,7 @@ class VendorResource extends Resource
     {
         return [
             'index' => Pages\ListVendors::route('/'),
-            'create' => Pages\CreateVendor::route('/create'),
+            // 'create' => Pages\CreateVendor::route('/create'),
             'edit' => Pages\EditVendor::route('/{record}/edit'),
         ];
     }

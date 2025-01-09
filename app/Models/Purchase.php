@@ -11,6 +11,8 @@ class Purchase extends Model
 
     protected $fillable = ['asset_id', 'purchase_order_no', 'sales_invoice_no', 'purchase_order_date', 'purchase_cost', 'purchase_order_amount', 'vendor_id', 'requestor'];
 
+    protected $with = ['vendor'];
+
     public function asset()
     {
         return $this->belongsTo(Asset::class);
@@ -18,6 +20,6 @@ class Purchase extends Model
 
     public function vendor()
     {
-        return $this->belongsTo(Vendor::class);
+        return $this->belongsTo(Vendor::class, 'vendor_id', 'id');
     }
 }

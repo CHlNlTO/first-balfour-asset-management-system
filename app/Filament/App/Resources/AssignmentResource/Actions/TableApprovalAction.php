@@ -217,7 +217,6 @@ class TableApprovalAction
             'reason' => $data['reason']
         ]);
     }
-
     protected static function handleDeclinedTransfer(Assignment $record, array $data, array $statuses): void
     {
         $transfer = static::findRelatedTransfer($record);

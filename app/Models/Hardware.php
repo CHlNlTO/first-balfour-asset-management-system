@@ -30,7 +30,7 @@ class Hardware extends Model
 
     public function hardwareType()
     {
-        return $this->belongsTo(HardwareType::class, 'hardware_type', 'hardware_type');
+        return $this->belongsTo(HardwareType::class, 'hardware_type', 'id');
     }
 
     // Override the getRouteKeyName method

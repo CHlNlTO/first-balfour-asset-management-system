@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\LicenseTypesResource\Pages;
 use App\Models\LicenseType;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -25,9 +26,13 @@ class LicenseTypesResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('license_type')
-                    ->required()
-                    ->label("License Type"),
+                Grid::make()
+                    ->columns(1)
+                    ->schema([
+                        TextInput::make('license_type')
+                            ->required()
+                            ->label("License Type"),
+                    ]),
             ]);
     }
 
@@ -64,7 +69,7 @@ class LicenseTypesResource extends Resource
     {
         return [
             'index' => Pages\ListLicenseTypes::route('/'),
-            'create' => Pages\CreateLicenseTypes::route('/create'),
+            // 'create' => Pages\CreateLicenseTypes::route('/create'),
             'edit' => Pages\EditLicenseTypes::route('/{record}/edit'),
         ];
     }

@@ -7,6 +7,14 @@ body {
     font-family: "Inter", sans-serif;
 }
 
+/* Background image for the login page */
+.fi-simple-layout {
+    background-image: url("/public/images/first-balfour-building.jpg");
+    background-size: cover; /* Adjusts image to cover entire viewport */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents tiling */
+}
+
 /* Filament custom styles */
 .fi-sidebar {
     @apply bg-white ring-1 ring-gray-900/15 z-30 shadow-2xl !important;

@@ -15,6 +15,8 @@ class PendingAssignments extends BaseWidget
 
     protected int | string | array $columnSpan = 'half';
 
+    protected static ?string $heading = 'Assets To Approve by Employees';
+
     protected static ?int $sort = 2;
 
     protected function getTableQuery(): Builder
