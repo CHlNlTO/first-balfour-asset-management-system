@@ -2,14 +2,18 @@
 
 namespace App\Filament\Resources\AssetResource\Forms;
 
+use App\Filament\Resources\BrandResource;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
 use App\Models\AssetStatus;
+use App\Models\Brand;
 use App\Models\HardwareType;
+use App\Models\ProductModel;
 use Filament\Notifications\Notification;
 
 class CommonFormComponents
@@ -53,13 +57,114 @@ class CommonFormComponents
                     ]),
                 Grid::make(2)
                     ->schema([
-                        TextInput::make('brand')
-                            ->required()
-                            ->placeholder($brandPlaceholder)
+                        // Hidden brand select
+                        Hidden::make('brand')
+                            ->reactive()
+                            ->afterStateHydrated(function ($component, $state) {
+                                // Initialize with current value if exists
+                                if ($state) {
+                                    $brand = Brand::find($state);
+                                    if ($brand) {
+                                        $component->state($brand->id);
+                                    }
+                                }
+                            }),
+
+                        // Disabled brand display
+                        Select::make('brand_display')
+                            ->label('Brand')
+                            ->options(fn() => Brand::pluck('name', 'id'))
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->reactive()
                             ->inlineLabel(),
-                        TextInput::make('model')
+
+                        // Model select with reactive brand updates
+                        Select::make('model')
                             ->required()
-                            ->placeholder($modelPlaceholder)
+                            ->options(fn() => ProductModel::pluck('name', 'id'))
+                            ->searchable()
+                            ->preload()
+                            ->placeholder("Select a model")
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if ($state) {
+                                    $model = ProductModel::find($state);
+                                    if ($model) {
+                                        $set('brand', $model->brand_id);
+                                        $set('brand_display', $model->brand_id);
+                                    }
+                                } else {
+                                    $set('brand', null);
+                                    $set('brand_display', null);
+                                }
+                            })
+                            ->createOptionForm([
+                                Select::make('brand_id')
+                                    ->label('Brand')
+                                    ->required()
+                                    ->options(fn() => Brand::pluck('name', 'id'))
+                                    ->searchable()
+                                    ->preload()
+                                    ->placeholder("Select a brand")
+                                    ->createOptionForm([
+                                        TextInput::make('name')
+                                            ->required()
+                                            ->maxLength(255)
+                                            ->unique('brands', 'name')
+                                            ->validationMessages([
+                                                'unique' => 'This brand already exists in the system.',
+                                            ])
+                                            ->placeholder($brandPlaceholder),
+                                        TextInput::make('description')
+                                            ->maxLength(65535)
+                                            ->placeholder('Optional'),
+                                    ])
+                                    ->createOptionUsing(function ($data) {
+                                        $brand = Brand::create([
+                                            'name' => $data['name'],
+                                            'description' => $data['description']
+                                        ]);
+
+                                        $recipient = auth()->user();
+
+                                        Notification::make()
+                                            ->title('Brand Created')
+                                            ->body("Brand {$brand->name} has been created.")
+                                            ->success()
+                                            ->send()
+                                            ->color('success')
+                                            ->sendToDatabase($recipient);
+
+                                        return $brand->id;
+                                    }),
+                                TextInput::make('name')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->reactive(),
+                                Textarea::make('description')
+                                    ->maxLength(65535)
+                                    ->placeholder('Optional'),
+                            ])
+                            ->createOptionUsing(function ($data) {
+                                $model = ProductModel::create([
+                                    'brand_id' => $data['brand_id'],
+                                    'name' => $data['name'],
+                                    'description' => $data['description']
+                                ]);
+
+                                $recipient = auth()->user();
+
+                                Notification::make()
+                                    ->title('Model Created')
+                                    ->body("Model {$model->name} has been created.")
+                                    ->success()
+                                    ->send()
+                                    ->color('success')
+                                    ->sendToDatabase($recipient);
+
+                                return $model->id;
+                            })
                             ->inlineLabel(),
                         TextInput::make('department_project_code')
                             ->label('Dept/Project Code')
@@ -84,16 +189,19 @@ class CommonFormComponents
                 Grid::make(1)
                     ->schema([
                         TextInput::make('purchase_order_no')
+                            ->label('Purchase Order No.')
                             ->required()
                             ->numeric()
                             ->placeholder('20230001')
                             ->inlineLabel(),
                         TextInput::make('sales_invoice_no')
+                            ->label('Sales Invoice No.')
                             ->required()
                             ->numeric()
                             ->placeholder('74920001')
                             ->inlineLabel(),
                         DatePicker::make('purchase_order_date')
+                            ->label('Purchase Date')
                             ->required()
                             ->default(now())
                             ->inlineLabel(),
@@ -104,6 +212,7 @@ class CommonFormComponents
                             ->placeholder('50000')
                             ->inlineLabel(),
                         TextInput::make('requestor')
+                            ->label('Requestor')
                             ->nullable()
                             ->placeholder('John Smith')
                             ->inlineLabel(),

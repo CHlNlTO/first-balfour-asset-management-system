@@ -9,9 +9,19 @@ class Asset extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['asset_type', 'asset_status', 'brand', 'model', 'department_project_code', 'tag_number'];
+    protected $fillable = ['asset_type', 'asset_status', 'model_id', 'department_project_code', 'tag_number'];
 
-    protected $with = ['hardware', 'software', 'peripherals', 'lifecycle', 'purchases', 'assetStatus']; // Eager load relationships
+    protected $with = ['hardware', 'software', 'peripherals', 'lifecycle', 'purchases', 'assetStatus', 'model']; // Eager load relationships
+
+    public function brand()
+    {
+        return $this->model->belongsTo(Brand::class, ProductModel::class);
+    }
+
+    public function model()
+    {
+        return $this->belongsTo(ProductModel::class);
+    }
 
     public function hardware()
     {
@@ -71,6 +81,7 @@ class Asset extends Model
     {
         return $this->belongsTo(AssetStatus::class, 'asset_status', 'id');
     }
+
     public function getDetailsAttribute()
     {
         if ($this->asset_type === 'hardware' && $this->hardware) {
@@ -83,8 +94,12 @@ class Asset extends Model
         return '';
     }
 
-    public function getAssetAttribute()
+    public function getAssetAttribute(): ?string
     {
-        return trim("{$this->brand} {$this->model}");
+        if (!$this->model || !$this->model->brand) {
+            return null;
+        }
+
+        return "{$this->model->brand->name} {$this->model->name}";
     }
 }

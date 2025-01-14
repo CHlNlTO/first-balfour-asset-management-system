@@ -89,6 +89,7 @@ class LifecycleResource extends Resource
                     })
                     ->placeholder('Hardware Asset'),
                 TextColumn::make('lifecycle_status')
+                    ->tooltip('Lifecycle Status is determined by the asset type and lifecycle dates')
                     ->label('Lifecycle Status')
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->getStateUsing(function (Lifecycle $record): string {
@@ -144,25 +145,30 @@ class LifecycleResource extends Resource
                     }),
                 TextColumn::make('acquisition_date')
                     ->label('Acquisition Date')
-                    ->date('Y-m-d')
+                    ->date('M d, Y')
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('retirement_date')
                     ->label('Retirement Date')
-                    ->date('Y-m-d')
+                    ->getStateUsing(function (Lifecycle $record): string {
+                        return $record->retirement_date
+                            ? Carbon::parse($record->retirement_date)->format('M d, Y') . ' (' . Carbon::parse($record->retirement_date)->diffForHumans() . ')'
+                            : 'Not Set';
+                    })
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
+
                 TextColumn::make('created_at')
                     ->label('Created At')
-                    ->dateTime('Y-m-d')
+                    ->dateTime('M d, Y')
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label('Updated At')
-                    ->dateTime('Y-m-d')
+                    ->dateTime('M d, Y')
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),

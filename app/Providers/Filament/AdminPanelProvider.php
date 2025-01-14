@@ -46,6 +46,7 @@ class AdminPanelProvider extends PanelProvider
                 'Manage Assets',
                 'Manage Transactions',
                 'Manage Employees',
+                'Manage Categories',
                 'Manage Types',
                 'Manage Statuses',
             ])

@@ -14,7 +14,7 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 
-class SoftwareRelationmanager extends RelationManager
+class SoftwareRelationManager extends RelationManager
 {
     protected static string $relationship = 'installedSoftware';
 
@@ -94,6 +94,16 @@ class SoftwareRelationmanager extends RelationManager
                     ->tooltip('Click to copy')
                     ->placeholder('N/A')
                     ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    // Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DetachAction::make(),
+                ]),
             ]);
     }
 }

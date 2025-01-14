@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\AssignmentResource\Actions;
+namespace App\Filament\Resources\OptionToBuyResource\Actions;
 
 use App\Models\Assignment;
 use App\Models\AssignmentStatus;

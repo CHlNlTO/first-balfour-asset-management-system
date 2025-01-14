@@ -71,22 +71,24 @@ class CreateHardwareAsset extends CreateRecord
                                             ->searchable()
                                             ->preload()
                                             ->inlineLabel(),
+                                        TextInput::make('pc_name')
+                                            ->label('PC Name')
+                                            ->nullable()
+                                            ->placeholder('DESKTOP-ABC123')
+                                            ->inlineLabel(),
                                         TextInput::make('serial_number')
                                             ->label('Serial No.')
                                             ->required()
                                             ->placeholder('SN123456789')
                                             ->inlineLabel(),
-                                        TextInput::make('manufacturer')
-                                            ->required()
-                                            ->placeholder('Dell, HP, Lenovo')
-                                            ->inlineLabel(),
                                         TextInput::make('mac_address')
+                                            ->label('MAC Address')
                                             ->nullable()
                                             ->placeholder('00:1A:2B:3C:4D:5E')
                                             ->inlineLabel(),
-                                        TextInput::make('pc_name')
+                                        TextInput::make('accessories')
                                             ->nullable()
-                                            ->placeholder('DESKTOP-ABC123')
+                                            ->placeholder('Keyboard, Mouse, Monitor')
                                             ->inlineLabel(),
                                         DatePicker::make('warranty_expiration')
                                             ->label('Warranty Exp.')
@@ -100,10 +102,6 @@ class CreateHardwareAsset extends CreateRecord
                                         Textarea::make('specifications')
                                             ->required()
                                             ->placeholder('Intel Core i7-12700K, 32GB RAM, 1TB NVMe SSD')
-                                            ->inlineLabel(),
-                                        TextInput::make('accessories')
-                                            ->nullable()
-                                            ->placeholder('Keyboard, Mouse, Monitor')
                                             ->inlineLabel(),
                                     ]),
                             ]),
@@ -158,8 +156,7 @@ class CreateHardwareAsset extends CreateRecord
                 $asset = Asset::create([
                     'asset_type' => $this->assetType,
                     'asset_status' => $data['asset_status'],
-                    'brand' => $data['brand'],
-                    'model' => $data['model'],
+                    'model_id' => $data['model'],
                     'department_project_code' => $data['department_project_code'],
                     'tag_number' => $data['tag_number'],
                 ]);
@@ -173,7 +170,7 @@ class CreateHardwareAsset extends CreateRecord
                     'serial_number' => $data['serial_number'],
                     'specifications' => $data['specifications'],
                     'accessories' => $data['accessories'] ?? null,
-                    'manufacturer' => $data['manufacturer'],
+                    'manufacturer' => $data['manufacturer'] ?? null,
                     'mac_address' => $data['mac_address'] ?? null,
                     'pc_name' => $data['pc_name'] ?? null,
                     'warranty_expiration' => $data['warranty_expiration'] ?? null,
@@ -226,7 +223,7 @@ class CreateHardwareAsset extends CreateRecord
         return Notification::make()
             ->success()
             ->title('Hardware Asset Created')
-            ->body(Str::markdown("{$this->record->brand} {$this->record->model} has been created"))
+            ->body(Str::markdown("{$this->record->brand->name} {$this->record->model->name} has been created"))
             ->color('success')
             ->sendToDatabase($recipient);
     }

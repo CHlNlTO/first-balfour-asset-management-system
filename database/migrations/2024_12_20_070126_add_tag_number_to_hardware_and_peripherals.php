@@ -14,6 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('assets', function (Blueprint $table) {
+            if (Schema::hasColumn('assets', 'tag_number')) {
+                return;
+            }
             $table->string('tag_number')->nullable()->after('id');
         });
     }

@@ -128,8 +128,7 @@ class CreateSoftwareAsset extends CreateRecord
             $asset = Asset::create([
                 'asset_type' => $this->assetType,
                 'asset_status' => $data['asset_status'],
-                'brand' => $data['brand'],
-                'model' => $data['model'],
+                'model_id' => $data['model'],
                 'department_project_code' => $data['department_project_code'],
             ]);
 
@@ -145,7 +144,7 @@ class CreateSoftwareAsset extends CreateRecord
 
 
             Log:
-            info("Hardware here!", $data['hardware']);
+            Log::info("Hardware here in CreateSoftwareAsset!", $data['hardware']);
 
             // Attach software if selected
             if (!empty($data['hardware'])) {
@@ -206,7 +205,7 @@ class CreateSoftwareAsset extends CreateRecord
         return Notification::make()
             ->success()
             ->title('Software Asset Created')
-            ->body(Str::markdown("{$this->record->brand} {$this->record->model} has been created"))
+            ->body(Str::markdown("{$this->record->model->brand->name} {$this->record->model->name} has been created"))
             ->color('success')
             ->sendToDatabase($recipient);
     }

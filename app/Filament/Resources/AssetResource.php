@@ -354,7 +354,12 @@ class AssetResource extends Resource
                     ->label('Asset Name')
                     ->getStateUsing(fn(Asset $record) => $record->asset)
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->orWhereRaw("CONCAT(assets.brand, ' ', assets.model) LIKE ?", ["%{$search}%"]);
+                        return $query->orWhereHas('model.brand', function ($query) use ($search) {
+                            $query->where('brands.name', 'like', "%{$search}%");
+                        })
+                            ->orWhereHas('model', function ($query) use ($search) {
+                                $query->where('models.name', 'like', "%{$search}%");
+                            });
                     })
                     ->placeholder('N/A'),
                 TextColumn::make('asset_status')
