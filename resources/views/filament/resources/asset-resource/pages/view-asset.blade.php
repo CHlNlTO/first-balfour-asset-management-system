@@ -12,7 +12,7 @@
                 <div class="w-full space-y-1">
                     <div class="flex items-center space-x-3">
                         <h1 class="text-3xl font-bold text-white">
-                            {{ displayText($record->brand . ' ' . $record->model, 'Untitled Asset') }}
+                            {{ displayText($record->model->brand->name . ' ' . $record->model->name, 'Untitled Asset') }}
                         </h1>
                     </div>
                     <div class="flex items-start justify-between">
@@ -98,7 +98,7 @@
                                 <span class="text-sm font-medium text-blue-400">PC Name</span>
                                 <div
                                     class="p-3 mt-2 font-mono text-blue-800 border border-blue-100 rounded-lg bg-blue-50">
-                                    {{ displayText($record->software?->pc_name, 'Unassigned') }}
+                                    {{ displayText($record->software?->pcName->name, 'Unassigned') }}
                                 </div>
                             </div>
                             <div class="flex flex-col">
@@ -180,7 +180,7 @@
                                 <span class="text-sm font-medium text-blue-400">PC Name</span>
                                 <div
                                     class="p-3 mt-2 font-mono text-blue-800 border border-blue-100 rounded-lg bg-blue-50">
-                                    {{ displayText($record->hardware?->pc_name) }}
+                                    {{ displayText($record->hardware?->pcName->name) }}
                                 </div>
                             </div>
                         </div>

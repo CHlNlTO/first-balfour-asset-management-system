@@ -48,16 +48,23 @@ class AssignmentTable
                 ->sortable()
                 ->searchable()
                 ->url(fn(Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
+            TextColumn::make('asset.tag_number')
+                ->label('Tag Number')
+                ->sortable()
+                ->searchable()
+                ->url(fn(Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
             TextColumn::make('asset')
                 ->label('Asset Name')
                 ->getStateUsing(function (Assignment $record): string {
                     return "{$record->asset->model->brand->name} {$record->asset->model->name}";
                 })
                 ->searchable(query: function (Builder $query, string $search): Builder {
-                    return $query->whereHas('asset', function (Builder $query) use ($search) {
-                        $query->where('brand', 'like', "%{$search}%")
-                            ->orWhere('model', 'like', "%{$search}%");
-                    });
+                    return $query->orWhereHas('asset.model.brand', function ($query) use ($search) {
+                        $query->where('brands.name', 'like', "%{$search}%");
+                    })
+                        ->orWhereHas('asset.model', function ($query) use ($search) {
+                            $query->where('models.name', 'like', "%{$search}%");
+                        });
                 })
                 ->placeholder('N/A')
                 ->url(fn(Assignment $record): string => $record->asset ? route('filament.admin.resources.assets.view', ['record' => $record->asset_id]) : '#'),

@@ -10,6 +10,7 @@ use App\Models\Hardware;
 use App\Models\HardwareSoftware;
 use App\Models\Purchase;
 use App\Models\Lifecycle;
+use App\Models\PCName;
 use App\Models\Software;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
@@ -71,10 +72,31 @@ class CreateHardwareAsset extends CreateRecord
                                             ->searchable()
                                             ->preload()
                                             ->inlineLabel(),
-                                        TextInput::make('pc_name')
+                                        Select::make('pc_name')
                                             ->label('PC Name')
-                                            ->nullable()
-                                            ->placeholder('DESKTOP-ABC123')
+                                            ->options(fn() => PCName::pluck('name', 'id'))
+                                            ->required()
+                                            ->createOptionForm([
+                                                TextInput::make('name')
+                                                    ->required()
+                                                    ->placeholder('DESKTOP-ABC123'),
+                                                TextInput::make('description')
+                                                    ->nullable()
+                                                    ->placeholder('Main Office Desktop'),
+                                            ])
+                                            ->createOptionUsing(function ($data) {
+                                                $pcName = PCName::create(['name' => $data['name'], 'description' => $data['description']]);
+
+                                                Notification::make()
+                                                    ->title('Record Created')
+                                                    ->body("PC Name {$pcName->name} has been created.")
+                                                    ->success()
+                                                    ->send();
+
+                                                return $pcName->id;
+                                            })
+                                            ->searchable()
+                                            ->preload()
                                             ->inlineLabel(),
                                         TextInput::make('serial_number')
                                             ->label('Serial No.')
@@ -172,7 +194,7 @@ class CreateHardwareAsset extends CreateRecord
                     'accessories' => $data['accessories'] ?? null,
                     'manufacturer' => $data['manufacturer'] ?? null,
                     'mac_address' => $data['mac_address'] ?? null,
-                    'pc_name' => $data['pc_name'] ?? null,
+                    'pc_name_id' => $data['pc_name'] ?? null,
                     'warranty_expiration' => $data['warranty_expiration'] ?? null,
                 ]);
 
@@ -223,7 +245,7 @@ class CreateHardwareAsset extends CreateRecord
         return Notification::make()
             ->success()
             ->title('Hardware Asset Created')
-            ->body(Str::markdown("{$this->record->brand->name} {$this->record->model->name} has been created"))
+            ->body(Str::markdown("{$this->record->model->brand->name} {$this->record->model->name} has been created"))
             ->color('success')
             ->sendToDatabase($recipient);
     }

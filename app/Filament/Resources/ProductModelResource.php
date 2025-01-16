@@ -18,6 +18,7 @@ class ProductModelResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-bookmark';
     protected static ?string $navigationGroup = 'Manage Categories';
     protected static ?string $label = 'Model';
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {

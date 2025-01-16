@@ -39,7 +39,7 @@ class AssignmentForm
                             ->label('Assets')
                             ->placeholder('Search assets')
                             ->options(Asset::all()->mapWithKeys(function ($asset) {
-                                return [$asset->id => $asset->id . ' - ' . $asset->brand . ' ' . $asset->model];
+                                return [$asset->id => $asset->tag_number . ' - ' . $asset->model->brand->name . ' ' . $asset->model->name];
                             })->toArray())
                             ->multiple()
                             ->required()

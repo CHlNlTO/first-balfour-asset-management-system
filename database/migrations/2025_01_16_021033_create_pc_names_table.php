@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('assets', function (Blueprint $table) {
-            $table->string('tag_number')->nullable(true)->unique()->change();
+        Schema::create('pc_names', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string("description")->nullable();
+            $table->timestamps();
         });
     }
 
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('assets', function (Blueprint $table) {
-            $table->string('tag_number')->nullable(false)->change();
-        });
+        Schema::dropIfExists('pc_names');
     }
 };

@@ -37,6 +37,13 @@ class HardwareResource extends Resource
                     ->copyMessage('Copied!')
                     ->tooltip('Click to copy')
                     ->placeholder('N/A'),
+                TextColumn::make('id')->label('Hardware ID')
+                    ->sortable()
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
                 TextColumn::make('asset.assetStatus.asset_status')
                     ->label('Asset Status')
                     ->sortable()
@@ -61,7 +68,7 @@ class HardwareResource extends Resource
                     ->copyMessage('Copied!')
                     ->tooltip('Click to copy')
                     ->placeholder('N/A'),
-                TextColumn::make('asset.brand')
+                TextColumn::make('asset.model.brand.name')
                     ->searchable()
                     ->sortable()
                     ->label('Brand')
@@ -69,7 +76,7 @@ class HardwareResource extends Resource
                     ->copyMessage('Copied!')
                     ->tooltip('Click to copy')
                     ->placeholder('N/A'),
-                TextColumn::make('asset.model')
+                TextColumn::make('asset.model.name')
                     ->searchable()
                     ->sortable()
                     ->label('Model')
@@ -121,7 +128,7 @@ class HardwareResource extends Resource
                     ->tooltip('Click to copy')
                     ->limit(20)
                     ->placeholder('N/A'),
-                TextColumn::make('pc_name')
+                TextColumn::make('pcName.name')
                     ->searchable()
                     ->sortable()
                     ->label('PC Name')

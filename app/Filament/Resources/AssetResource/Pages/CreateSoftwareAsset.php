@@ -18,6 +18,7 @@ use App\Models\Hardware;
 use App\Models\Software;
 use App\Models\Purchase;
 use App\Models\Lifecycle;
+use App\Models\PCName;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -77,9 +78,31 @@ class CreateSoftwareAsset extends CreateRecord
                                             ->nullable()
                                             ->placeholder('XXXX-YYYY-ZZZZ')
                                             ->inlineLabel(),
-                                        TextInput::make('pc_name')
-                                            ->nullable()
-                                            ->placeholder('DESKTOP-ABC123')
+                                        Select::make('pc_name')
+                                            ->label('PC Name')
+                                            ->options(fn() => PCName::pluck('name', 'id'))
+                                            ->required()
+                                            ->createOptionForm([
+                                                TextInput::make('name')
+                                                    ->required()
+                                                    ->placeholder('DESKTOP-ABC123'),
+                                                TextInput::make('description')
+                                                    ->nullable()
+                                                    ->placeholder('Main Office Desktop'),
+                                            ])
+                                            ->createOptionUsing(function ($data) {
+                                                $pcName = PCName::create(['name' => $data['name'], 'description' => $data['description']]);
+
+                                                Notification::make()
+                                                    ->title('Record Created')
+                                                    ->body("PC Name {$pcName->name} has been created.")
+                                                    ->success()
+                                                    ->send();
+
+                                                return $pcName->id;
+                                            })
+                                            ->searchable()
+                                            ->preload()
                                             ->inlineLabel(),
                                     ]),
                             ]),
@@ -139,7 +162,7 @@ class CreateSoftwareAsset extends CreateRecord
                 'license_type' => $data['license_type'],
                 'version' => $data['version'] ?? null,
                 'license_key' => $data['license_key'] ?? null,
-                'pc_name' => $data['pc_name'] ?? null,
+                'pc_name_id' => $data['pc_name'] ?? null,
             ]);
 
 
