@@ -49,7 +49,7 @@ class PendingAssignments extends BaseWidget
                     ->label('Asset')
                     ->getStateUsing(function (Assignment $record): string {
                         $asset = $record->asset;
-                        return $asset ? " {$asset->brand} {$asset->model}" : 'N/A';
+                        return $asset ? " {$asset->model->brand->name} {$asset->model->name}" : 'N/A';
                     })
                     ->url(fn(Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
                 Tables\Columns\TextColumn::make('assignment_status')

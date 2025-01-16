@@ -85,8 +85,16 @@ class AdminPanelProvider extends PanelProvider
                 'resources/css/app.css',
             ])
             ->renderHook(
+
                 'panels::auth.login.form.after',
                 fn() => view('auth.socialite.admin-google'),
+
+            )
+            ->renderHook(
+
+                'panels::auth.login.form.after',
+                fn() => view('auth.socialite.admin-microsoft'),
+
             )
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s');

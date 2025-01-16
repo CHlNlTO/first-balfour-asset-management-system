@@ -75,7 +75,7 @@ class CommonFormComponents
                             ->label('Brand')
                             ->options(fn() => Brand::pluck('name', 'id'))
                             ->disabled()
-                            ->dehydrated(false)
+                            // ->dehydrated(false)
                             ->reactive()
                             ->inlineLabel(),
 
@@ -174,6 +174,7 @@ class CommonFormComponents
                         TextInput::make('tag_number')
                             ->label('Tag Number')
                             ->nullable()
+                            ->required($assetType == 'hardware' || $assetType == 'peripherals')
                             ->placeholder('#A21BQWXGA')
                             ->inlineLabel()
                             ->visible($assetType == 'hardware' || $assetType == 'peripherals'),

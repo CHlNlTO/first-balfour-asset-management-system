@@ -13,6 +13,11 @@ use Filament\Notifications\Notification;
 
 class SocialiteController extends Controller
 {
+    protected $providerColumnMap = [
+        'google' => 'google_id',
+        'microsoft' => 'microsoft_id'
+    ];
+
     public function redirect(string $provider, string $panel = 'admin')
     {
         // Store the panel type in session
@@ -24,39 +29,45 @@ class SocialiteController extends Controller
     public function callback(string $provider)
     {
         try {
-            $googleUser = Socialite::driver($provider)->user();
+            $socialUser = Socialite::driver($provider)->user();
             $panel = Session::get('intended_panel', 'admin');
+            $providerColumn = $this->providerColumnMap[$provider] ?? null;
+
+            if (!$providerColumn) {
+                throw new \Exception("Unsupported provider: {$provider}");
+            }
 
             DB::beginTransaction();
 
-            // Check if user exists
-            $user = User::firstOrNew(
-                ['email' => $googleUser->email],
-                [
-                    'name' => $googleUser->name,
-                    'password' => Hash::make(uniqid()), // Generate random password
-                    'google_id' => $googleUser->id,
-                ]
-            );
+            // Check if user exists by email or provider ID
+            $user = User::where('email', $socialUser->email)
+                ->orWhere($providerColumn, $socialUser->id)
+                ->first();
 
-            // If user is new
-            if (!$user->exists) {
+            if (!$user) {
+                // Create new user
+                $user = new User([
+                    'name' => $socialUser->name,
+                    'email' => $socialUser->email,
+                    'password' => Hash::make(uniqid()), // Generate random password
+                ]);
+                $user->$providerColumn = $socialUser->id;
                 $user->save();
 
                 // Determine role based on email domain
-                $isCompanyEmail = str_ends_with($googleUser->email, '@firstbalfour.com');
+                $isCompanyEmail = str_ends_with($socialUser->email, '@firstbalfour.com');
                 $roleId = $isCompanyEmail ? 1 : 2; // 1 for admin, 2 for employee
 
                 UserRole::create([
                     'user_id' => $user->id,
                     'role_id' => $roleId
                 ]);
-            }
-
-            // Update Google ID if not set
-            if (empty($user->google_id)) {
-                $user->google_id = $googleUser->id;
-                $user->save();
+            } else {
+                // Update provider ID if not set
+                if (empty($user->$providerColumn)) {
+                    $user->$providerColumn = $socialUser->id;
+                    $user->save();
+                }
             }
 
             DB::commit();

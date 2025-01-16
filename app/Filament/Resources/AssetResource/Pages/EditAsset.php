@@ -56,8 +56,9 @@ class EditAsset extends EditRecord
         return array_merge($data, [
             'asset_type' => $this->record->asset_type,
             'asset_status' => $this->record->asset_status,
-            'brand' => $this->record->brand,
-            'model' => $this->record->model,
+            'brand' => $this->record->model->brand->name,
+            'brand_display' => $this->record->model->brand->name,
+            'model' => $this->record->model->name,
             'department_project_code' => $this->record->department_project_code,
             'tag_number' => $this->record->tag_number,
             'acquisition_date' => $this->record->lifecycle?->acquisition_date,

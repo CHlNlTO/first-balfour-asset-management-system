@@ -51,7 +51,7 @@ class AssignmentTable
             TextColumn::make('asset')
                 ->label('Asset Name')
                 ->getStateUsing(function (Assignment $record): string {
-                    return "{$record->asset->brand} {$record->asset->model}";
+                    return "{$record->asset->model->brand->name} {$record->asset->model->name}";
                 })
                 ->searchable(query: function (Builder $query, string $search): Builder {
                     return $query->whereHas('asset', function (Builder $query) use ($search) {
