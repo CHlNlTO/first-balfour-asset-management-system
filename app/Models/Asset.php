@@ -9,7 +9,7 @@ class Asset extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['asset_type', 'asset_status', 'model_id', 'department_project_code', 'tag_number'];
+    protected $fillable = ['asset_type', 'asset_status', 'model_id', 'cost_code', 'tag_number'];
 
     protected $with = ['hardware', 'software', 'peripherals', 'lifecycle', 'purchases', 'assetStatus', 'model']; // Eager load relationships
 
@@ -35,6 +35,11 @@ class Asset extends Model
     public function peripherals()
     {
         return $this->hasOne(Peripheral::class);
+    }
+
+    public function costCode()
+    {
+        return $this->belongsTo(CostCode::class, 'cost_code', 'code');
     }
 
     public function installedSoftware()

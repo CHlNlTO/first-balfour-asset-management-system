@@ -179,7 +179,7 @@ class CreateHardwareAsset extends CreateRecord
                     'asset_type' => $this->assetType,
                     'asset_status' => $data['asset_status'],
                     'model_id' => $data['model'],
-                    'department_project_code' => $data['department_project_code'],
+                    'cost_code' => $data['cost_code'],
                     'tag_number' => $data['tag_number'],
                 ]);
 

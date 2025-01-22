@@ -394,14 +394,15 @@ class AssetResource extends Resource
                     ->getStateUsing(fn($record) => $record->details)
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->placeholder('N/A'),
-                TextColumn::make('department_project_code')
+                TextColumn::make('cost_code')
                     ->label('Department/Project Code')
                     ->getStateUsing(function (Asset $record): string {
-                        return "{$record->department_project_code}";
+                        return "{$record->cost_code}";
                     })
                     ->sortable()
                     ->searchable()
-                    ->placeholder('N/A'),
+                    ->placeholder('N/A')
+                    ->toggleable(true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -443,7 +444,7 @@ class AssetResource extends Resource
             ->groups([
                 'brand',
                 'model',
-                'department_project_code',
+                'cost_code',
             ])
             ->defaultSort('assets.id', 'desc')
             ->modifyQueryUsing(function (Builder $query) {

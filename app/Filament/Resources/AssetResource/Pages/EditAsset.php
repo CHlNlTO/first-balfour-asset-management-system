@@ -59,7 +59,7 @@ class EditAsset extends EditRecord
             'brand' => $this->record->model->brand->name,
             'brand_display' => $this->record->model->brand->name,
             'model' => $this->record->model->name,
-            'department_project_code' => $this->record->department_project_code,
+            'cost_code' => $this->record->cost_code,
             'tag_number' => $this->record->tag_number,
             'acquisition_date' => $this->record->lifecycle?->acquisition_date,
             'retirement_date' => $this->record->lifecycle?->retirement_date,
