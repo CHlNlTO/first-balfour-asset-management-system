@@ -41,7 +41,7 @@
                         [
                             'icon' => 'building-office',
                             'label' => 'Department',
-                            'value' => $record->department_project_code,
+                            'value' => $record->cost_code,
                         ],
                         [
                             'icon' => 'calendar',

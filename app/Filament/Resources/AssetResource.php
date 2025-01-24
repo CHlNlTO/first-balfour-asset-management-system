@@ -85,7 +85,7 @@ class AssetResource extends Resource
                             ]),
                         Grid::make(2)
                             ->schema([
-                                TextInput::make('department_project_code')
+                                TextInput::make('cost_code')
                                     ->label('Dept/Project Code')
                                     ->nullable()
                                     ->inlineLabel(),
@@ -421,13 +421,13 @@ class AssetResource extends Resource
                     ->placeholder('N/A'),
             ])
             ->filters([
-                SelectFilter::make('department_project_code')
+                SelectFilter::make('cost_code')
                     ->label("Filter by Department/Project Code")
                     ->searchable()
                     ->indicator('Status')
                     ->options(function () {
-                        return Asset::whereNotNull('department_project_code')
-                            ->pluck('department_project_code', 'department_project_code')
+                        return Asset::whereNotNull('cost_code')
+                            ->pluck('id', 'name')
                             ->filter(fn($value) => !is_null($value))
                             ->toArray();
                     }),

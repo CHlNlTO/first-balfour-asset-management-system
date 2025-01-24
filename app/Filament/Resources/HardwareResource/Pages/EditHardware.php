@@ -29,7 +29,7 @@ class EditHardware extends EditRecord
         $data['asset_status'] = $this->record->asset->asset_status;
         $data['brand'] = $this->record->asset->brand;
         $data['model'] = $this->record->asset->model;
-        $data['department_project_code'] = $this->record->asset->department_project_code;
+        $data['cost_code'] = $this->record->asset->cost_code;
 
         $data['specifications'] = $this->record->specifications;
         $data['serial_number'] = $this->record->serial_number;
@@ -93,7 +93,7 @@ class EditHardware extends EditRecord
                     ->default('active'),
                 TextInput::make('brand')->label('Brand')->required(),
                 TextInput::make('model')->label('Model')->required(),
-                TextInput::make('asset.department_project_code')
+                TextInput::make('asset.cost_code')
                     ->label('Department/Project Code')
                     ->nullable(),
                 Fieldset::make('Hardware Details')

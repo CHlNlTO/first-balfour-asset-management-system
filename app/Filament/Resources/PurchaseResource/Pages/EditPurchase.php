@@ -76,7 +76,7 @@ class EditPurchase extends EditRecord
                             ->live(),
                         TextInput::make('brand')->label('Brand')->required(),
                         TextInput::make('model')->label('Model')->required(),
-                        TextInput::make('department_project_code')->label('Department/Project Code')->nullable(),
+                        TextInput::make('cost_code')->label('Department/Project Code')->nullable(),
                     ]),
                 Fieldset::make('Hardware Details')
                     ->hidden(fn (callable $get) => $get('asset_type') !== 'hardware')
@@ -144,7 +144,7 @@ class EditPurchase extends EditRecord
         $data['asset_status'] = $asset->assetStatus->id;
         $data['brand'] = $asset->brand;
         $data['model'] = $asset->model;
-        $data['department_project_code'] = $asset->department_project_code;
+        $data['cost_code'] = $asset->cost_code;
         $data['acquisition_date'] = $asset->lifecycle->acquisition_date;
         $data['retirement_date'] = $asset->lifecycle->retirement_date;
         $data['vendor_id'] = $this->record->vendor_id;
@@ -203,7 +203,7 @@ class EditPurchase extends EditRecord
                 'asset_status' => $data['asset_status'],
                 'brand' => $data['brand'],
                 'model' => $data['model'],
-                'department_project_code' => $data['department_project_code'] ?? null,
+                'cost_code' => $data['cost_code'] ?? null,
             ]);
 
             if ($asset->asset_type === 'hardware') {

@@ -2,22 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Project;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CostCode extends Model
 {
-    use HasFactory;
+    protected $guarded = [];
 
-    protected $fillable = ['code', 'name', 'department_project_code', 'description'];
-
-    public function departmentProject()
+    public function project(): BelongsTo
     {
-        return $this->belongsTo(DepartmentProject::class, 'department_project_code', 'code');
+        return $this->belongsTo(Project::class);
     }
 
-    public function assets()
-    {
-        return $this->hasMany(Asset::class, 'cost_code', 'code');
-    }
+
 }

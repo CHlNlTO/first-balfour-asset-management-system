@@ -126,7 +126,7 @@ class ViewAsset extends ViewRecord
 
                                         return $state;
                                     }),
-                                TextEntry::make('department_project_code')
+                                TextEntry::make('cost_code')
                                     ->label('Department/Project Code')
                                     ->weight(FontWeight::Bold)
                                     ->copyable()

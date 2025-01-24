@@ -13,7 +13,7 @@ use Filament\Forms\Components\Textarea;
 use App\Models\AssetStatus;
 use App\Models\Brand;
 use App\Models\CostCode;
-use App\Models\DepartmentProject;
+use App\Models\Project;
 use App\Models\Division;
 use App\Models\HardwareType;
 use App\Models\ProductModel;
@@ -170,35 +170,35 @@ class CommonFormComponents
                             })
                             ->inlineLabel(),
                         Select::make('cost_code')
-                            ->relationship('costCode', 'code', fn($query) => $query->orderBy('code'))
+                            ->relationship('costCode', 'name', fn($query) => $query->orderBy('name'))
                             ->required()
                             ->createOptionForm([
-                                TextInput::make('code')
-                                    ->label('Cost Code')
-                                    ->required()
-                                    ->inlineLabel()
-                                    ->placeholder('COST001')
-                                    ->columnSpanFull(),
+                                // TextInput::make('code')
+                                //     ->label('Cost Code')
+                                //     ->required()
+                                //     ->inlineLabel()
+                                //     ->placeholder('COST001')
+                                //     ->columnSpanFull(),
                                 TextInput::make('name')
                                     ->label('Name')
                                     ->required()
                                     ->inlineLabel()
                                     ->placeholder('Industrial Projects Cost Code')
                                     ->columnSpanFull(),
-                                Select::make('department_project_code')
-                                    ->relationship('departmentProject', 'name', fn($query) => $query->orderBy('name'))
+                                Select::make('cost_code')
+                                    ->relationship('Project', 'name', fn($query) => $query->orderBy('name'))
                                     ->required()
                                     ->createOptionForm([
-                                        TextInput::make('code')
-                                            ->label('Department/Project Code')
-                                            ->required()
-                                            ->inlineLabel()
-                                            ->unique('departments_projects', 'code')
-                                            ->validationMessages([
-                                                'unique' => 'This department/project code already exists in the system.',
-                                            ])
-                                            ->placeholder('DEP001')
-                                            ->columnSpanFull(),
+                                        // TextInput::make('code')
+                                        //     ->label('Department/Project Code')
+                                        //     ->required()
+                                        //     ->inlineLabel()
+                                        //     ->unique('departments_projects', 'code')
+                                        //     ->validationMessages([
+                                        //         'unique' => 'This department/project code already exists in the system.',
+                                        //     ])
+                                        //     ->placeholder('DEP001')
+                                        //     ->columnSpanFull(),
                                         TextInput::make('name')
                                             ->label('Name')
                                             ->required()
@@ -209,39 +209,39 @@ class CommonFormComponents
                                             ->relationship('division', 'name', fn($query) => $query->orderBy('name'))
                                             ->required()
                                             ->createOptionForm([
-                                                TextInput::make('code')
-                                                    ->label('Division Code')
-                                                    ->required()
-                                                    ->inlineLabel()
-                                                    ->maxLength(255)
-                                                    ->unique('divisions', 'code')
-                                                    ->validationMessages([
-                                                        'unique' => 'This division code already exists in the system.',
-                                                    ])
-                                                    ->placeholder('DIV001')
-                                                    ->columnSpanFull(),
+                                                // TextInput::make('code')
+                                                //     ->label('Division Code')
+                                                //     ->required()
+                                                //     ->inlineLabel()
+                                                //     ->maxLength(255)
+                                                //     ->unique('divisions', 'code')
+                                                //     ->validationMessages([
+                                                //         'unique' => 'This division code already exists in the system.',
+                                                //     ])
+                                                //     ->placeholder('DIV001')
+                                                //     ->columnSpanFull(),
                                                 TextInput::make('name')
                                                     ->label('Name')
                                                     ->required()
                                                     ->inlineLabel()
                                                     ->placeholder('Industrial Projects Division')
                                                     ->columnSpanFull(),
-                                                Textarea::make('description')
-                                                    ->label('Description')
-                                                    ->nullable()
-                                                    ->inlineLabel()
-                                                    ->placeholder('This division is responsible for all industrial projects.')
-                                                    ->columnSpanFull(),
+                                                // Textarea::make('description')
+                                                //     ->label('Description')
+                                                //     ->nullable()
+                                                //     ->inlineLabel()
+                                                //     ->placeholder('This division is responsible for all industrial projects.')
+                                                //     ->columnSpanFull(),
                                             ])
                                             ->getSearchResultsUsing(
                                                 fn(string $search) => Division::where('name', 'like', "%{$search}%")
                                                     ->limit(50)
-                                                    ->pluck('name', 'code')
+                                                    ->pluck('name')
                                             )
-                                            ->getOptionLabelUsing(fn($value): ?string => Division::where('code', $value)->first()?->name)
+                                            ->getOptionLabelUsing(fn($value): ?string => Division::where('name', $value)->first()?->name)
                                             ->createOptionUsing(function (array $data) {
                                                 $division = Division::create($data);
-                                                return $division->code;
+                                                return $division->name;
                                             })
                                             ->searchable()
                                             ->preload()
@@ -255,14 +255,14 @@ class CommonFormComponents
                                             ->columnSpanFull(),
                                     ])
                                     ->getSearchResultsUsing(
-                                        fn(string $search) => DepartmentProject::where('name', 'like', "%{$search}%")
+                                        fn(string $search) => Project::where('name', 'like', "%{$search}%")
                                             ->limit(50)
-                                            ->pluck('name', 'code')
+                                            ->pluck('name')
                                     )
-                                    ->getOptionLabelUsing(fn($value): ?string => DepartmentProject::where('code', $value)->first()?->name)
+                                    ->getOptionLabelUsing(fn($value): ?string => Project::where('name', $value)->first()?->name)
                                     ->createOptionUsing(function (array $data) {
-                                        $departmentProject = DepartmentProject::create($data);
-                                        return $departmentProject->code;
+                                        $Project = Project::create($data);
+                                        return $Project->name;
                                     })
                                     ->searchable()
                                     ->preload()
@@ -279,12 +279,12 @@ class CommonFormComponents
                             ->getSearchResultsUsing(
                                 fn(string $search) => CostCode::where('name', 'like', "%{$search}%")
                                     ->limit(50)
-                                    ->pluck('name', 'code')
+                                    ->pluck('name')
                             )
-                            ->getOptionLabelUsing(fn($value): ?string => CostCode::where('code', $value)->first()?->name)
+                            ->getOptionLabelUsing(fn($value): ?string => CostCode::where('name', $value)->first()?->name)
                             ->createOptionUsing(function (array $data) {
                                 $costCode = CostCode::create($data);
-                                return $costCode->code;
+                                return $costCode->name;
                             })
                             ->searchable()
                             ->preload()

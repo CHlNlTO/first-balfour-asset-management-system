@@ -85,7 +85,7 @@ class CreatePurchase extends CreateRecord
             'asset_status' => $data['asset_status'],
             'brand' => $data['brand'],
             'model' => $data['model'],
-            'department_project_code' => $data['department_project_code'] ?? null,
+            'cost_code' => $data['cost_code'] ?? null,
         ]);
 
         Lifecycle::create([

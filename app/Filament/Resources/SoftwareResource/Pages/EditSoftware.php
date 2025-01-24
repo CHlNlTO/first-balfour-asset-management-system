@@ -31,7 +31,7 @@ class EditSoftware extends EditRecord
         $data['asset_status'] = $this->record->asset->asset_status;
         $data['brand'] = $this->record->asset->brand;
         $data['model'] = $this->record->asset->model;
-        $data['department_project_code'] = $this->record->asset->department_project_code;
+        $data['cost_code'] = $this->record->asset->cost_code;
 
         $data['version'] = $this->record->version;
         $data['license_key'] = $this->record->license_key;
@@ -51,7 +51,7 @@ class EditSoftware extends EditRecord
             'asset_status' => $data['asset_status'],
             'brand' => $data['brand'],
             'model' => $data['model'],
-            'department_project_code' => $data['department_project_code'],
+            'cost_code' => $data['cost_code'],
         ];
 
         return DB::transaction(function () use ($record, $data, $assetData) {
@@ -87,7 +87,7 @@ class EditSoftware extends EditRecord
                     ->default('active'),
                 TextInput::make('brand')->label('Brand')->required(),
                 TextInput::make('model')->label('Model')->required(),
-                TextInput::make('department_project_code')->label('Department/Project Code'),
+                TextInput::make('cost_code')->label('Department/Project Code'),
                 Fieldset::make('Software Details')
                     ->schema([
                         TextInput::make('version')->label('Version')->required(),

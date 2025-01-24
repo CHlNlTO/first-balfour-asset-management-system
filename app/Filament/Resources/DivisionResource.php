@@ -28,24 +28,18 @@ class DivisionResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('code')
-                    ->label('Division Code')
-                    ->required()
-                    ->inlineLabel()
-                    ->placeholder('DIV001')
-                    ->columnSpanFull(),
                 Forms\Components\TextInput::make('name')
                     ->label('Name')
                     ->required()
                     ->inlineLabel()
                     ->placeholder('Industrial Projects Division')
                     ->columnSpanFull(),
-                Forms\Components\Textarea::make('description')
-                    ->label('Description')
-                    ->nullable()
-                    ->inlineLabel()
-                    ->placeholder('This division is responsible for all industrial projects.')
-                    ->columnSpanFull(),
+                // Forms\Components\Textarea::make('description')
+                //     ->label('Description')
+                //     ->nullable()
+                //     ->inlineLabel()
+                //     ->placeholder('This division is responsible for all industrial projects.')
+                //     ->columnSpanFull(),
             ]);
     }
 
@@ -58,21 +52,16 @@ class DivisionResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                TextColumn::make('code')
-                    ->label('Division Code')
-                    ->sortable()
-                    ->searchable()
-                    ->placeholder('N/A'),
                 TextColumn::make('name')
                     ->label('Name')
                     ->sortable()
                     ->searchable()
                     ->placeholder('N/A'),
-                TextColumn::make('description')
-                    ->label('Description')
-                    ->sortable()
-                    ->searchable()
-                    ->placeholder('N/A'),
+                // TextColumn::make('description')
+                //     ->label('Description')
+                //     ->sortable()
+                //     ->searchable()
+                //     ->placeholder('N/A'),
                 TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()
