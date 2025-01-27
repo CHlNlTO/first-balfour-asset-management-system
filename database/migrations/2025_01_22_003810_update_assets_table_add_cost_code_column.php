@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('assets', function (Blueprint $table) {
-            $table->string('cost_code')->nullable(false);
-        });
+        // Schema::table('assets', function (Blueprint $table) {
+        //     $table->string('cost_code')->nullable(false);
+        // });
     }
 
     /**
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('assets', function (Blueprint $table) {
-            $table->dropColumn('cost_code');
-        });
+        // Schema::table('assets', function (Blueprint $table) {
+        //     $table->dropColumn('cost_code');
+        // });
     }
 };

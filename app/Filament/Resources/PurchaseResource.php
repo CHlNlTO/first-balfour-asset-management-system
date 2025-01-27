@@ -180,7 +180,7 @@ class PurchaseResource extends Resource
                                     ->live(),
                                 TextInput::make('brand')->label('Brand')->required(),
                                 TextInput::make('model')->label('Model')->required(),
-                                TextInput::make('department_project_code')
+                                TextInput::make('cost_code')
                                     ->label('Department/Project Code')
                                     ->nullable(),
                             ]),
@@ -285,11 +285,11 @@ class PurchaseResource extends Resource
                     })
                     ->searchable()
                     ->url(fn (Purchase $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
-                TextColumn::make('asset.department_project_code')
+                TextColumn::make('asset.cost_code')
                     ->label('Department/Project Code')
                     ->getStateUsing(function (Purchase $record): string {
                         $asset = $record->asset;
-                        return $asset ? "{$asset->department_project_code}" : 'N/A';
+                        return $asset ? "{$asset->cost_code}" : 'N/A';
                     })
                     ->sortable()
                     ->searchable()
@@ -336,21 +336,21 @@ class PurchaseResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('department_project_code')
+                SelectFilter::make('cost_code')
                     ->label("Filter by Department/Project Code")
                     ->searchable()
                     ->indicator('Department/Project Code')
                     ->options(function () {
-                        return Asset::whereNotNull('department_project_code')
+                        return Asset::whereNotNull('cost_code')
                             ->distinct()
-                            ->pluck('department_project_code', 'department_project_code')
+                            ->pluck('id', 'name')
                             ->toArray();
                     })
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['value'],
                             fn (Builder $query, $value): Builder => $query->whereHas('asset', function ($query) use ($value) {
-                                $query->where('department_project_code', $value);
+                                $query->where('cost_code', $value);
                             })
                         );
                     }),

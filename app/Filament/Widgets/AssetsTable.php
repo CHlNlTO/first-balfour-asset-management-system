@@ -88,10 +88,10 @@ class AssetsTable extends BaseWidget
                     })
                     ->getStateUsing(fn($record) => $record->details)
                     ->placeholder('N/A'),
-                TextColumn::make('department_project_code')
+                TextColumn::make('cost_code')
                     ->label('Department/Project Code')
                     ->getStateUsing(function (Asset $record): string {
-                        return "{$record->department_project_code}";
+                        return "{$record->cost_code}";
                     })
                     ->sortable()
                     ->searchable()
@@ -114,13 +114,13 @@ class AssetsTable extends BaseWidget
                     ->placeholder('N/A'),
             ])
             ->filters([
-                SelectFilter::make('department_project_code')
+                SelectFilter::make('cost_code')
                     ->label("Filter by Department/Project Code")
                     ->searchable()
                     ->indicator('Status')
                     ->options(function () {
-                        return Asset::whereNotNull('department_project_code')
-                            ->pluck('department_project_code', 'department_project_code')
+                        return Asset::whereNotNull('cost_code')
+                            ->pluck('id', 'name')
                             ->filter(fn($value) => !is_null($value))
                             ->toArray();
                     }),
@@ -137,7 +137,7 @@ class AssetsTable extends BaseWidget
             ->groups([
                 'asset_type',
                 'asset_status',
-                'department_project_code',
+                'cost_code',
                 'brand',
                 'model',
             ])
