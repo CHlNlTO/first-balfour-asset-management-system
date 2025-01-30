@@ -18,26 +18,6 @@ class ListAssets extends ListRecords
         return [
             ImportAssetsAction::make(),
             Actions\CreateAction::make(),
-            // ActionGroup::make([
-            //     Action::make('createHardware')
-            //         ->label('Hardware')
-            //         ->icon('heroicon-m-server-stack')
-            //         ->url(route('filament.admin.resources.hardware.create')),
-
-            //     Action::make('createSoftware')
-            //         ->label('Software')
-            //         ->icon('heroicon-m-cpu-chip')
-            //         ->url(route('filament.admin.resources.software.create')),
-
-            //     Action::make('createPeripherals')
-            //         ->label('Peripherals')
-            //         ->icon('heroicon-m-squares-2x2')
-            //         ->url(route('filament.admin.resources.peripherals.create')),
-            // ])
-            //     ->label('New Asset')
-            //     ->icon('heroicon-m-chevron-down')
-            //     ->button()
-            //     ->color('primary')
         ];
     }
 

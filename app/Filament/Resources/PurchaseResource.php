@@ -76,10 +76,10 @@ class PurchaseResource extends Resource
                             ->relationship('vendor', 'name')
                             ->preload()
                             ->searchable()
-                            ->hidden(fn (callable $get) => $get('vendor_option') !== 'existing')
+                            ->hidden(fn(callable $get) => $get('vendor_option') !== 'existing')
                             ->required(),
                         Fieldset::make('New Vendor Details')
-                            ->hidden(fn (callable $get) => $get('vendor_option') !== 'new')
+                            ->hidden(fn(callable $get) => $get('vendor_option') !== 'new')
                             ->schema([
                                 TextInput::make('vendor.name')
                                     ->label('Vendor Name')
@@ -128,7 +128,7 @@ class PurchaseResource extends Resource
                             ]),
                     ])
                     ->columnSpanFull(),
-                    Repeater::make('Asset Information')
+                Repeater::make('Asset Information')
                     ->schema([
                         Fieldset::make('Asset Option')
                             ->columns(2)
@@ -145,15 +145,15 @@ class PurchaseResource extends Resource
                                 Select::make('asset_id')
                                     ->label('Existing Asset')
                                     ->relationship('asset', 'id')
-                                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->id} {$record->brand} {$record->model}")
+                                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->id} {$record->brand} {$record->model}")
                                     ->preload()
                                     ->searchable()
-                                    ->hidden(fn (callable $get) => $get('asset_option') !== 'existing')
+                                    ->hidden(fn(callable $get) => $get('asset_option') !== 'existing')
                                     ->required()
                                     ->columnSpan(1),
                             ]),
-                            Fieldset::make('Asset Details')
-                            ->hidden(fn (callable $get) => $get('asset_option') !== 'new')
+                        Fieldset::make('Asset Details')
+                            ->hidden(fn(callable $get) => $get('asset_option') !== 'new')
                             ->schema([
                                 Select::make('asset_type')
                                     ->options([
@@ -184,77 +184,77 @@ class PurchaseResource extends Resource
                                     ->label('Department/Project Code')
                                     ->nullable(),
                             ]),
-                            Fieldset::make('Hardware Details')
-                                ->hidden(fn (callable $get) => $get('show_hardware') !== true || $get('asset_option') !== 'new')
-                                ->schema([
-                                    Select::make('hardware_type')->label('Hardware Type')
-                                        ->options(HardwareType::all()->pluck('hardware_type', 'id')->toArray())
-                                        ->required(),
-                                    TextInput::make('serial_number')->label('Serial No.')->required(),
-                                    TextArea::make('specifications')->label('Specifications')->required(),
-                                    TextInput::make('manufacturer')->label('Manufacturer')->required(),
-                                    TextInput::make('mac_address')
-                                        ->label('MAC Address')
-                                        ->nullable(),
-                                    TextInput::make('accessories')
-                                        ->label('Accessories')
-                                        ->nullable(),
-                                    TextInput::make('pc_name')
-                                        ->label('PC Name')
-                                        ->nullable(),
-                                    DatePicker::make('warranty_expiration')
-                                        ->label('Warranty Expiration Date')
-                                        ->displayFormat('m/d/Y')
-                                        ->format('Y-m-d')
-                                        ->seconds(false)
-                                        ->nullable(),
-                                ]),
-                            Fieldset::make('Software Details')
-                                ->hidden(fn (callable $get) => $get('show_software') !== true || $get('asset_option') !== 'new')
-                                ->schema([
-                                    TextInput::make('version')->label('Version')->nullable(),
-                                    TextInput::make('license_key')->label('License Key')->nullable(),
-                                    Select::make('software_type')->label('Software Type')
-                                        ->options(SoftwareType::all()->pluck('software_type', 'id')->toArray())
-                                        ->required(),
-                                    Select::make('license_type')->label('License Type')
-                                        ->options(LicenseType::all()->pluck('license_type', 'id')->toArray())
-                                        ->required(),
-                                    TextInput::make('pc_name')
-                                        ->label('PC Name')
-                                        ->nullable(),
-                                ]),
-                            Fieldset::make('Peripherals Details')
-                                ->hidden(fn (callable $get) => $get('show_peripherals') !== true || $get('asset_option') !== 'new')
-                                ->schema([
-                                    Select::make('peripherals_type')->label('Peripheral Type')
-                                        ->options(PeripheralType::all()->pluck('peripherals_type', 'id')->toArray())
-                                        ->required(),
-                                    TextInput::make('serial_number')->label('Serial No.')->required(),
-                                    TextArea::make('specifications')->label('Specifications')->required(),
-                                    TextInput::make('manufacturer')->label('Manufacturer')->required(),
-                                    DatePicker::make('warranty_expiration')
-                                        ->label('Warranty Expiration Date')
-                                        ->displayFormat('m/d/Y')
-                                        ->format('Y-m-d')
-                                        ->seconds(false),
-                                ]),
-                            Fieldset::make('Lifecycle Information')
-                                ->hidden(fn (callable $get) => $get('asset_option') !== 'new')
-                                ->schema([
-                                    DatePicker::make('acquisition_date')
-                                        ->label('Acquisition Date')
-                                        ->required(),
-                                    DatePicker::make('retirement_date')
-                                        ->label('Retirement Date')
-                                        ->nullable()
-                                        ->minDate(fn ($get) => $get('acquisition_date'))
-                                    ])->reactive(),
-                            TextInput::make('purchase_order_amount')
-                                ->label('Purchase Order Amount')
-                                ->required()
-                                ->numeric()
-                                ->columnSpan(1),
+                        Fieldset::make('Hardware Details')
+                            ->hidden(fn(callable $get) => $get('show_hardware') !== true || $get('asset_option') !== 'new')
+                            ->schema([
+                                Select::make('hardware_type')->label('Hardware Type')
+                                    ->options(HardwareType::all()->pluck('hardware_type', 'id')->toArray())
+                                    ->required(),
+                                TextInput::make('serial_number')->label('Serial No.')->required(),
+                                TextArea::make('specifications')->label('Specifications')->required(),
+                                TextInput::make('manufacturer')->label('Manufacturer')->required(),
+                                TextInput::make('mac_address')
+                                    ->label('MAC Address')
+                                    ->nullable(),
+                                TextInput::make('accessories')
+                                    ->label('Accessories')
+                                    ->nullable(),
+                                TextInput::make('pc_name')
+                                    ->label('PC Name')
+                                    ->nullable(),
+                                DatePicker::make('warranty_expiration')
+                                    ->label('Warranty Expiration Date')
+                                    ->displayFormat('m/d/Y')
+                                    ->format('Y-m-d')
+                                    ->seconds(false)
+                                    ->nullable(),
+                            ]),
+                        Fieldset::make('Software Details')
+                            ->hidden(fn(callable $get) => $get('show_software') !== true || $get('asset_option') !== 'new')
+                            ->schema([
+                                TextInput::make('version')->label('Version')->nullable(),
+                                TextInput::make('license_key')->label('License Key')->nullable(),
+                                Select::make('software_type')->label('Software Type')
+                                    ->options(SoftwareType::all()->pluck('software_type', 'id')->toArray())
+                                    ->required(),
+                                Select::make('license_type')->label('License Type')
+                                    ->options(LicenseType::all()->pluck('license_type', 'id')->toArray())
+                                    ->required(),
+                                TextInput::make('pc_name')
+                                    ->label('PC Name')
+                                    ->nullable(),
+                            ]),
+                        Fieldset::make('Peripherals Details')
+                            ->hidden(fn(callable $get) => $get('show_peripherals') !== true || $get('asset_option') !== 'new')
+                            ->schema([
+                                Select::make('peripherals_type')->label('Peripheral Type')
+                                    ->options(PeripheralType::all()->pluck('peripherals_type', 'id')->toArray())
+                                    ->required(),
+                                TextInput::make('serial_number')->label('Serial No.')->required(),
+                                TextArea::make('specifications')->label('Specifications')->required(),
+                                TextInput::make('manufacturer')->label('Manufacturer')->required(),
+                                DatePicker::make('warranty_expiration')
+                                    ->label('Warranty Expiration Date')
+                                    ->displayFormat('m/d/Y')
+                                    ->format('Y-m-d')
+                                    ->seconds(false),
+                            ]),
+                        Fieldset::make('Lifecycle Information')
+                            ->hidden(fn(callable $get) => $get('asset_option') !== 'new')
+                            ->schema([
+                                DatePicker::make('acquisition_date')
+                                    ->label('Acquisition Date')
+                                    ->required(),
+                                DatePicker::make('retirement_date')
+                                    ->label('Retirement Date')
+                                    ->nullable()
+                                    ->minDate(fn($get) => $get('acquisition_date'))
+                            ])->reactive(),
+                        TextInput::make('purchase_order_amount')
+                            ->label('Purchase Order Amount')
+                            ->required()
+                            ->numeric()
+                            ->columnSpan(1),
                     ])
                     ->columns(2)
                     ->addActionLabel('Add Asset')
@@ -270,27 +270,22 @@ class PurchaseResource extends Resource
                 TextColumn::make('id')
                     ->label('Purchase ID')
                     ->sortable()
-                    ->searchable()
-                    ,
+                    ->searchable(),
                 TextColumn::make('asset.id')
                     ->label('Asset ID')
                     ->sortable()
                     ->searchable()
-                    ->url(fn (Purchase $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
-                TextColumn::make('asset.brand')
+                    ->url(fn(Purchase $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
+                TextColumn::make('asset')
                     ->label('Asset Name')
                     ->getStateUsing(function (Purchase $record): string {
                         $asset = $record->asset;
-                        return $asset ? " {$asset->brand} {$asset->model}" : 'N/A';
+                        return $asset ? " {$asset->model->brand->name} {$asset->model->name}" : 'N/A';
                     })
                     ->searchable()
-                    ->url(fn (Purchase $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
-                TextColumn::make('asset.cost_code')
+                    ->url(fn(Purchase $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
+                TextColumn::make('asset.costCode.name')
                     ->label('Department/Project Code')
-                    ->getStateUsing(function (Purchase $record): string {
-                        $asset = $record->asset;
-                        return $asset ? "{$asset->cost_code}" : 'N/A';
-                    })
                     ->sortable()
                     ->searchable()
                     ->placeholder('N/A'),
@@ -306,17 +301,17 @@ class PurchaseResource extends Resource
                     ->label('Purchase Order Amount')
                     ->sortable()
                     ->searchable()
-                    ->formatStateUsing(fn ($state) => 'PHP ' . number_format($state, 2)),
+                    ->formatStateUsing(fn($state) => 'PHP ' . number_format($state, 2)),
                 TextColumn::make('purchase_order_date')
                     ->label('Purchase Order Date')
                     ->sortable()
                     ->searchable()
-                    ->getStateUsing(fn (Purchase $record): string => Carbon::parse($record->purchase_order_date)->format('Y-m-d')),
+                    ->getStateUsing(fn(Purchase $record): string => Carbon::parse($record->purchase_order_date)->format('Y-m-d')),
                 TextColumn::make('vendor.name')
                     ->label('Vendor ID')
                     ->sortable()
                     ->searchable()
-                    ->url(fn (Purchase $record): string => route('filament.admin.resources.vendors.edit', ['record' => $record->vendor_id])),
+                    ->url(fn(Purchase $record): string => route('filament.admin.resources.vendors.edit', ['record' => $record->vendor_id])),
                 TextColumn::make('requestor')
                     ->label('Requestor')
                     ->sortable()
@@ -339,21 +334,9 @@ class PurchaseResource extends Resource
                 SelectFilter::make('cost_code')
                     ->label("Filter by Department/Project Code")
                     ->searchable()
-                    ->indicator('Department/Project Code')
-                    ->options(function () {
-                        return Asset::whereNotNull('cost_code')
-                            ->distinct()
-                            ->pluck('id', 'name')
-                            ->toArray();
-                    })
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            $data['value'],
-                            fn (Builder $query, $value): Builder => $query->whereHas('asset', function ($query) use ($value) {
-                                $query->where('cost_code', $value);
-                            })
-                        );
-                    }),
+                    ->indicator('Cost Code')
+                    ->relationship('asset.costCode', 'name')
+                    ->preload(),
                 SelectFilter::make('purchase_order_no')
                     ->label("Filter by Purchase Order No")
                     ->searchable()
@@ -372,16 +355,16 @@ class PurchaseResource extends Resource
                         return Purchase::distinct()
                             ->get(['purchase_order_date'])
                             ->pluck('purchase_order_date')
-                            ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
+                            ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'))
                             ->unique()
                             ->sort()
-                            ->mapWithKeys(fn ($date) => [$date => $date])
+                            ->mapWithKeys(fn($date) => [$date => $date])
                             ->toArray();
                     })
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['value'],
-                            fn (Builder $query, $value): Builder => $query->where('purchase_order_date', $value)
+                            fn(Builder $query, $value): Builder => $query->where('purchase_order_date', $value)
                         );
                     }),
                 SelectFilter::make('vendor_id')

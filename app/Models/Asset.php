@@ -39,7 +39,7 @@ class Asset extends Model
 
     public function costCode()
     {
-        return $this->belongsTo(CostCode::class);
+        return $this->belongsTo(CostCode::class, 'cost_code', 'id');
     }
 
     public function installedSoftware()

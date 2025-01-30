@@ -18,6 +18,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class OptionToBuyResource extends Resource
 {
@@ -76,6 +77,20 @@ class OptionToBuyResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('employee')
+                    ->label('Employee')
+                    ->sortable()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        $employeeIds = DB::connection('central_employeedb')
+                            ->table('employees')
+                            ->whereRaw(
+                                "CONCAT(first_name, ' ', last_name) LIKE ?",
+                                ["%{$search}%"]
+                            )
+                            ->pluck('id_num');
+                        return $query->whereHas('assignment', function (Builder $query) use ($employeeIds) {
+                            $query->whereIn('employee_id', $employeeIds);
+                        });
+                    })
                     ->getStateUsing(function (OptionToBuy $record): string {
                         $employee = $record->assignment->employee->first_name . ' ' . $record->assignment->employee->last_name;
                         return $employee ? $employee : 'N/A';
@@ -85,12 +100,19 @@ class OptionToBuyResource extends Resource
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->whereHas('assignment', function (Builder $query) use ($search) {
                             $query->whereHas('asset', function (Builder $query) use ($search) {
-                                $query->whereRaw("CONCAT(assets.brand, ' ', assets.model) LIKE ?", ["%{$search}%"]);
+                                $query->whereHas('model', function (Builder $query) use ($search) {
+                                    $query->whereHas('brand', function (Builder $query) use ($search) {
+                                        $query->whereRaw(
+                                            "CONCAT(brands.name, ' ', models.name) LIKE ?",
+                                            ["%{$search}%"]
+                                        );
+                                    });
+                                });
                             });
                         });
                     })
                     ->getStateUsing(function (OptionToBuy $record): string {
-                        $asset = $record->assignment->asset->brand . ' ' . $record->assignment->asset->model;
+                        $asset = $record->assignment->asset->model->brand->name . ' ' . $record->assignment->asset->model->name;
                         return $asset ? $asset : 'N/A';
                     })
                     ->url(fn(OptionToBuy $record): string => route('filament.admin.resources.assets.view', ['record' => $record->assignment->asset_id])),
@@ -159,7 +181,7 @@ class OptionToBuyResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                ApproveSaleActionInOptionToBuy::make(),
+                \App\Filament\Resources\OptionToBuyResource\Actions\ApproveSaleActionInOptionToBuy::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

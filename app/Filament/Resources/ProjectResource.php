@@ -26,10 +26,10 @@ class ProjectResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Textarea::make('name')
+                Forms\Components\TextInput::make('name')
                     ->required()
                     ->columnSpanFull(),
-                Forms\Components\Textarea::make('short_name')
+                Forms\Components\TextInput::make('short_name')
                     ->columnSpanFull(),
                 Forms\Components\Select::make('division_id')
                     ->relationship('division', 'name')
@@ -44,6 +44,9 @@ class ProjectResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('short_name')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('division.name')
                     ->label('Division')
                     ->numeric()
@@ -51,17 +54,16 @@ class ProjectResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -82,9 +84,6 @@ class ProjectResource extends Resource
     {
         return [
             'index' => Pages\ListProjects::route('/'),
-            'create' => Pages\CreateProject::route('/create'),
-            'view' => Pages\ViewProject::route('/{record}'),
-            'edit' => Pages\EditProject::route('/{record}/edit'),
         ];
     }
 }

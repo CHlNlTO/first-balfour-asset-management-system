@@ -14,6 +14,4 @@ class CostCode extends Model
     {
         return $this->belongsTo(Project::class);
     }
-
-
 }

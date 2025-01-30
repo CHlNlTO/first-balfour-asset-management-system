@@ -34,12 +34,6 @@ class DivisionResource extends Resource
                     ->inlineLabel()
                     ->placeholder('Industrial Projects Division')
                     ->columnSpanFull(),
-                // Forms\Components\Textarea::make('description')
-                //     ->label('Description')
-                //     ->nullable()
-                //     ->inlineLabel()
-                //     ->placeholder('This division is responsible for all industrial projects.')
-                //     ->columnSpanFull(),
             ]);
     }
 
@@ -99,8 +93,6 @@ class DivisionResource extends Resource
     {
         return [
             'index' => Pages\ListDivisions::route('/'),
-            // 'create' => Pages\CreateDivision::route('/create'),
-            'edit' => Pages\EditDivision::route('/{record}/edit'),
         ];
     }
 }

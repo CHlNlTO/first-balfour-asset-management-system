@@ -21,7 +21,7 @@ class Division extends Model
         return CostCode::query()
             ->whereHas('project', function ($query) {
                 $query->where('division_id', $this->id)
-                      ->where('active', true);
+                    ->where('active', true);
             })
             ->distinct()
             ->get();
