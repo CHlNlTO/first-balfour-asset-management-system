@@ -33,7 +33,7 @@ class TableApprovalAction
             ->modalIcon('heroicon-o-cog')
             ->modalHeading(
                 fn(Assignment $record): string =>
-                "{$record->asset->id} - {$record->asset->brand} {$record->asset->model}"
+                "{$record->asset->id} - {$record->asset->asset}"
             )
             ->modalDescription("Approve if you've received the asset. Decline and state a reason if you haven't.")
             ->modalAlignment(Alignment::Center)

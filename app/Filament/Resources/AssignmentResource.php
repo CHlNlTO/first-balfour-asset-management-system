@@ -44,13 +44,6 @@ class AssignmentResource extends Resource
         return AssignmentTable::make($table);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [

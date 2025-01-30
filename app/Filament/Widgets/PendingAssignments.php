@@ -45,12 +45,8 @@ class PendingAssignments extends BaseWidget
                 Tables\Columns\TextColumn::make('asset.id')
                     ->label('Asset ID')
                     ->url(fn(Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
-                Tables\Columns\TextColumn::make('asset.brand')
+                Tables\Columns\TextColumn::make('asset.asset')
                     ->label('Asset')
-                    ->getStateUsing(function (Assignment $record): string {
-                        $asset = $record->asset;
-                        return $asset ? " {$asset->model->brand->name} {$asset->model->name}" : 'N/A';
-                    })
                     ->url(fn(Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
                 Tables\Columns\TextColumn::make('assignment_status')
                     ->label('Status')
@@ -71,10 +67,12 @@ class PendingAssignments extends BaseWidget
                     }),
                 Tables\Columns\TextColumn::make('start_date')
                     ->label('Start Date')
-                    ->date(),
+                    ->date()
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('end_date')
                     ->label('End Date')
-                    ->date(),
+                    ->date()
+                    ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),

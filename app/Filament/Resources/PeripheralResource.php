@@ -17,8 +17,6 @@ class PeripheralResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
 
-    // protected static ?string $navigationParentItem = 'Assets';
-
     protected static ?string $navigationGroup = 'Manage Assets';
 
     protected static ?int $navigationSort = 4;
@@ -59,7 +57,7 @@ class PeripheralResource extends Resource
                     ->copyMessage('Copied!')
                     ->tooltip('Click to copy')
                     ->placeholder('N/A'),
-                TextColumn::make('asset.brand')
+                TextColumn::make('asset.model.brand.name')
                     ->label('Brand')
                     ->searchable()
                     ->sortable()
@@ -67,7 +65,7 @@ class PeripheralResource extends Resource
                     ->copyMessage('Copied!')
                     ->tooltip('Click to copy')
                     ->placeholder('N/A'),
-                TextColumn::make('asset.model')
+                TextColumn::make('asset.model.name')
                     ->label('Model')
                     ->searchable()
                     ->sortable()
@@ -162,13 +160,6 @@ class PeripheralResource extends Resource
                 Tables\Actions\DeleteBulkAction::make(),
             ])
             ->defaultSort('asset_id', 'desc');
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

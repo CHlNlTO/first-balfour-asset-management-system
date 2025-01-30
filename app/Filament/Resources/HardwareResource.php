@@ -20,8 +20,6 @@ class HardwareResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-server-stack';
 
-    // protected static ?string $navigationParentItem = 'Assets';
-
     protected static ?string $navigationGroup = 'Manage Assets';
 
     protected static ?int $navigationSort = 2;
@@ -178,13 +176,12 @@ class HardwareResource extends Resource
                             ->filter(fn($value) => !is_null($value))
                             ->toArray();
                     }),
-                SelectFilter::make('pc_name')
+                SelectFilter::make('pcName.name')
                     ->label('Filter by PC Name')
                     ->searchable()
                     ->indicator('PC Name')
-                    ->options(function () {
-                        return Hardware::pluck('pc_name', 'pc_name')->filter(fn($value) => !is_null($value) && $value !== '')->unique()->toArray();
-                    }),
+                    ->relationship('pcName', 'name')
+                    ->preload(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
@@ -196,13 +193,6 @@ class HardwareResource extends Resource
                 Tables\Actions\DeleteBulkAction::make(),
             ])
             ->defaultSort('asset_id', 'desc');
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

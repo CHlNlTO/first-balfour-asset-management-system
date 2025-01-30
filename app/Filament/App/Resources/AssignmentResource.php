@@ -33,21 +33,22 @@ class AssignmentResource extends Resource
                 Tables\Columns\TextColumn::make('asset_id')
                     ->label('Asset ID')
                     ->sortable()
+                    ->placeholder('N/A')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('asset.tag_number')
+                    ->label('Tag Number')
+                    ->sortable()
                     ->placeholder('N/A'),
-                Tables\Columns\TextColumn::make('asset_name')
+                Tables\Columns\TextColumn::make('asset.asset')
                     ->label('Asset')
                     ->sortable()
-                    ->placeholder('N/A')
-                    ->getStateUsing(function (Assignment $record): string {
-                        $asset = $record->asset;
-                        return $asset ? " {$asset->brand} {$asset->model}" : 'N/A';
-                    }),
-                Tables\Columns\TextColumn::make('assignment_status')
+                    ->placeholder('N/A'),
+                Tables\Columns\TextColumn::make('asset.asset_type')
+                    ->label('Asset Type')
+                    ->sortable()
+                    ->placeholder('N/A'),
+                Tables\Columns\TextColumn::make('status.assignment_status')
                     ->label('Assignment Status')
-                    ->getStateUsing(function (Assignment $record): string {
-                        $assignmentStatus = AssignmentStatus::find($record->assignment_status);
-                        return $assignmentStatus ? $assignmentStatus->assignment_status : 'N/A';
-                    })
                     ->sortable()
                     ->placeholder('N/A')
                     ->badge()

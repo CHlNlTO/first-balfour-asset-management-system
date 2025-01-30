@@ -5,27 +5,14 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\AssetResource\Pages;
 use App\Models\Asset;
 use App\Models\AssetStatus;
-use App\Models\HardwareType;
-use App\Models\SoftwareType;
-use App\Models\LicenseType;
-use App\Models\PeripheralType;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Repeater;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\Textarea;
 use App\Filament\Resources\AssetResource\RelationManagers\AssignmentsRelationManager;
 use App\Filament\Resources\AssetResource\RelationManagers\HardwareRelationManager;
 use App\Filament\Resources\AssetResource\RelationManagers\SoftwareRelationmanager;
-use Filament\Forms\Components\Grid;
-use Filament\Notifications\Notification;
 use Filament\Tables\Filters\SelectFilter;
 
 class AssetResource extends Resource
@@ -105,11 +92,23 @@ class AssetResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->placeholder('N/A'),
                 TextColumn::make('costCode.name')
-                    ->label('Department/Project Code')
+                    ->label('Cost Code')
                     ->sortable()
                     ->searchable()
                     ->placeholder('N/A')
                     ->toggleable(true),
+                TextColumn::make('costCode.project.name')
+                    ->label('Project')
+                    ->sortable()
+                    ->searchable()
+                    ->placeholder('N/A')
+                    ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('costCode.project.division.name')
+                    ->label('Division')
+                    ->sortable()
+                    ->searchable()
+                    ->placeholder('N/A')
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -129,7 +128,7 @@ class AssetResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('cost_code')
-                    ->label("Filter by Department/Project Code")
+                    ->label("Filter by Cost Code")
                     ->searchable()
                     ->indicator('Cost Code')
                     ->relationship('costCode', 'name')

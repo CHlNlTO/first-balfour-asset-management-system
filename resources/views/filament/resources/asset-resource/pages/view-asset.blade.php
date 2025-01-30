@@ -40,8 +40,8 @@
                     $quickStats = [
                         [
                             'icon' => 'building-office',
-                            'label' => 'Department',
-                            'value' => $record->cost_code,
+                            'label' => 'Cost Code',
+                            'value' => $record->costCode->name,
                         ],
                         [
                             'icon' => 'calendar',
@@ -180,7 +180,7 @@
                                 <span class="text-sm font-medium text-blue-400">PC Name</span>
                                 <div
                                     class="p-3 mt-2 font-mono text-blue-800 border border-blue-100 rounded-lg bg-blue-50">
-                                    {{ displayText($record->hardware?->pcName->name) }}
+                                    {{ displayText($record->hardware?->pcName->name ?? 'Unassigned') }}
                                 </div>
                             </div>
                         </div>
@@ -387,7 +387,8 @@
                             </div>
 
                             @if ($vendor->url)
-                                <a href="{{ $vendor->url }}" target="_blank"
+                                <a href="{{ Str::startsWith($vendor->url, ['http://', 'https://']) ? $vendor->url : 'https://' . $vendor->url }}"
+                                    target="_blank"
                                     class="flex items-center justify-center w-full p-3 transition-colors rounded-lg bg-blue-50 hover:bg-blue-100">
                                     <x-heroicon-o-globe-alt class="w-5 h-5 mr-2 text-blue-400" />
                                     <span class="font-mono text-blue-600">Visit Website</span>

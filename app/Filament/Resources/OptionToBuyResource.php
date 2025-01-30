@@ -45,7 +45,7 @@ class OptionToBuyResource extends Resource
                 Forms\Components\Select::make('assignment_id')
                     ->label('Assignment ID')
                     ->options(Assignment::all()->mapWithKeys(function ($assignment) {
-                        return [$assignment->id => $assignment->id . ' - ' . $assignment->employee->first_name . ' ' . $assignment->employee->last_name . ' - ' . $assignment->asset->brand . ' ' . $assignment->asset->model];
+                        return [$assignment->id => $assignment->id . ' - ' . $assignment->employee->fullName . ' - ' . $assignment->asset->asset];
                     })->toArray())
                     ->required()
                     ->searchable()

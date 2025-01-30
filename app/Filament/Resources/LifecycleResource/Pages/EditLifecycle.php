@@ -10,13 +10,6 @@ class EditLifecycle extends EditRecord
 {
     protected static string $resource = LifecycleResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
-
     protected function getRedirectUrl(): string
     {
         return static::getResource()::getUrl('index');

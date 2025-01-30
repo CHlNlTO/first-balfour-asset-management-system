@@ -45,7 +45,7 @@ class CEMREmployee extends Model
         return $this->belongsTo(CEMRStatus::class, 'emp_stat_id');
     }
 
-    public function getFullName()
+    public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;
     }
@@ -54,5 +54,4 @@ class CEMREmployee extends Model
     {
         return 'id_num';
     }
-
 }

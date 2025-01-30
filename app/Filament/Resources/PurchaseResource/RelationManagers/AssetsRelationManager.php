@@ -36,17 +36,17 @@ class AssetsRelationManager extends RelationManager
                     ->label('Asset ID')
                     ->sortable()
                     ->searchable(true)
-                    ->url(fn (Asset $record): string => route('filament.admin.resources.assets.view', ['record' => $record->id])),
-                Tables\Columns\TextColumn::make('brand')
+                    ->url(fn(Asset $record): string => route('filament.admin.resources.assets.view', ['record' => $record->id])),
+                Tables\Columns\TextColumn::make('model.brand.name')
                     ->label('Asset Brand')
                     ->sortable()
                     ->searchable(true)
-                    ->url(fn (Asset $record): string => route('filament.admin.resources.assets.view', ['record' => $record->id])),
-                Tables\Columns\TextColumn::make('model')
+                    ->url(fn(Asset $record): string => route('filament.admin.resources.assets.view', ['record' => $record->id])),
+                Tables\Columns\TextColumn::make('model.name')
                     ->label('Asset Model')
                     ->sortable()
                     ->searchable(true)
-                    ->url(fn (Asset $record): string => route('filament.admin.resources.assets.view', ['record' => $record->id])),
+                    ->url(fn(Asset $record): string => route('filament.admin.resources.assets.view', ['record' => $record->id])),
             ])
             ->filters([
                 //

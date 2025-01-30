@@ -10,6 +10,7 @@ use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Forms\Form;
+use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -24,22 +25,6 @@ class LifecycleResource extends Resource
     protected static ?string $navigationGroup = 'Manage Assets';
 
     protected static ?int $navigationSort = 5;
-
-    // public static function form(Form $form): Form
-    // {
-    //     return $form
-    //         ->schema([
-    //             Forms\Components\DatePicker::make('acquisition_date')
-    //                 ->label('Acquisition Date')
-    //                 ->displayFormat('m/d/Y')
-    //                 ->required(),
-    //             Forms\Components\DatePicker::make('retirement_date')
-    //                 ->label('Retirement Date')
-    //                 ->displayFormat('m/d/Y')
-    //                 ->default(now()->addYears(5))
-    //                 ->required(),
-    //         ]);
-    // }
 
     public static function table(Table $table): Table
     {
@@ -63,30 +48,21 @@ class LifecycleResource extends Resource
                     ->label('Asset')
                     ->getStateUsing(function (Lifecycle $record): string {
                         $asset = $record->asset;
-                        return $asset ? " {$asset->brand} {$asset->model}" : 'N/A';
+                        return $asset ? " {$asset->model->brand->name} {$asset->model->name}" : 'N/A';
                     })
                     ->url(fn(Lifecycle $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
                 TextColumn::make('asset.assetStatus.asset_status')
                     ->label('Asset Status')
                     ->sortable()
                     ->searchable()
-                    // ->getStateUsing(function (Hardware $record): string {
-                    //     $assetStatus = AssetStatus::find($record->asset->assetStatus->asset_status);
-                    //     return $assetStatus ? $assetStatus->asset_status : 'N/A';
-                    // })
                     ->copyable()
                     ->copyMessage('Copied!')
                     ->tooltip('Click to copy')
                     ->placeholder('N/A'),
-                TextColumn::make('asset.software.license_type')
+                TextColumn::make('asset.software.licenseType.license_type')
                     ->label('Software License Type')
                     ->sortable()
                     ->searchable()
-                    ->getStateUsing(function (Lifecycle $record): string {
-                        // Access the related LicenseType through the relationships
-                        $licenseType = $record->asset->software->licenseType->license_type ?? '';
-                        return $licenseType;
-                    })
                     ->placeholder('Hardware Asset'),
                 TextColumn::make('lifecycle_status')
                     ->tooltip('Lifecycle Status is determined by the asset type and lifecycle dates')
@@ -185,7 +161,9 @@ class LifecycleResource extends Resource
 
             ])
             ->actions([])
-            ->bulkActions([])
+            ->bulkActions([
+                DeleteBulkAction::make(),
+            ])
             ->searchPlaceholder('Search by Asset ID')
             ->defaultSort('id', 'desc');
     }
@@ -275,8 +253,6 @@ class LifecycleResource extends Resource
     {
         return [
             'index' => Pages\ListLifecycles::route('/'),
-            // 'create' => Pages\CreateLifecycle::route('/create'),
-            'edit' => Pages\EditLifecycle::route('/{record}/edit'),
         ];
     }
 }

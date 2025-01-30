@@ -20,8 +20,6 @@ class SoftwareResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-cpu-chip';
 
-    // protected static ?string $navigationParentItem = 'Assets';
-
     protected static ?string $navigationGroup = 'Manage Assets';
 
     protected static ?int $navigationSort = 3;
@@ -189,13 +187,6 @@ class SoftwareResource extends Resource
                 Tables\Actions\DeleteBulkAction::make(),
             ])
             ->defaultSort('asset_id', 'desc');
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

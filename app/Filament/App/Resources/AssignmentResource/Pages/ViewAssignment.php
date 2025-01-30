@@ -34,12 +34,8 @@ class ViewAssignment extends ViewRecord
                     ->schema([
                         Section::make('Assignment Details')
                             ->schema([
-                                TextEntry::make('asset.brand')
+                                TextEntry::make('asset.asset')
                                     ->label('Asset')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        $asset = $record->asset;
-                                        return $asset ? "{$asset->brand} {$asset->model}" : 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
@@ -54,36 +50,24 @@ class ViewAssignment extends ViewRecord
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('full_name')
+                                TextEntry::make('employee.fullName')
                                     ->label('Emp. Name')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        $employee = $record->employee;
-                                        return $employee ? "{$employee->getFullName()}" : 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('employee_id')
+                                TextEntry::make('employee.id_num')
                                     ->label('Emp. ID')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        $employee = $record->employee;
-                                        return $employee ? "{$employee->id_num}" : 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('assignment_status')
+                                TextEntry::make('status.assignment_status')
                                     ->label('Assignment Status')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        $assignmentStatus = AssignmentStatus::find($record->assignment_status);
-                                        return $assignmentStatus ? $assignmentStatus->assignment_status : 'N/A';
-                                    })
                                     ->badge()
                                     ->color(fn(string $state): string => match ($state) {
                                         "Active" => "success",
@@ -107,80 +91,42 @@ class ViewAssignment extends ViewRecord
                             ->columns(2),
                         Section::make('Hardware Details')
                             ->schema([
-                                TextEntry::make('hardware_type')
+                                TextEntry::make('asset.hardware.hardwareType.hardware_type')
                                     ->label('Hardware Type')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        if ($record->asset && $record->asset->hardware) {
-                                            $hardwareType = HardwareType::find($record->asset->hardware->hardware_type);
-                                            return $hardwareType ? $hardwareType->hardware_type : 'N/A';
-                                        }
-                                        return 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('serial_number')
+                                TextEntry::make('asset.hardware.serial_number')
                                     ->label('Serial No.')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        if ($record->asset) {
-                                            if ($record->asset->hardware) {
-                                                return $record->asset->hardware->serial_number ?? 'N/A';
-                                            }
-                                        }
-                                        return 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('specifications')
+                                TextEntry::make('asset.hardware.specifications')
                                     ->label('Specifications')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        if ($record->asset) {
-                                            if ($record->asset->hardware) {
-                                                return $record->asset->hardware->specifications ?? 'N/A';
-                                            }
-                                        }
-                                        return 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('manufacturer')
+                                TextEntry::make('asset.hardware.manufacturer')
                                     ->label('Manufacturer')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        if ($record->asset) {
-                                            if ($record->asset->hardware) {
-                                                return $record->asset->hardware->manufacturer ?? 'N/A';
-                                            }
-                                        }
-                                        return 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('warranty_expiration')
+                                TextEntry::make('asset.hardware.warranty_expiration')
                                     ->label('Warranty Expiration Date')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        if ($record->asset) {
-                                            if ($record->asset->hardware) {
-                                                return $record->asset->hardware->warranty_expiration ?? 'N/A';
-                                            }
-                                        }
-                                        return 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
+                                    ->date('M d, Y')
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
@@ -194,62 +140,32 @@ class ViewAssignment extends ViewRecord
                             ->columns(2),
                         Section::make('Software Details')
                             ->schema([
-                                TextEntry::make('software.version')
+                                TextEntry::make('asset.software.version')
                                     ->label('Version')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        if ($record->asset) {
-                                            if ($record->asset->software) {
-                                                return $record->asset->software->version ?? 'N/A';
-                                            }
-                                        }
-                                        return 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('software.license_key')
+                                TextEntry::make('asset.software.license_key')
                                     ->label('License Key')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        if ($record->asset) {
-                                            if ($record->asset->software) {
-                                                return $record->asset->software->license_key ?? 'N/A';
-                                            }
-                                        }
-                                        return 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('software_type')
+                                TextEntry::make('asset.software.softwareType.software_type')
                                     ->label('Software Type')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        if ($record->asset && $record->asset->software) {
-                                            $softwareType = SoftwareType::find($record->asset->software->software_type);
-                                            return $softwareType ? $softwareType->software_type : 'N/A';
-                                        }
-                                        return 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('license_type')
+                                TextEntry::make('asset.software.licenseType.license_type')
                                     ->label('License Type')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        if ($record->asset && $record->asset->software) {
-                                            $licenseType = LicenseType::find($record->asset->software->license_type);
-                                            return $licenseType ? $licenseType->license_type : 'N/A';
-                                        }
-                                        return 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
@@ -265,80 +181,42 @@ class ViewAssignment extends ViewRecord
 
                         Section::make('Peripherals Details')
                             ->schema([
-                                TextEntry::make('peripherals_type')
+                                TextEntry::make('asset.peripherals.peripheralsType.peripherals_type')
                                     ->label('Peripherals Type')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        if ($record->asset && $record->asset->peripherals) {
-                                            $peripheralsType = PeripheralType::find($record->asset->peripherals->peripherals_type);
-                                            return $peripheralsType ? $peripheralsType->peripherals_type : 'N/A';
-                                        }
-                                        return 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('serial_number')
+                                TextEntry::make('asset.peripherals.serial_number')
                                     ->label('Serial No.')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        if ($record->asset) {
-                                            if ($record->asset->peripherals) {
-                                                return $record->asset->peripherals->serial_number ?? 'N/A';
-                                            }
-                                        }
-                                        return 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('specifications')
+                                TextEntry::make('asset.peripherals.specifications')
                                     ->label('Specifications')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        if ($record->asset) {
-                                            if ($record->asset->peripherals) {
-                                                return $record->asset->peripherals->specifications ?? 'N/A';
-                                            }
-                                        }
-                                        return 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('manufacturer')
+                                TextEntry::make('asset.peripherals.manufacturer')
                                     ->label('Manufacturer')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        if ($record->asset) {
-                                            if ($record->asset->peripherals) {
-                                                return $record->asset->peripherals->manufacturer ?? 'N/A';
-                                            }
-                                        }
-                                        return 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('warranty_expiration')
+                                TextEntry::make('asset.peripherals.warranty_expiration')
                                     ->label('Warranty Expiration Date')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        if ($record->asset) {
-                                            if ($record->asset->peripherals) {
-                                                return $record->asset->peripherals->warranty_expiration ?? 'N/A';
-                                            }
-                                        }
-                                        return 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
+                                    ->date('M d, Y')
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
@@ -358,10 +236,7 @@ class ViewAssignment extends ViewRecord
                             ->schema([
                                 TextEntry::make('start_date')
                                     ->label('Start Date')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        $startDate = Carbon::parse($record->start_date);
-                                        return $startDate ? $startDate->format('m/d/Y') : 'N/A';
-                                    })
+                                    ->date('M d, Y')
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
@@ -370,10 +245,7 @@ class ViewAssignment extends ViewRecord
                                     ->inlineLabel(),
                                 TextEntry::make('end_date')
                                     ->label('End Date')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        $endDate = Carbon::parse($record->end_date);
-                                        return $endDate ? $endDate->format('m/d/Y') : 'N/A';
-                                    })
+                                    ->date('M d, Y')
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
@@ -393,19 +265,15 @@ class ViewAssignment extends ViewRecord
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('asset.asset_status')
+                                TextEntry::make('asset.assetStatus.asset_status')
                                     ->label('Asset Status')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        $assetStatus = AssetStatus::find($record->asset->asset_status);
-                                        return $assetStatus ? $assetStatus->asset_status : 'N/A';
-                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('asset.brand')
+                                TextEntry::make('asset.model.brand.name')
                                     ->label('Brand')
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
@@ -413,7 +281,7 @@ class ViewAssignment extends ViewRecord
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('asset.model')
+                                TextEntry::make('asset.model.name')
                                     ->label('Model')
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
@@ -426,28 +294,18 @@ class ViewAssignment extends ViewRecord
                             ->columns(1),
                         Section::make('Asset Lifecycle Information')
                             ->schema([
-                                TextEntry::make('acquisition_date')
+                                TextEntry::make('asset.lifecycle.acquisition_date')
                                     ->label('Acquisition')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        $lifecycle = Lifecycle::where('asset_id', $record->asset->id)->first();
-                                        return $lifecycle && $lifecycle->acquisition_date
-                                            ? Carbon::parse($lifecycle->acquisition_date)->format('m/d/Y')
-                                            : "N/A";
-                                    })
+                                    ->date('M d, Y')
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
                                     ->copyMessageDuration(1000)
                                     ->placeholder('N/A')
                                     ->inlineLabel(),
-                                TextEntry::make('retirement_date')
+                                TextEntry::make('asset.lifecycle.retirement_date')
                                     ->label('Retirement')
-                                    ->getStateUsing(function (Assignment $record): string {
-                                        $lifecycle = Lifecycle::where('asset_id', $record->asset->id)->first();
-                                        return $lifecycle && $lifecycle->retirement_date
-                                            ? Carbon::parse($lifecycle->retirement_date)->format('m/d/Y')
-                                            : "N/A";
-                                    })
+                                    ->date('M d, Y')
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')

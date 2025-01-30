@@ -54,21 +54,21 @@ class EditAsset extends EditRecord
     protected function mutateCommonData(array $data): array
     {
         return array_merge($data, [
-            'asset_type' => $this->record->asset_type,
-            'asset_status' => $this->record->asset_status,
-            'brand' => $this->record->model->brand->name,
-            'brand_display' => $this->record->model->brand->name,
-            'model' => $this->record->model->name,
-            'cost_code' => $this->record->cost_code,
-            'tag_number' => $this->record->tag_number,
-            'acquisition_date' => $this->record->lifecycle?->acquisition_date,
-            'retirement_date' => $this->record->lifecycle?->retirement_date,
-            'vendor_id' => $this->record->purchases()->first()->vendor_id,
-            'purchase_order_no' => $this->record->purchases()->first()->purchase_order_no,
-            'sales_invoice_no' => $this->record->purchases()->first()->sales_invoice_no,
-            'purchase_order_date' => $this->record->purchases()->first()->purchase_order_date,
-            'purchase_order_amount' => $this->record->purchases()->first()->purchase_order_amount,
-            'requestor' => $this->record->purchases()->first()->requestor,
+            'asset_type' => $this->record->asset_type ?? null,
+            'asset_status' => $this->record->asset_status ?? null,
+            'brand' => $this->record->model->brand->name ?? null,
+            'brand_display' => $this->record->model->brand->name ?? null,
+            'model' => $this->record->model->name ?? null,
+            'cost_code' => $this->record->costCost->name ?? null,
+            'tag_number' => $this->record->tag_number ?? null,
+            'acquisition_date' => $this->record->lifecycle?->acquisition_date ?? null,
+            'retirement_date' => $this->record->lifecycle?->retirement_date ?? null,
+            'vendor_id' => $this->record->purchases()->first()->vendor_id ?? null,
+            'purchase_order_no' => $this->record->purchases()->first()->purchase_order_no ?? null,
+            'sales_invoice_no' => $this->record->purchases()->first()->sales_invoice_no ?? null,
+            'purchase_order_date' => $this->record->purchases()->first()->purchase_order_date ?? null,
+            'purchase_order_amount' => $this->record->purchases()->first()->purchase_order_amount ?? null,
+            'requestor' => $this->record->purchases()->first()->requestor ?? null,
         ]);
     }
 
@@ -83,7 +83,7 @@ class EditAsset extends EditRecord
             $data['specifications'] = $hardware->specifications;
             $data['accessories'] = $hardware->accessories;
             $data['mac_address'] = $hardware->mac_address;
-            $data['pc_name'] = $hardware->pcName->name;
+            $data['pc_name'] = $hardware->pcName->name ?? null;
             $data['warranty_expiration'] = $hardware->warranty_expiration;
         }
 

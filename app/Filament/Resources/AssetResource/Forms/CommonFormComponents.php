@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\AssetResource\Forms;
 
+use App\Filament\Resources\CostCodeResource;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Section;
@@ -16,6 +17,7 @@ use App\Models\Project;
 use App\Models\Division;
 use App\Models\HardwareType;
 use App\Models\ProductModel;
+use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 
 class CommonFormComponents
@@ -171,82 +173,7 @@ class CommonFormComponents
                         Select::make('cost_code')
                             ->relationship('costCode', 'name', fn($query) => $query->orderBy('name'))
                             ->required()
-                            ->createOptionForm([
-                                TextInput::make('name')
-                                    ->label('Name')
-                                    ->required()
-                                    ->inlineLabel()
-                                    ->placeholder('Industrial Projects Cost Code')
-                                    ->columnSpanFull(),
-                                Select::make('project_id')
-                                    ->relationship('project', 'name', fn($query) => $query->orderBy('name'))
-                                    ->required()
-                                    ->createOptionForm([
-                                        TextInput::make('name')
-                                            ->label('Name')
-                                            ->required()
-                                            ->inlineLabel()
-                                            ->unique('projects', 'name')
-                                            ->validationMessages([
-                                                'unique' => 'This project name already exists in the system.',
-                                            ])
-                                            ->placeholder('Industrial Projects Department')
-                                            ->columnSpanFull(),
-                                        TextInput::make('short_name')
-                                            ->label('Short Name')
-                                            ->required()
-                                            ->inlineLabel()
-                                            ->unique('projects', 'short_name')
-                                            ->validationMessages([
-                                                'unique' => 'This project short name already exists in the system.',
-                                            ])
-                                            ->placeholder('IPD001')
-                                            ->columnSpanFull(),
-                                        Select::make('division_id')
-                                            ->relationship('division', 'name', fn($query) => $query->orderBy('name'))
-                                            ->required()
-                                            ->createOptionForm([
-                                                TextInput::make('name')
-                                                    ->label('Name')
-                                                    ->required()
-                                                    ->inlineLabel()
-                                                    ->unique('divisions', 'name')
-                                                    ->validationMessages([
-                                                        'unique' => 'This division name already exists in the system.',
-                                                    ])
-                                                    ->placeholder('Industrial Projects Division')
-                                                    ->columnSpanFull(),
-                                            ])
-                                            ->getSearchResultsUsing(
-                                                fn(string $search) => Division::where('name', 'like', "%{$search}%")
-                                                    ->limit(50)
-                                                    ->pluck('name', 'id')
-                                            )
-                                            ->getOptionLabelUsing(fn($value): ?string => Division::where('id', $value)->first()?->name)
-                                            ->createOptionUsing(function (array $data) {
-                                                $division = Division::create($data);
-                                                return $division->id;
-                                            })
-                                            ->searchable()
-                                            ->preload()
-                                            ->inlineLabel()
-                                            ->columnSpanFull(),
-                                    ])
-                                    ->getSearchResultsUsing(
-                                        fn(string $search) => Project::where('name', 'like', "%{$search}%")
-                                            ->limit(50)
-                                            ->pluck('name', 'id')
-                                    )
-                                    ->getOptionLabelUsing(fn($value): ?string => Project::where('id', $value)->first()?->name)
-                                    ->createOptionUsing(function (array $data) {
-                                        $Project = Project::create($data);
-                                        return $Project->id;
-                                    })
-                                    ->searchable()
-                                    ->preload()
-                                    ->inlineLabel()
-                                    ->columnSpanFull(),
-                            ])
+                            ->createOptionForm(fn(Form $form) => CostCodeResource::form($form))
                             ->label('Cost Code')
                             ->getSearchResultsUsing(
                                 fn(string $search) => CostCode::where('name', 'like', "%{$search}%")
@@ -282,13 +209,11 @@ class CommonFormComponents
                         TextInput::make('purchase_order_no')
                             ->label('Purchase Order No.')
                             ->required()
-                            ->numeric()
                             ->placeholder('20230001')
                             ->inlineLabel(),
                         TextInput::make('sales_invoice_no')
                             ->label('Sales Invoice No.')
                             ->required()
-                            ->numeric()
                             ->placeholder('74920001')
                             ->inlineLabel(),
                         DatePicker::make('purchase_order_date')

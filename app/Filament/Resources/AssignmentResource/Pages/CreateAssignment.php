@@ -46,7 +46,7 @@ class CreateAssignment extends CreateRecord
             }
         });
 
-        return end($createdAssignments); // Return the last created assignment
+        return end($createdAssignments);
     }
 
     protected function handleSingleAssignmentCreation(array $data): Assignment
@@ -93,7 +93,7 @@ class CreateAssignment extends CreateRecord
                 ->title('New Asset Assignment')
                 ->icon('heroicon-o-clipboard-document-check')
                 ->info()
-                ->body(Str::markdown("Asset **{$assignment->asset->brand} {$assignment->asset->model}** has been assigned to you."))
+                ->body(Str::markdown("Asset **{$assignment->asset->asset}** has been assigned to you."))
                 ->actions([
                     Action::make('view')
                         ->button()

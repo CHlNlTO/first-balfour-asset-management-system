@@ -332,7 +332,7 @@ class PurchaseResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('cost_code')
-                    ->label("Filter by Department/Project Code")
+                    ->label("Filter by Cost Code")
                     ->searchable()
                     ->indicator('Cost Code')
                     ->relationship('asset.costCode', 'name')
@@ -394,7 +394,7 @@ class PurchaseResource extends Resource
     {
         return [
             'index' => Pages\ListPurchases::route('/'),
-            'create' => Pages\CreatePurchase::route('/create'),
+            // 'create' => Pages\CreatePurchase::route('/create'),
             'view' => Pages\ViewPurchase::route('/{record}'),
             'edit' => Pages\EditPurchase::route('/{record}/edit'),
         ];

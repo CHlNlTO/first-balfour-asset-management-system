@@ -53,11 +53,8 @@ class AssignmentTable
                 ->sortable()
                 ->searchable()
                 ->url(fn(Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
-            TextColumn::make('asset')
+            TextColumn::make('asset.asset')
                 ->label('Asset Name')
-                ->getStateUsing(function (Assignment $record): string {
-                    return "{$record->asset->model->brand->name} {$record->asset->model->name}";
-                })
                 ->searchable(query: function (Builder $query, string $search): Builder {
                     return $query->orWhereHas('asset.model.brand', function ($query) use ($search) {
                         $query->where('brands.name', 'like', "%{$search}%");
@@ -81,7 +78,7 @@ class AssignmentTable
                     if (!$record->employee) return null;
                     return route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num]);
                 }),
-            TextColumn::make('employee')
+            TextColumn::make('employee.fullName')
                 ->label('Employee Name')
                 ->searchable(query: function (Builder $query, string $search): Builder {
                     return $query->whereExists(function ($query) use ($search) {
@@ -93,9 +90,6 @@ class AssignmentTable
                                     ->orWhere('last_name', 'like', "%{$search}%");
                             });
                     });
-                })
-                ->getStateUsing(function (Assignment $record): string {
-                    return $record->employee ? "{$record->employee->first_name} {$record->employee->last_name}" : 'N/A';
                 })
                 ->url(fn(Assignment $record): string => $record->employee ? route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num]) : '#'),
             TextColumn::make('assignment_status')
@@ -122,10 +116,12 @@ class AssignmentTable
             TextColumn::make('start_date')
                 ->label('Start Date')
                 ->date()
+                ->placeholder('N/A')
                 ->sortable(),
             TextColumn::make('end_date')
                 ->label('End Date')
                 ->date()
+                ->placeholder('N/A')
                 ->sortable(),
             TextColumn::make('remarks')
                 ->label('Remarks')
