@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\CostCodeResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\CostCodeResource\RelationManagers;
+use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\TextEntry;
 
 class CostCodeResource extends Resource
 {
@@ -38,7 +40,7 @@ class CostCodeResource extends Resource
                     ->placeholder('Industrial Projects Cost Code')
                     ->columnSpanFull(),
                 Select::make('project_id')
-                    ->relationship('Project', 'name', fn($query) => $query->orderBy('name'))
+                    ->relationship('Project', 'name', fn($query) => $query->orderBy('id'))
                     ->required()
                     ->createOptionForm([
                         Forms\Components\TextInput::make('name')
@@ -105,6 +107,10 @@ class CostCodeResource extends Resource
                     ->preload()
                     ->inlineLabel()
                     ->columnSpanFull(),
+                Toggle::make('active')
+                    ->label('Active')
+                    ->inlineLabel()
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -117,11 +123,6 @@ class CostCodeResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->toggleable(true),
-                // Tables\Columns\TextColumn::make('code')
-                //     ->label('Cost Code')
-                //     ->sortable()
-                //     ->searchable()
-                //     ->toggleable(true),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Name')
                     ->sortable()
@@ -130,21 +131,11 @@ class CostCodeResource extends Resource
                 Tables\Columns\TextColumn::make('project.name')
                     ->label('Project')
                     ->sortable(),
-                // Tables\Columns\TextColumn::make('cost_code')
-                //     ->label('Department/Project Code')
-                //     ->sortable()
-                //     ->searchable()
-                //     ->toggleable(true),
-                // Tables\Columns\TextColumn::make('Project.division_code')
-                //     ->label('Division Code')
-                //     ->sortable()
-                //     ->searchable()
-                //     ->toggleable(true),
-                // Tables\Columns\TextColumn::make('description')
-                //     ->label('Description')
-                //     ->sortable()
-                //     ->searchable()
-                //     ->toggleable(true),
+                Tables\Columns\TextColumn::make('active')
+                    ->label('Active')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(true),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
