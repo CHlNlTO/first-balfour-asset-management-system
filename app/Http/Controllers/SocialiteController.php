@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
-use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 
 class SocialiteController extends Controller
 {
@@ -20,6 +20,8 @@ class SocialiteController extends Controller
 
     public function redirect(string $provider, string $panel = 'admin')
     {
+
+        Log::info('Redirecting to provider: ' . $provider);
         // Store the panel type in session
         Session::put('intended_panel', $panel);
 
@@ -55,8 +57,9 @@ class SocialiteController extends Controller
                 $user->save();
 
                 // Determine role based on email domain
-                $isCompanyEmail = str_ends_with($socialUser->email, '@firstbalfour.com');
-                $roleId = $isCompanyEmail ? 1 : 2; // 1 for admin, 2 for employee
+                // $isCompanyEmail = str_ends_with($socialUser->email, '@firstbalfour.com');
+                // $roleId = $isCompanyEmail ? 1 : 2; // 1 for admin, 2 for employee
+                $roleId = 1;
 
                 UserRole::create([
                     'user_id' => $user->id,
