@@ -50,7 +50,7 @@ class EditAssignment extends EditRecord
                                     ->required()
                                     ->searchable()
                                     ->preload()
-                                    ->getOptionLabelFromRecordUsing(fn(Asset $record) => $record->id . ' - ' . $record->brand . ' ' . $record->model),
+                                    ->getOptionLabelFromRecordUsing(fn(Asset $record) => $record->id . ' - ' . $record->model->brand->name . ' ' . $record->model->name),
                                 Forms\Components\Select::make('employee_id')
                                     ->label('Employee')
                                     ->placeholder('Select from registered employees')

@@ -121,22 +121,16 @@ class OptionToBuyResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status.assignment_status')
-                    ->label('Status')
+                    ->label('Assignment Status')
                     ->sortable()
                     ->searchable()
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        "Active" => "success",
-                        "Pending Approval" => "pending",
-                        "Pending Return" => "warning",
-                        "In Transfer" => "primary",
-                        "Transferred" => "success",
-                        "Declined" => "danger",
-                        'Unknown' => 'gray',
-                        'Asset Sold' => 'success',
-                        'Option to Buy' => 'primary',
-                        default => 'gray',
-                    }),
+                    ->color(fn($record) => $record->status?->color?->getColor())
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
+                    ->placeholder('N/A'),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

@@ -40,9 +40,7 @@ class AssignmentTable
                 ->label('ID')
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true)
-                ->searchable(query: function (Builder $query, string $search): Builder {
-                    return $query->orWhere('assignments.id', 'like', "%{$search}%");
-                }),
+                ->searchable(),
             TextColumn::make('asset.id')
                 ->label('Asset ID')
                 ->sortable()
@@ -92,27 +90,16 @@ class AssignmentTable
                     });
                 })
                 ->url(fn(Assignment $record): string => $record->employee ? route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num]) : '#'),
-            TextColumn::make('assignment_status')
-                ->label('Status')
-                ->getStateUsing(function (Assignment $record): string {
-                    $assignmentStatus = AssignmentStatus::find($record->assignment_status);
-                    return $assignmentStatus ? $assignmentStatus->assignment_status : 'N/A';
-                })
+            TextColumn::make('status.assignment_status')
+                ->label('Assignment Status')
                 ->sortable()
                 ->searchable()
                 ->badge()
-                ->color(fn(string $state): string => match ($state) {
-                    "Active" => "success",
-                    "Pending Approval" => "pending",
-                    "Pending Return" => "warning",
-                    "In Transfer" => "primary",
-                    "Transferred" => "success",
-                    "Declined" => "danger",
-                    'Unknown' => 'gray',
-                    'Asset Sold' => 'success',
-                    'Option to Buy' => 'primary',
-                    default => 'gray',
-                }),
+                ->color(fn($record) => $record->status?->color?->getColor())
+                ->copyable()
+                ->copyMessage('Copied!')
+                ->tooltip('Click to copy')
+                ->placeholder('N/A'),
             TextColumn::make('start_date')
                 ->label('Start Date')
                 ->date()

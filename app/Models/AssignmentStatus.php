@@ -20,4 +20,14 @@ class AssignmentStatus extends Model
     {
         return $this->belongsTo(AssignmentStatus::class, 'assignment_status', 'id');
     }
+
+    public function color()
+    {
+        return $this->belongsTo(Color::class);
+    }
+
+    public function getColor()
+    {
+        return $this->color->name ?? 'gray';
+    }
 }

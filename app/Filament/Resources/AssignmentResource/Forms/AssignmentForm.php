@@ -123,7 +123,7 @@ class AssignmentForm
                                     ->closeOnDateSelection()
                                     ->minDate(fn($get) => $get('start_date'))
                                     ->inlineLabel(),
-                            ]),
+                            ])->columns(2),
                     ]),
             ])
             ->columnSpanFull();

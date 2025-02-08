@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\AssignmentStatusesResource\Pages;
 use App\Models\AssignmentStatus;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Form;
@@ -32,6 +33,10 @@ class AssignmentStatusesResource extends Resource
                         TextInput::make('assignment_status')
                             ->required()
                             ->label("Assignment Status"),
+                        Select::make('color_id')
+                            ->relationship('color', 'name')
+                            ->label("Color ID")
+                            ->required(),
                     ]),
             ]);
     }
@@ -42,6 +47,7 @@ class AssignmentStatusesResource extends Resource
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable()->searchable(),
                 TextColumn::make('assignment_status')->label('Assignment Status')->sortable()->searchable(),
+                TextColumn::make('color.name')->label('Color ID')->sortable()->searchable()->placeholder('N/A'),
                 TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: false)->searchable(),
                 TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: false)->searchable(),
             ])
@@ -69,8 +75,6 @@ class AssignmentStatusesResource extends Resource
     {
         return [
             'index' => Pages\ListAssignmentStatuses::route('/'),
-            // 'create' => Pages\CreateAssignmentStatuses::route('/create'),
-            'edit' => Pages\EditAssignmentStatuses::route('/{record}/edit'),
         ];
     }
 }
