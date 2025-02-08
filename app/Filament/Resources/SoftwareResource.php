@@ -47,10 +47,8 @@ class SoftwareResource extends Resource
                     ->label('Asset Status')
                     ->sortable()
                     ->searchable()
-                    // ->getStateUsing(function (Software $record): string {
-                    //     $assetStatus = AssetStatus::find($record->asset->asset_status);
-                    //     return $assetStatus ? $assetStatus->asset_status : 'N/A';
-                    // })
+                    ->badge()
+                    ->color(fn($record) => $record->asset->assetStatus?->color?->getColor())
                     ->copyable()
                     ->copyMessage('Copied!')
                     ->tooltip('Click to copy')

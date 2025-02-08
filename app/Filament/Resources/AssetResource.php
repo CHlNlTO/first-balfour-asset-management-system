@@ -59,27 +59,15 @@ class AssetResource extends Resource
                             });
                     })
                     ->placeholder('N/A'),
-                TextColumn::make('asset_status')
+                TextColumn::make('assetStatus.asset_status')
                     ->label('Asset Status')
-                    ->getStateUsing(function (Asset $record): string {
-                        $assetStatus = AssetStatus::find($record->asset_status);
-                        return $assetStatus ? $assetStatus->asset_status : 'N/A';
-                    })
                     ->sortable()
                     ->searchable()
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'Active' => 'success',
-                        'Inactive' => 'gray',
-                        'In Transfer' => 'primary',
-                        'Maintenance' => 'warning',
-                        'Lost' => 'gray',
-                        'Disposed' => 'gray',
-                        'Stolen' => 'danger',
-                        'Unknown' => 'gray',
-                        'Sold' => 'success',
-                        default => 'gray',
-                    })
+                    ->color(fn($record) => $record->assetStatus?->color?->getColor())
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->tooltip('Click to copy')
                     ->placeholder('N/A'),
                 TextColumn::make('details')
                     ->label('Specifications/Version')

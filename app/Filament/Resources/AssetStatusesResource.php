@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\AssetStatusesResource\Pages;
 use App\Models\AssetStatus;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Form;
@@ -32,6 +33,10 @@ class AssetStatusesResource extends Resource
                         TextInput::make('asset_status')
                             ->label("Asset Status")
                             ->required(),
+                        Select::make('color_id')
+                            ->relationship('color', 'name')
+                            ->label("Color ID")
+                            ->required(),
                     ]),
             ]);
     }
@@ -42,6 +47,7 @@ class AssetStatusesResource extends Resource
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable()->searchable(),
                 TextColumn::make('asset_status')->label('Asset Status')->sortable()->searchable(),
+                TextColumn::make('color.name')->label('Color ID')->sortable()->searchable()->placeholder('N/A'),
                 TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: false)->searchable(),
                 TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: false)->searchable(),
             ])
@@ -69,8 +75,6 @@ class AssetStatusesResource extends Resource
     {
         return [
             'index' => Pages\ListAssetStatuses::route('/'),
-            // 'create' => Pages\CreateAssetStatuses::route('/create'),
-            'edit' => Pages\EditAssetStatuses::route('/{record}/edit'),
         ];
     }
 }

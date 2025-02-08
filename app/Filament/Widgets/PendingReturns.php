@@ -35,25 +35,24 @@ class PendingReturns extends BaseWidget
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('employee.id_num')
                     ->label("Emp ID")
-                    ->url(fn(Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num])),
-                Tables\Columns\TextColumn::make('employee')
+                    ->url(fn(Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num]))
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('employee.full_name')
                     ->label('Employee')
-                    ->getStateUsing(function (Assignment $record): string {
-                        return "{$record->employee->first_name} {$record->employee->last_name}";
-                    })
                     ->url(fn(Assignment $record): string => route('filament.admin.resources.employees.view', ['record' => $record->employee->id_num])),
                 Tables\Columns\TextColumn::make('asset.id')
                     ->label('Asset ID')
-                    ->url(fn(Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
+                    ->url(fn(Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id]))
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('asset.tag_number')
+                    ->label('Tag Number')
+                    ->url(fn(Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id]))
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('asset.asset')
                     ->label('Asset')
                     ->url(fn(Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
-                Tables\Columns\TextColumn::make('assignment_status')
+                Tables\Columns\TextColumn::make('status.assignment_status')
                     ->label('Status')
-                    ->getStateUsing(function (Assignment $record): string {
-                        $assignmentStatus = AssignmentStatus::find($record->assignment_status);
-                        return $assignmentStatus ? $assignmentStatus->assignment_status : 'N/A';
-                    })
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         "Active" => "success",

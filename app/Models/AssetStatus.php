@@ -9,10 +9,10 @@ class AssetStatus extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['asset_status'];
+    protected $fillable = ['asset_status', 'color_id'];
 
-    public function assets()
+    public function color()
     {
-        return $this->hasMany(Asset::class);
+        return $this->belongsTo(Color::class);
     }
 }

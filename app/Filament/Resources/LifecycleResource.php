@@ -40,6 +40,11 @@ class LifecycleResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('asset.tag_number')
+                    ->label('Tag Number')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('asset.asset_type')
                     ->label('Asset Type')
                     ->sortable()
@@ -55,6 +60,8 @@ class LifecycleResource extends Resource
                     ->label('Asset Status')
                     ->sortable()
                     ->searchable()
+                    ->badge()
+                    ->color(fn($record) => $record->asset->assetStatus?->color?->getColor())
                     ->copyable()
                     ->copyMessage('Copied!')
                     ->tooltip('Click to copy')

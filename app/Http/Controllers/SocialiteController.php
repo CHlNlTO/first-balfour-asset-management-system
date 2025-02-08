@@ -39,6 +39,8 @@ class SocialiteController extends Controller
                 throw new \Exception("Unsupported provider: {$provider}");
             }
 
+            Log::info('User: ', [json_encode($socialUser)]);
+
             DB::beginTransaction();
 
             // Check if user exists by email or provider ID
