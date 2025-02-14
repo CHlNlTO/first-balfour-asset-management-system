@@ -1,2 +1,0 @@
-<img src="<?php echo e(asset('images/company-logo.png')); ?>" alt="First Balfour Logo" style="height: 50px">
-<?php /**PATH C:\xampp\htdocs\website-development-business\clients\first-balfour\asset-management-system-v2\resources\views/vendor/filament-panels/components/logo.blade.php ENDPATH**/ ?>
