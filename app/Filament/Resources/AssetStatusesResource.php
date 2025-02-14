@@ -47,7 +47,7 @@ class AssetStatusesResource extends Resource
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable()->searchable(),
                 TextColumn::make('asset_status')->label('Asset Status')->sortable()->searchable(),
-                TextColumn::make('color.name')->label('Color ID')->sortable()->searchable()->placeholder('N/A'),
+                TextColumn::make('color.name')->label('Color')->sortable()->searchable()->placeholder('N/A'),
                 TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: false)->searchable(),
                 TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: false)->searchable(),
             ])

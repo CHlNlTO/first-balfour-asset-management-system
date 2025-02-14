@@ -2,19 +2,17 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\LifecycleResource\Actions\RenewSubscriptionAction;
 use App\Filament\Resources\LifecycleResource\Pages;
-use App\Models\AssetStatus;
-use App\Models\LicenseType;
 use App\Models\Lifecycle;
-use Filament\Forms;
+use Filament\Actions\Action;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Forms\Form;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 
 class LifecycleResource extends Resource
 {
@@ -22,9 +20,9 @@ class LifecycleResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar';
 
-    protected static ?string $navigationGroup = 'Manage Assets';
+    protected static ?string $navigationGroup = 'Manage Lifecycle';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 1;
 
     public static function table(Table $table): Table
     {
@@ -44,18 +42,31 @@ class LifecycleResource extends Resource
                     ->label('Tag Number')
                     ->sortable()
                     ->searchable()
+                    ->placeholder('N/A')
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('asset.asset_type')
                     ->label('Asset Type')
                     ->sortable()
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                TextColumn::make('asset_name')
+                TextColumn::make('asset.asset')
                     ->label('Asset')
-                    ->getStateUsing(function (Lifecycle $record): string {
-                        $asset = $record->asset;
-                        return $asset ? " {$asset->model->brand->name} {$asset->model->name}" : 'N/A';
+                    ->sortable()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->orWhereHas('asset.model.brand', function ($query) use ($search) {
+                            $query->where('brands.name', 'like', "%{$search}%");
+                        })
+                            ->orWhereHas('asset.model', function ($query) use ($search) {
+                                $query->where('models.name', 'like', "%{$search}%");
+                            });
                     })
+                    ->placeholder('N/A')
                     ->url(fn(Lifecycle $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
+                TextColumn::make('asset.software.licenseType.license_type')
+                    ->label('Subscription Type')
+                    ->sortable()
+                    ->searchable()
+                    ->placeholder('Hardware Asset'),
                 TextColumn::make('asset.assetStatus.asset_status')
                     ->label('Asset Status')
                     ->sortable()
@@ -66,64 +77,21 @@ class LifecycleResource extends Resource
                     ->copyMessage('Copied!')
                     ->tooltip('Click to copy')
                     ->placeholder('N/A'),
-                TextColumn::make('asset.software.licenseType.license_type')
-                    ->label('Software License Type')
-                    ->sortable()
-                    ->searchable()
-                    ->placeholder('Hardware Asset'),
                 TextColumn::make('lifecycle_status')
                     ->tooltip('Lifecycle Status is determined by the asset type and lifecycle dates')
                     ->label('Lifecycle Status')
                     ->toggleable(isToggledHiddenByDefault: false)
-                    ->getStateUsing(function (Lifecycle $record): string {
-                        $asset = $record->asset;
-                        $now = Carbon::now();
-                        $acquisitionDate = $record->acquisition_date ? Carbon::parse($record->acquisition_date) : null;
-                        $retirementDate = $record->retirement_date ? Carbon::parse($record->retirement_date) : null;
-
-                        if (!$asset) {
-                            return 'Unknown';
-                        }
-
-                        // Check if retirement date is approaching (within 90 days)
-                        if ($retirementDate && $now->diffInDays($retirementDate, false) <= 90 && $now < $retirementDate) {
-                            return 'Nearing Retirement';
-                        }
-
-                        if (!$retirementDate) {
-                            return 'Retirement Date Not Set';
-                        }
-
-                        if ($now > $retirementDate) {
-                            return 'End of Life (EOL)';
-                        }
-
-                        switch ($asset->asset_type) {
-                            case 'software':
-                                return self::getSoftwareStatus($asset->software, $now, $retirementDate);
-                            case 'hardware':
-                            case 'peripherals':
-                                return self::getHardwareStatus($acquisitionDate, $retirementDate, $now);
-                            default:
-                                return 'Unknown';
-                        }
-                    })
+                    ->getStateUsing(fn(Lifecycle $record): string => $record->getLifecycleStatus())
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
-                        'Subscription Active' => 'success',
-                        'Subscription Renewal Due' => 'warning',
-                        'Subscription Expired' => 'danger',
-                        'Subscription Cancelled' => 'danger',
-                        'End of Life (EOL)' => 'danger',
-                        'Nearing Retirement' => 'warning',
                         'Active' => 'success',
-                        'Mid-Life' => 'info',
-                        'Nearing End of Life' => 'warning',
-                        'Retirement Date Not Set' => 'info',
-                        'One-Time License' => 'success',
-                        'Open Source' => 'success',
-                        'License Leasing' => 'info',
-                        'Pay As You Go' => 'info',
+                        'Nearing Retirement' => 'warning',
+                        'End of Life (EOL)' => 'danger',
+                        'Renewal Due' => 'warning',
+                        'Expired' => 'danger',
+                        'Inactive' => 'gray',
+                        'Retirement Date Not Set' => 'gray',
+                        'Unknown' => 'gray',
                         default => 'gray',
                     }),
                 TextColumn::make('acquisition_date')
@@ -142,6 +110,15 @@ class LifecycleResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
+
+                TextColumn::make('auto_renewal_enabled')
+                    ->label('Auto Renewal')
+                    ->sortable()
+                    ->getStateUsing(fn(Lifecycle $record): string => $record->auto_renewal_enabled ? 'Enabled' : 'Disabled')
+                    ->color(fn(string $state): string => $state === 'Enabled' ? 'success' : 'danger')
+                    ->badge()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
                     ->label('Created At')
@@ -167,11 +144,12 @@ class LifecycleResource extends Resource
                     ->relationship('asset.software.licenseType', 'license_type'),
 
             ])
-            ->actions([])
+            ->actions([
+                RenewSubscriptionAction::make(),
+            ])
             ->bulkActions([
                 DeleteBulkAction::make(),
             ])
-            ->searchPlaceholder('Search by Asset ID')
             ->defaultSort('id', 'desc');
     }
 
@@ -181,11 +159,10 @@ class LifecycleResource extends Resource
             return 'Unknown';
         }
 
-        // Retrieve the related LicenseType model instance
         $licenseType = $software->licenseType;
 
         if (!$licenseType) {
-            return 'Unknown License Type';
+            return 'Unknown';
         }
 
         switch ($licenseType->license_type) {
@@ -194,30 +171,24 @@ class LifecycleResource extends Resource
                 $subscriptionEndDate = $retirementDate ?? null;
 
                 if (!$subscriptionEndDate) {
-                    return 'Subscription Status Unknown';
+                    return 'Unknown';
                 }
 
                 if ($now > $subscriptionEndDate) {
-                    return 'Subscription Expired';
+                    return 'Expired';
                 }
 
                 if ($now->diffInDays($subscriptionEndDate, false) <= 30) {
-                    return 'Subscription Renewal Due';
+                    return 'Renewal Due';
                 }
 
-                return 'Subscription Active';
+                return 'Active';
 
             case 'One-Time':
-                return 'One-Time License';
-
             case 'Open Source':
-                return 'Open Source';
-
             case 'License Leasing':
-                return 'License Leasing';
-
             case 'Pay As You Go':
-                return 'Pay As You Go';
+                return 'Active';
 
             default:
                 return 'Unknown License Type';
@@ -240,12 +211,10 @@ class LifecycleResource extends Resource
 
         $percentageRemaining = ($remainingLifespan / $totalLifespan) * 100;
 
-        if ($percentageRemaining > 66) {
-            return 'Active';
-        } elseif ($percentageRemaining > 33) {
-            return 'Mid-Life';
+        if ($remainingLifespan <= 14) {
+            return 'Nearing Retirement';
         } else {
-            return 'Nearing End of Life';
+            return 'Active';
         }
     }
 

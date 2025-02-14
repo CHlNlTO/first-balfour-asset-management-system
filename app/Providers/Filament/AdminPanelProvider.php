@@ -44,6 +44,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 'Manage Assets',
+                'Manage Lifecycle',
                 'Manage Transactions',
                 'Manage Employees',
                 'Manage Organization',

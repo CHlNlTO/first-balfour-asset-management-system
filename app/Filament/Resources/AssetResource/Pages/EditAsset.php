@@ -83,7 +83,7 @@ class EditAsset extends EditRecord
             $data['specifications'] = $hardware->specifications;
             $data['accessories'] = $hardware->accessories;
             $data['mac_address'] = $hardware->mac_address;
-            $data['pc_name'] = $hardware->pcName->name ?? null;
+            $data['pc_name'] = $hardware->pc_name_id;
             $data['warranty_expiration'] = $hardware->warranty_expiration;
         }
 
@@ -99,7 +99,7 @@ class EditAsset extends EditRecord
             $data['license_type'] = $software->license_type;
             $data['version'] = $software->version;
             $data['license_key'] = $software->license_key;
-            $data['pc_name'] = $software->pcName->name;
+            $data['pc_name'] = $software->pc_name_id;
         }
 
         return $data;
@@ -143,8 +143,7 @@ class EditAsset extends EditRecord
             // Update common asset fields
             $record->update([
                 'asset_status' => $data['asset_status'],
-                'brand' => $data['brand'],
-                'model' => $data['model'],
+                'model_id' => $data['model'],
                 'cost_code' => $data['cost_code'] ?? null,
                 'tag_number' => $data['tag_number'] ?? null,
             ]);
@@ -228,7 +227,7 @@ class EditAsset extends EditRecord
                 'license_type' => $data['license_type'],
                 'version' => $data['version'] ?? null,
                 'license_key' => $data['license_key'] ?? null,
-                'pc_name_id' => $data['pc_name'] ?? null,
+                'pc_name_id' => $data['pc_name'],
             ]
         );
 
