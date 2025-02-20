@@ -5,9 +5,9 @@ namespace App\Filament\App\Resources\AssignmentResource\Actions;
 use App\Filament\App\Resources\AssignmentResource;
 use App\Models\Assignment;
 use App\Models\AssignmentStatus;
+use App\Models\CEMREmployee;
 use App\Models\Transfer;
 use Carbon\Carbon;
-use Filament\Forms;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
@@ -104,10 +104,12 @@ class EmployeeTransferAction
     protected static function updateAssignmentStatus(Assignment $record, array $data): void
     {
         $inTransferStatusId = AssignmentStatus::where('assignment_status', 'In Transfer')->first()->id;
+        $toEmployee = CEMREmployee::where('id_num', $data['to_employee_id'])->first();
 
         $record->update([
             'employee_id' => $data['from_employee_id'],
             'assignment_status' => $inTransferStatusId,
+            'remarks' => 'In transfer to ' . $toEmployee->first_name . ' ' . $toEmployee->last_name,
             'updated_at' => Carbon::now(),
         ]);
 

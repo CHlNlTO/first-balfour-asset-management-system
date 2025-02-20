@@ -39,7 +39,7 @@ class ManageTransferAction
                 $transfer = static::getLatestTransfer($record);
                 $toEmployee = static::getToEmployee($transfer);
 
-                return "Transfer {$record->asset->brand} {$record->asset->model} to {$toEmployee->first_name} {$toEmployee->last_name}?";
+                return "Transfer {$record->asset->model->brand->name} {$record->asset->model->name} to {$toEmployee->first_name} {$toEmployee->last_name}?";
             })
             ->modalAlignment(Alignment::Center)
             ->modalFooterActions([
@@ -127,6 +127,7 @@ class ManageTransferAction
             'assignment_status' => $pendingApprovalStatusId,
             'start_date' => Carbon::parse($data['start_date'])->format('Y-m-d'),
             'end_date' => isset($data['end_date']) ? Carbon::parse($data['end_date'])->format('Y-m-d') : null,
+            'remarks' => "Transfer from {$record->employee->first_name} {$record->employee->last_name}",
         ]);
 
         // Update transfer record

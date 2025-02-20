@@ -96,9 +96,9 @@ class TableApprovalAction
 
             $statuses = static::getRequiredStatuses();
 
+            static::handleTransferIfExists($record, $statuses);
             static::updateCurrentAssignment($record, $statuses['active']);
             static::updateAssetStatus($record);
-            static::handleTransferIfExists($record, $statuses);
 
             DB::commit();
 
@@ -170,6 +170,7 @@ class TableApprovalAction
         $record->asset->update([
             'asset_status' => $activeAssetStatusId,
             'updated_at' => Carbon::now(),
+
         ]);
 
         Log::info('Updated asset status', [
@@ -186,6 +187,7 @@ class TableApprovalAction
             // Update old assignment
             $transfer->assignment->update([
                 'assignment_status' => $statuses['transferred'],
+                'remarks' => 'Asset Transferred.',
                 'updated_at' => Carbon::now(),
             ]);
 

@@ -51,6 +51,7 @@ class AdminPanelProvider extends PanelProvider
                 'Manage Categories',
                 'Manage Types',
                 'Manage Statuses',
+                'Filament Shield',
             ])
             ->widgets([
                 AssetStatsOverview::class,
@@ -71,8 +72,8 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                Authenticate::class,
-                CheckRole::class . ':admin',
+                // Authenticate::class,
+                // CheckRole::class . ':admin',
             ])
             ->userMenuItems([
                 'profile' => MenuItem::make()->label('Edit profile'),
