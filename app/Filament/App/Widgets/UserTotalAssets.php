@@ -3,11 +3,15 @@
 namespace App\Filament\App\Widgets;
 
 use App\Models\Assignment;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\DB;
 
 class UserTotalAssets extends BaseWidget
 {
+    use HasWidgetShield;
+
     protected static ?int $sort = -4;
 
     protected int | string | array $columnSpan = 'one-third';
@@ -19,32 +23,30 @@ class UserTotalAssets extends BaseWidget
 
     public function getStats(): array
     {
-        $query = Assignment::query()->where('employee_id', auth()->user()->id_num)->with('asset');;
-        // $queryCost = Purchase::query()
-        //     ->join('assets', 'purchases.asset_id', '=', 'assets.id');
+        // Build a single query with a groupBy to get counts for all statuses at once
+        $assignmentCounts = Assignment::where('employee_id', auth()->user()->id_num)
+            ->join('assignment_statuses', 'assignments.assignment_status', '=', 'assignment_statuses.id')
+            ->select('assignment_statuses.assignment_status', DB::raw('count(*) as count'))
+            ->groupBy('assignment_statuses.assignment_status')
+            ->pluck('count', 'assignment_statuses.assignment_status')
+            ->toArray();
 
-        // $totalCost = $queryCost->sum('purchases.purchase_order_amount');
+        // Extract the counts we need
+        $activeCount = $assignmentCounts['Active'] ?? 0;
+        $pendingCount = $assignmentCounts['Pending Approval'] ?? 0;
+        $relevantTotal = $activeCount + $pendingCount;
+        $totalAssignments = array_sum($assignmentCounts);
 
-        $totalAssets = $query->count();
-
-        // Use whereHas to check the related asset's status
-        $activeAssets = Assignment::query()
-            ->where('employee_id', auth()->user()->id_num)
-            ->whereHas('asset', function ($query) {
-                $query->where('asset_status', '1');
-            })
-            ->count();
-
-        $activeToTotal = "$activeAssets / $totalAssets";
+        $activeToTotal = "$activeCount / $relevantTotal";
 
         return [
-            // Stat::make('Total Assets Cost', '₱' . number_format($totalCost, 2))
-            //     ->color('success'),
-            Stat::make('Active Assets', $activeToTotal)
+            Stat::make('Approved Active Assignments', $activeToTotal)
+                ->icon('heroicon-o-check-circle')
+                ->description("{$pendingCount} pending approval")
+                ->descriptionColor('primary')
+                ->descriptionIcon('heroicon-o-clock'),
+            Stat::make('Total Accumulated Assets', $totalAssignments)
                 ->color('success'),
-            Stat::make('Total Assets', $totalAssets)
-                ->color('success'),
-
         ];
     }
 }

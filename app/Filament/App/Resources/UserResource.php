@@ -44,7 +44,7 @@ class UserResource extends Resource
                             ->required(fn(string $context): bool => $context === 'create'),
                         Forms\Components\TextInput::make('id_num')
                             ->label('Employee Number')
-                            ->required()
+                            // ->required()
                             ->maxLength(255),
                         Forms\Components\Select::make('roles')
                             ->multiple()
