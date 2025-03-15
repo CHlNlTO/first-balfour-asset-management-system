@@ -1,93 +1,93 @@
 <?php
 
-namespace App\Filament\Resources\AssignmentResource\Actions;
+namespace App\Services;
 
 use App\Models\Assignment;
 use App\Models\AssignmentStatus;
 use App\Models\OptionToBuy;
 use App\Models\Asset;
 use App\Models\AssetStatus;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Actions\Action;
 use Filament\Notifications\Notification;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class ApproveSaleAction
+class SalesService
 {
-    public static function make(): Action
+    /**
+     * Process the approval of a sale
+     *
+     * @param Assignment|null $assignment
+     * @param OptionToBuy|null $optionToBuy
+     * @return void
+     * @throws \Exception
+     */
+    public static function approveSale(?Assignment $assignment = null, ?OptionToBuy $optionToBuy = null): void
     {
-        return Action::make('Approve Sale')
-            ->form(
-                static::getFormSchema(),
-            )
-            ->action(function (Assignment $record, array $data): void {
-                static::handleApproveSale($record, $data);
-            })
-            ->visible(
-                fn(Assignment $record): bool =>
-                $record->assignment_status === AssignmentStatus::where('assignment_status', 'Option to Buy')->first()->id
-            )
-            ->icon('heroicon-o-check-circle')
-            ->requiresConfirmation()
-            ->modalHeading('Approve Asset Sale')
-            ->modalButton('Approve Sale')
-            ->successNotificationTitle('Asset Sale Approved Successfully');
-    }
+        if (!$assignment && !$optionToBuy) {
+            throw new \Exception('Either Assignment or OptionToBuy must be provided');
+        }
 
-    protected static function getFormSchema(): array
-    {
-        return [
-            Hidden::make('id')
-                ->default(fn(Model $record): int => $record->id)
-                ->required(),
+        // If we only have optionToBuy, get the assignment
+        if (!$assignment && $optionToBuy) {
+            $assignment = $optionToBuy->assignment;
+        }
 
-            TextInput::make('asset_display')
-                ->label('Asset')
-                ->default(fn(Model $record): string => "{$record->asset->id} - {$record->asset->brand} {$record->asset->model}")
-                ->disabled()
-                ->dehydrated(false),
+        // If we only have assignment, get the optionToBuy
+        if (!$optionToBuy && $assignment) {
+            $optionToBuy = $assignment->optionToBuy;
+        }
 
-            TextInput::make('employee_display')
-                ->label('Sold to Employee')
-                ->default(fn(Model $record): string => "{$record->employee->id_num} - {$record->employee->first_name} {$record->employee->last_name}")
-                ->disabled()
-                ->dehydrated(false),
+        if (!$assignment || !$optionToBuy) {
+            throw new \Exception('Could not resolve both Assignment and OptionToBuy records');
+        }
 
-            TextInput::make('sale_amount_display')
-                ->label('Sale Amount')
-                ->default(fn(Model $record): string => "₱{$record->optionToBuy->asset_cost}")
-                ->disabled()
-                ->dehydrated(false),
-        ];
-    }
-
-    protected static function handleApproveSale(Assignment $record, array $data): void
-    {
         DB::beginTransaction();
 
         try {
-            Log::info("Processing sale approval for Assignment ID: {$record->id}");
+            Log::info("Processing sale approval for Assignment ID: {$assignment->id} / OptionToBuy ID: {$optionToBuy->id}");
 
             // Update Asset Status to Sold
-            static::updateAssetStatus($record->asset);
+            static::updateAssetStatus($assignment->asset);
 
             // Update OptionToBuy Status to Approved
-            static::updateOptionToBuyStatus($record->optionToBuy);
+            static::updateOptionToBuyStatus($optionToBuy);
 
             // Update Assignment Status to Asset Sold
-            static::updateAssignmentStatus($record);
+            static::updateAssignmentStatus($assignment);
 
             DB::commit();
             static::sendSuccessNotification();
         } catch (\Exception $e) {
             DB::rollBack();
             static::handleError($e);
+            throw $e; // Rethrow to be handled by the action
         }
     }
 
+    /**
+     * Create a new Option to Buy record
+     *
+     * @param Assignment $assignment
+     * @param array $data
+     * @return OptionToBuy
+     */
+    public static function createOptionToBuy(Assignment $assignment, array $data): OptionToBuy
+    {
+        return OptionToBuy::create([
+            'assignment_id' => $assignment->id,
+            'option_to_buy_status' => 10, // Initial status (Option to Buy)
+            'asset_cost' => $data['asset_cost'],
+            'document_path' => $data['document_path'] ?? null, // Include document if provided
+        ]);
+    }
+
+    /**
+     * Update the asset status to Sold
+     *
+     * @param Asset $asset
+     * @return void
+     * @throws \Exception
+     */
     protected static function updateAssetStatus(Asset $asset): void
     {
         try {
@@ -110,6 +110,13 @@ class ApproveSaleAction
         }
     }
 
+    /**
+     * Update the option to buy status to Asset Sold
+     *
+     * @param OptionToBuy $optionToBuy
+     * @return void
+     * @throws \Exception
+     */
     protected static function updateOptionToBuyStatus(OptionToBuy $optionToBuy): void
     {
         try {
@@ -132,6 +139,13 @@ class ApproveSaleAction
         }
     }
 
+    /**
+     * Update the assignment status to Asset Sold
+     *
+     * @param Assignment $assignment
+     * @return void
+     * @throws \Exception
+     */
     protected static function updateAssignmentStatus(Assignment $assignment): void
     {
         try {
@@ -154,6 +168,11 @@ class ApproveSaleAction
         }
     }
 
+    /**
+     * Send a success notification
+     *
+     * @return void
+     */
     protected static function sendSuccessNotification(): void
     {
         Notification::make()
@@ -162,13 +181,19 @@ class ApproveSaleAction
             ->send();
     }
 
+    /**
+     * Handle an error during the process
+     *
+     * @param \Exception $e
+     * @return void
+     */
     protected static function handleError(\Exception $e): void
     {
-        Log::error("Error in Approve Sale action: " . $e->getMessage());
+        Log::error("Error in Sale process: " . $e->getMessage());
 
         Notification::make()
-            ->title('Error Processing Sale Approval')
-            ->body('An error occurred while processing the sale approval. Please try again.')
+            ->title('Error Processing Sale Action')
+            ->body('An error occurred while processing the sale. Please try again.')
             ->danger()
             ->send();
     }

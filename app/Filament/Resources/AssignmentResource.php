@@ -6,26 +6,9 @@ use App\Filament\Resources\AssignmentResource\Forms\AssignmentForm;
 use App\Filament\Resources\AssignmentResource\Pages;
 use App\Filament\Resources\AssignmentResource\Tables\AssignmentTable;
 use App\Models\Assignment;
-use App\Models\AssignmentStatus;
-use App\Models\CEMREmployee;
-use App\Models\OptionToBuy;
-use App\Models\Transfer;
-use Filament\Forms;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Actions\Action;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
-use Filament\Support\Enums\Alignment;
-use Filament\Tables\Actions\ActionGroup;
 
 class AssignmentResource extends Resource
 {

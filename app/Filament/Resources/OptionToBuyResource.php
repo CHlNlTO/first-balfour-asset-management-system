@@ -2,14 +2,12 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\AssignmentResource\Actions\ApproveSaleAction;
-use App\Filament\Resources\AssignmentResource\Actions\ApproveSaleActionInOptionToBuy;
 use App\Filament\Resources\OptionToBuyResource\Pages;
+use App\Filament\Resources\Actions\ApproveSaleAction;
 use App\Models\OptionToBuy;
 use App\Models\Assignment;
 use App\Models\AssignmentStatus;
 use App\Models\CEMREmployee;
-use App\Models\Employee;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -17,7 +15,6 @@ use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 
 class OptionToBuyResource extends Resource
@@ -61,6 +58,16 @@ class OptionToBuyResource extends Resource
                     ->default('10')
                     ->required()
                     ->searchable(),
+                Forms\Components\FileUpload::make('document_path')
+                    ->label('Attach Document')
+                    ->directory('option-to-buy-documents')
+                    ->preserveFilenames()
+                    ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'])
+                    ->maxSize(10240) // 10MB max size
+                    ->disk('public') // Explicitly use public disk
+                    ->visibility('public') // Set visibility to public
+                    ->hint('Accepted file types: PDF, JPEG, PNG (Max: 10MB)')
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -130,7 +137,13 @@ class OptionToBuyResource extends Resource
                     ->copyMessage('Copied!')
                     ->tooltip('Click to copy')
                     ->placeholder('N/A'),
-
+                Tables\Columns\TextColumn::make('document_path')
+                    ->label('Document')
+                    ->formatStateUsing(fn($state) => $state ? 'Attached' : 'None')
+                    ->badge()
+                    ->color(fn($state) => $state ? 'success' : 'danger')
+                    ->url(fn($record) => $record->document_path ? $record->document_url : null, shouldOpenInNewTab: true)
+                    ->tooltip(fn($record) => $record->document_path ? 'Click to view document' : 'No document attached'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -170,12 +183,28 @@ class OptionToBuyResource extends Resource
                         }
                     })
                     ->preload(),
-
+                // Filter for documents
+                Tables\Filters\Filter::make('has_document')
+                    ->label('Has Document')
+                    ->query(fn(Builder $query): Builder => $query->whereNotNull('document_path'))
+                    ->toggle(),
+                // Filter for status
+                SelectFilter::make('option_to_buy_status')
+                    ->label('Status')
+                    ->options(AssignmentStatus::all()->pluck('assignment_status', 'id'))
+                    ->searchable()
+                    ->preload(),
             ])
             ->actions([
+                Tables\Actions\Action::make('download_document')
+                    ->label('Download Document')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->url(fn(OptionToBuy $record): ?string => $record->document_path ? $record->document_url : null)
+                    ->openUrlInNewTab()
+                    ->visible(fn(OptionToBuy $record): bool => $record->document_path !== null),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                \App\Filament\Resources\OptionToBuyResource\Actions\ApproveSaleActionInOptionToBuy::make(),
+                ApproveSaleAction::makeForOptionToBuy(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

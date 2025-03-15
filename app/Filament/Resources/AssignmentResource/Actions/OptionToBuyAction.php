@@ -5,9 +5,11 @@ namespace App\Filament\Resources\AssignmentResource\Actions;
 use App\Models\Assignment;
 use App\Models\AssignmentStatus;
 use App\Models\OptionToBuy;
+use App\Services\SalesService;
 use Carbon\Carbon;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
@@ -86,6 +88,15 @@ class OptionToBuyAction
                 ->hint(fn(Model $record): string =>  "Original Price: ₱" . ($record->asset->purchases->first()->purchase_order_amount ?? 0) . ".00")
                 ->numeric()
                 ->required(),
+
+            FileUpload::make('document_path')
+                ->label('Attach Document')
+                ->directory('option-to-buy-documents')
+                ->preserveFilenames()
+                ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'])
+                ->maxSize(10240) // 10MB max size
+                ->hint('Accepted file types: PDF, JPEG, PNG (Max: 10MB)')
+                ->columnSpanFull(),
         ];
     }
 
@@ -97,7 +108,7 @@ class OptionToBuyAction
             Log::info("Data received in Option to Buy action:", $data);
 
             static::updateAssignment($record, $data);
-            static::createOptionToBuy($record, $data);
+            SalesService::createOptionToBuy($record, $data);
 
             DB::commit();
             static::sendSuccessNotification();
@@ -114,15 +125,6 @@ class OptionToBuyAction
             'employee_id' => $data['from_employee_id'],
             'assignment_status' => 10, // Option to Buy status
             'start_date' => $data['old_start_date'],
-        ]);
-    }
-
-    protected static function createOptionToBuy(Assignment $record, array $data): void
-    {
-        OptionToBuy::create([
-            'assignment_id' => $record->id,
-            'option_to_buy_status' => 10, // Initial status
-            'asset_cost' => $data['asset_cost'],
         ]);
     }
 

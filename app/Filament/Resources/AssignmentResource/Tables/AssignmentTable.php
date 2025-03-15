@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\AssignmentResource\Tables;
 
-use App\Filament\Resources\AssignmentResource\Actions\ApproveSaleAction;
+use App\Filament\Resources\Actions\ApproveSaleAction;
 use App\Filament\Resources\AssignmentResource\Actions\ManageTransferAction;
 use App\Filament\Resources\AssignmentResource\Actions\OptionToBuyAction;
 use App\Filament\Resources\AssignmentResource\Actions\TransferAction;
@@ -170,7 +170,7 @@ class AssignmentTable
                 TransferAction::make(),
                 ManageTransferAction::make(),
                 OptionToBuyAction::make(),
-                ApproveSaleAction::make(),
+                ApproveSaleAction::makeForAssignment(),
             ])
         ];
     }
