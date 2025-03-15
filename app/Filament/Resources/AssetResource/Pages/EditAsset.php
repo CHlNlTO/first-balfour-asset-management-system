@@ -58,7 +58,7 @@ class EditAsset extends EditRecord
             'asset_status' => $this->record->asset_status ?? null,
             'brand' => $this->record->model->brand->name ?? null,
             'brand_display' => $this->record->model->brand->name ?? null,
-            'model' => $this->record->model->name ?? null,
+            'model' => $this->record->model->id ?? null,
             'cost_code' => $this->record->costCost->name ?? null,
             'tag_number' => $this->record->tag_number ?? null,
             'acquisition_date' => $this->record->lifecycle?->acquisition_date ?? null,
