@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
 
 class Lifecycle extends Model
 {
@@ -198,5 +199,126 @@ class Lifecycle extends Model
         }
 
         return $currentDate->copy()->addMonth();
+    }
+
+    // Add this new scope method for lifecycle status filtering
+    public function scopeWithLifecycleStatus(Builder $query, string $status): Builder
+    {
+        switch ($status) {
+            case 'Active':
+                // For software with subscription
+                return $query->where(function ($q) {
+                    $q->where(function ($q) {
+                        $q->whereHas('asset', function ($q) {
+                            $q->where('asset_type', 'software');
+                        })
+                            ->whereHas('asset.software.licenseType', function ($q) {
+                                $q->whereIn('license_type', ['Monthly Subscription', 'Annual Subscription']);
+                            })
+                            ->whereRaw('retirement_date > NOW()')
+                            ->whereRaw('DATEDIFF(retirement_date, NOW()) > 14');
+                    })
+                        // For software with one-time, open source, etc.
+                        ->orWhere(function ($q) {
+                            $q->whereHas('asset', function ($q) {
+                                $q->where('asset_type', 'software');
+                            })
+                                ->whereHas('asset.software.licenseType', function ($q) {
+                                    $q->whereIn('license_type', ['One-Time', 'Open Source', 'License Leasing', 'Pay As You Go']);
+                                });
+                        })
+                        // For hardware and peripherals
+                        ->orWhere(function ($q) {
+                            $q->whereHas('asset', function ($q) {
+                                $q->whereIn('asset_type', ['hardware', 'peripherals']);
+                            })
+                                ->whereNotNull('acquisition_date')
+                                ->whereNotNull('retirement_date')
+                                ->whereRaw('retirement_date > NOW()')
+                                ->whereRaw('DATEDIFF(retirement_date, NOW()) > 14');
+                        });
+                });
+
+            case 'Nearing Retirement':
+                return $query->whereHas('asset', function ($q) {
+                    $q->whereIn('asset_type', ['hardware', 'peripherals']);
+                })
+                    ->whereNotNull('acquisition_date')
+                    ->whereNotNull('retirement_date')
+                    ->whereRaw('retirement_date > NOW()')
+                    ->whereRaw('DATEDIFF(retirement_date, NOW()) <= 14');
+
+            case 'End of Life (EOL)':
+                return $query->whereHas('asset', function ($q) {
+                    $q->whereIn('asset_type', ['hardware', 'peripherals']);
+                })
+                    ->whereNotNull('acquisition_date')
+                    ->whereNotNull('retirement_date')
+                    ->whereRaw('retirement_date <= NOW()');
+
+            case 'Renewal Due':
+                return $query->whereHas('asset', function ($q) {
+                    $q->where('asset_type', 'software');
+                })
+                    ->whereHas('asset.software.licenseType', function ($q) {
+                        $q->whereIn('license_type', ['Monthly Subscription', 'Annual Subscription']);
+                    })
+                    ->whereNotNull('retirement_date')
+                    ->whereRaw('retirement_date > NOW()')
+                    ->whereRaw('DATEDIFF(retirement_date, NOW()) <= 14');
+
+            case 'Expired':
+                return $query->whereHas('asset', function ($q) {
+                    $q->where('asset_type', 'software');
+                })
+                    ->whereHas('asset.software.licenseType', function ($q) {
+                        $q->whereIn('license_type', ['Monthly Subscription', 'Annual Subscription']);
+                    })
+                    ->whereNotNull('retirement_date')
+                    ->whereRaw('retirement_date <= NOW()');
+
+            case 'Unknown':
+            case 'Lifecycle Status Unknown':
+            case 'Unknown License Type':
+                return $query->where(function ($q) {
+                    // Missing asset
+                    $q->whereDoesntHave('asset')
+                        // Or missing license type for software
+                        ->orWhere(function ($q) {
+                            $q->whereHas('asset', function ($q) {
+                                $q->where('asset_type', 'software');
+                            })
+                                ->whereDoesntHave('asset.software.licenseType');
+                        })
+                        // Or missing acquisition date or retirement date for hardware/peripherals
+                        ->orWhere(function ($q) {
+                            $q->whereHas('asset', function ($q) {
+                                $q->whereIn('asset_type', ['hardware', 'peripherals']);
+                            })
+                                ->where(function ($q) {
+                                    $q->whereNull('acquisition_date')
+                                        ->orWhereNull('retirement_date');
+                                });
+                        });
+                });
+
+            default:
+                return $query;
+        }
+    }
+
+    // Add a static method to get all available lifecycle statuses
+    public static function getLifecycleStatusOptions(): array
+    {
+        return [
+            'Active' => 'Active',
+            'Nearing Retirement' => 'Nearing Retirement',
+            'End of Life (EOL)' => 'End of Life (EOL)',
+            'Renewal Due' => 'Renewal Due',
+            'Expired' => 'Expired',
+            'Unknown' => 'Unknown',
+            'Lifecycle Status Unknown' => 'Lifecycle Status Unknown',
+            'Unknown License Type' => 'Unknown License Type'
+        ];
     }
 }

@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\LifecycleResource\Actions\RenewSubscriptionAction;
 use App\Filament\Resources\LifecycleResource\Pages;
 use App\Models\Lifecycle;
-use Filament\Actions\Action;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Table;
@@ -142,6 +141,17 @@ class LifecycleResource extends Resource
                     ->label('Filter by License Type')
                     ->indicator('License Type')
                     ->relationship('asset.software.licenseType', 'license_type'),
+                SelectFilter::make('lifecycle_status')
+                    ->label('Filter by Lifecycle Status')
+                    ->indicator('Lifecycle Status')
+                    ->options(Lifecycle::getLifecycleStatusOptions())
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['value'])) {
+                            return $query;
+                        }
+
+                        return $query->withLifecycleStatus($data['value']);
+                    }),
 
             ])
             ->actions([
