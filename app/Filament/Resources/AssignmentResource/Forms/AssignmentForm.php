@@ -29,6 +29,27 @@ class AssignmentForm
 
     protected static function getAssetAssignmentSection(): Group
     {
+        $excludedStatusIds = AssignmentStatus::whereIn('assignment_status', [
+            'Active',
+            'Pending Approval',
+            'Pending Return',
+            'In Transfer',
+            'Transferred'
+        ])->pluck('id')->toArray();
+
+        $currentDate = now();
+
+        $availableAssets = Asset::whereNotIn('id', function ($query) use ($excludedStatusIds, $currentDate) {
+            $query->select('asset_id')
+                ->from('assignments')
+                ->whereIn('assignment_status', $excludedStatusIds)
+                ->where('start_date', '<=', $currentDate)
+                ->where(function ($q) use ($currentDate) {
+                    $q->whereNull('end_date')
+                        ->orWhere('end_date', '>=', $currentDate);
+                });
+        })->get();
+
         return Group::make()
             ->schema([
                 Section::make('Asset Assignment Details')
@@ -38,7 +59,7 @@ class AssignmentForm
                         Select::make('asset_id')
                             ->label('Assets')
                             ->placeholder('Search assets')
-                            ->options(Asset::all()->mapWithKeys(function ($asset) {
+                            ->options($availableAssets->mapWithKeys(function ($asset) {
                                 return [$asset->id => $asset->tag_number . ' - ' . $asset->model->brand->name . ' ' . $asset->model->name];
                             })->toArray())
                             ->multiple()

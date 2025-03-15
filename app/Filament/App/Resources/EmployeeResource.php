@@ -138,6 +138,7 @@ class EmployeeResource extends Resource
                 }
 
                 // Define the rank hierarchy
+                // TODO: Add more ranks
                 $ranks = [
                     'Senior Manager' => 1,
                     'Assistant Manager' => 2,

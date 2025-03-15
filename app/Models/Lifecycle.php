@@ -44,19 +44,6 @@ class Lifecycle extends Model
             return 'Unknown';
         }
 
-        // // Check if retirement date is approaching (within 14 days)
-        // if ($retirementDate && $now->diffInDays($retirementDate, false) <= 14 && $now < $retirementDate) {
-        //     return 'Nearing Retirement';
-        // }
-
-        // if (!$retirementDate) {
-        //     return 'Retirement Date Not Set';
-        // }
-
-        // if ($now > $retirementDate) {
-        //     return 'End of Life (EOL)';
-        // }
-
         switch ($asset->asset_type) {
             case 'software':
                 return $this->getSoftwareStatus($now, $retirementDate);

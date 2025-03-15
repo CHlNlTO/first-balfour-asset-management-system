@@ -11,7 +11,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -105,33 +104,6 @@ class AssignmentResource extends Resource
                                 ->where('assignments.employee_id', Auth::user()->id_num);
                         })
                     )
-                // TernaryFilter::make('show_all_records')
-                //     ->label('Show all records')
-                //     ->placeholder('Latest records only')
-                //     ->trueLabel('All records')
-                //     ->falseLabel('Latest records only')
-                //     ->default(false)
-                //     ->queries(
-                //         true: fn(Builder $query) => $query,
-                //         false: fn(Builder $query) => $query
-                //             ->whereIn('assignments.id', function (QueryBuilder $subQuery) {
-                //                 return $subQuery
-                //                     ->select('latest_assignments.id')
-                //                     ->from(function (QueryBuilder $innerQuery) {
-                //                         return $innerQuery
-                //                             ->select('assignments.id')
-                //                             ->from('assignments')
-                //                             ->whereIn('assignments.id', function (QueryBuilder $idQuery) {
-                //                                 return $idQuery
-                //                                     ->select(\DB::raw('MAX(assignments.id)'))
-                //                                     ->from('assignments')
-                //                                     ->join('assets', 'assignments.asset_id', '=', 'assets.id')
-                //                                     ->where('assignments.employee_id', Auth::user()->id_num)
-                //                                     ->groupBy('assets.tag_number');
-                //                             });
-                //                     }, 'latest_assignments');
-                //             }),
-                //     ),
             ])
             ->actions([
                 TableApprovalAction::make(),
@@ -166,24 +138,4 @@ class AssignmentResource extends Resource
         return parent::getEloquentQuery()
             ->where('employee_id', Auth::user()->id_num);
     }
-
-    // public static function getEloquentQuery(): Builder
-    // {
-    //     Log::info('User ID Num: ' . Auth::user()->id_num);
-
-    //     $query = parent::getEloquentQuery()
-    //         ->where('employee_id', Auth::user()->id_num);
-
-    //     // Add the latest assignments scope by default
-    //     return $query->whereIn('assignments.id', function (QueryBuilder $subQuery) {
-    //         return $subQuery
-    //             ->select(DB::raw('MAX(assignments.id)'))
-    //             ->from('assignments')
-    //             ->join('assets', 'assignments.asset_id', '=', 'assets.id')
-    //             ->where('assignments.employee_id', Auth::user()->id_num)
-    //             ->groupBy('assets.tag_number');
-    //     })->withGlobalScope('latest_assignments', function (Builder $builder) {
-    //         return $builder;
-    //     });
-    // }
 }

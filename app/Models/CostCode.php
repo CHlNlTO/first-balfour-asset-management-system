@@ -14,4 +14,6 @@ class CostCode extends Model
     {
         return $this->belongsTo(Project::class);
     }
+
+    // belongs to employees table 
 }

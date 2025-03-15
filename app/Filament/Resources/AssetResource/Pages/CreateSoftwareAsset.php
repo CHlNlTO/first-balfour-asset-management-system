@@ -81,7 +81,6 @@ class CreateSoftwareAsset extends CreateRecord
                                         Select::make('pc_name')
                                             ->label('PC Name')
                                             ->options(fn() => PCName::pluck('name', 'id'))
-                                            ->required()
                                             ->createOptionForm([
                                                 TextInput::make('name')
                                                     ->required()
