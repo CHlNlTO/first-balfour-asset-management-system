@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\AssignmentResource\Pages;
 
 use App\Filament\App\Resources\AssignmentResource\Actions\ManageApprovalAction;
+use App\Mail\AssetAssignmentNotification;
 use App\Models\Assignment;
 use App\Filament\Resources\AssignmentResource;
 use App\Models\AssignmentStatus;
@@ -13,6 +14,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class CreateAssignment extends CreateRecord
@@ -88,7 +90,7 @@ class CreateAssignment extends CreateRecord
                 return;
             }
 
-            // Create and send notification
+            // Create and send database notification
             Notification::make()
                 ->title('New Asset Assignment')
                 ->icon('heroicon-o-clipboard-document-check')
@@ -99,9 +101,35 @@ class CreateAssignment extends CreateRecord
                         ->button()
                         ->url(route('filament.app.resources.assignments.view', ['record' => $assignment]))
                         ->label('View Assignment'),
-
                 ])
                 ->sendToDatabase(User::where('id_num', $assignment->employee_id)->firstOrFail());
+
+            // Send email notification if employee has email
+            $user = User::where('id_num', $assignment->employee_id)->first();
+
+            if ($user && $user->email) {
+                try {
+                    Mail::to($user->email)
+                        ->send(new AssetAssignmentNotification($assignment));
+
+                    Log::info('Asset assignment email sent', [
+                        'assignment_id' => $assignment->id,
+                        'email' => $user->email
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Failed to send asset assignment email', [
+                        'error' => $e->getMessage(),
+                        'assignment_id' => $assignment->id,
+                        'email' => $user->email
+                    ]);
+                }
+            } else {
+                Log::info('Email notification skipped - no email address found', [
+                    'assignment_id' => $assignment->id,
+                    'employee_id' => $employee->id_num
+                ]);
+            }
+
             Log::info('Sent assignment notification', [
                 'assignment_id' => $assignment->id,
                 'employee_id' => $employee->id_num
