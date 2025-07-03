@@ -3,11 +3,13 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 02, 2025 at 06:38 AM
+-- Generation Time: Jul 03, 2025 at 04:10 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
-SET FOREIGN_KEY_CHECKS=0;
+CREATE DATABASE IF NOT EXISTS `asset-management-system-v1` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `asset-management-system-v1`;
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
@@ -21,6 +23,25 @@ SET time_zone = "+00:00";
 --
 -- Database: `fb_assets`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `assets`
+--
+
+CREATE TABLE `assets` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `tag_number` varchar(255) DEFAULT NULL,
+  `asset_type` enum('software','hardware','peripherals') DEFAULT NULL,
+  `asset_status` bigint(20) UNSIGNED NOT NULL,
+  `department_project_code` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `remarks` text DEFAULT NULL,
+  `model_id` bigint(20) UNSIGNED NOT NULL,
+  `cost_code` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `assets`
@@ -264,7 +285,25 @@ INSERT INTO `assets` (`id`, `tag_number`, `asset_type`, `asset_status`, `departm
 (372, '799', 'hardware', 8, NULL, '2025-03-15 09:46:18', '2025-03-15 09:46:18', NULL, 2, '252'),
 (375, 'HW12345', 'hardware', 1, NULL, '2025-03-15 10:07:19', '2025-03-15 10:07:19', NULL, 2, '14'),
 (376, 'HW6789', 'software', 1, NULL, '2025-03-15 10:07:19', '2025-03-15 10:07:19', NULL, 6, '18'),
-(377, 'PR12345', 'peripherals', 1, NULL, '2025-03-15 10:07:19', '2025-03-15 10:07:19', NULL, 88, '18');
+(377, 'PR12345', 'peripherals', 1, NULL, '2025-03-15 10:07:19', '2025-03-15 10:07:19', NULL, 88, '18'),
+(395, '912', 'hardware', 5, NULL, '2025-07-03 04:18:45', '2025-07-03 04:18:45', NULL, 5, '265'),
+(396, 'HW-005', 'hardware', 1, NULL, '2025-07-03 04:30:27', '2025-07-03 04:30:27', NULL, 100, '1'),
+(397, NULL, 'software', 1, NULL, '2025-07-03 04:30:27', '2025-07-03 04:30:27', NULL, 101, '1'),
+(398, 'PER-005', 'peripherals', 1, NULL, '2025-07-03 04:30:27', '2025-07-03 04:30:27', NULL, 88, '1');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `asset_statuses`
+--
+
+CREATE TABLE `asset_statuses` (
+  `id` int(11) NOT NULL,
+  `asset_status` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `color_id` bigint(20) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `asset_statuses`
@@ -281,6 +320,24 @@ INSERT INTO `asset_statuses` (`id`, `asset_status`, `created_at`, `updated_at`, 
 (8, 'Unknown', '2024-11-05 03:04:52', '2024-11-05 03:04:52', NULL),
 (9, 'Sold', '2024-11-05 03:04:52', '2024-11-05 03:04:52', NULL),
 (13, 'Testing2', '2025-01-09 00:47:45', '2025-01-09 00:48:42', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `assignments`
+--
+
+CREATE TABLE `assignments` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `asset_id` bigint(20) UNSIGNED NOT NULL,
+  `employee_id` varchar(255) DEFAULT NULL,
+  `assignment_status` bigint(20) UNSIGNED NOT NULL,
+  `start_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `end_date` date DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `remarks` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `assignments`
@@ -376,6 +433,20 @@ INSERT INTO `assignments` (`id`, `asset_id`, `employee_id`, `assignment_status`,
 (199, 26, '0020', 3, '2025-05-05 16:00:00', NULL, '2025-04-29 04:18:51', '2025-04-29 04:18:51', NULL),
 (200, 23, '0031-15', 3, '2025-04-28 16:00:00', NULL, '2025-04-29 04:20:41', '2025-04-29 04:20:41', NULL);
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `assignment_statuses`
+--
+
+CREATE TABLE `assignment_statuses` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `assignment_status` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `color_id` bigint(20) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Dumping data for table `assignment_statuses`
 --
@@ -390,6 +461,20 @@ INSERT INTO `assignment_statuses` (`id`, `assignment_status`, `created_at`, `upd
 (8, 'Declined', '2024-08-09 00:29:01', '2025-02-08 04:28:29', 4),
 (9, 'Asset Sold', '2024-08-11 20:33:16', '2025-02-08 04:28:48', 5),
 (10, 'Option to Buy', '2024-08-11 20:39:14', '2025-02-08 04:29:02', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `brands`
+--
+
+CREATE TABLE `brands` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `brands`
@@ -420,18 +505,55 @@ INSERT INTO `brands` (`id`, `name`, `description`, `created_at`, `updated_at`) V
 (23, 'Cherry Mobile', NULL, '2025-01-10 19:25:14', '2025-01-10 19:25:14'),
 (25, 'KMC', NULL, '2025-01-13 16:53:34', '2025-01-13 17:15:47'),
 (26, 'Ferhul', 'Sample Description', '2025-01-13 17:25:05', '2025-01-13 17:25:05'),
-(27, 'Whirlpool', NULL, '2025-01-21 03:52:04', '2025-01-21 03:52:04');
+(27, 'Whirlpool', NULL, '2025-01-21 03:52:04', '2025-01-21 03:52:04'),
+(32, 'Microsoft', NULL, '2025-07-03 04:30:27', '2025-07-03 04:30:27');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cache`
+--
+
+CREATE TABLE `cache` (
+  `key` varchar(255) NOT NULL,
+  `value` mediumtext NOT NULL,
+  `expiration` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `cache`
 --
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('356a192b7913b04c54574d18c28d46e6395428ab', 'i:1;', 1745805236),
-('356a192b7913b04c54574d18c28d46e6395428ab:timer', 'i:1745805236;', 1745805236),
-('livewire-rate-limiter:a17961fa74e9275d529f489537f179c05d50c2f3', 'i:1;', 1745897316),
-('livewire-rate-limiter:a17961fa74e9275d529f489537f179c05d50c2f3:timer', 'i:1745897316;', 1745897316),
-('spatie.permission.cache', 'a:3:{s:5:\"alias\";a:4:{s:1:\"a\";s:2:\"id\";s:1:\"b\";s:4:\"name\";s:1:\"c\";s:10:\"guard_name\";s:1:\"r\";s:5:\"roles\";}s:11:\"permissions\";a:311:{i:0;a:4:{s:1:\"a\";i:1;s:1:\"b\";s:9:\"view_role\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:1;a:4:{s:1:\"a\";i:2;s:1:\"b\";s:13:\"view_any_role\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:2;a:4:{s:1:\"a\";i:3;s:1:\"b\";s:11:\"create_role\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:3;a:4:{s:1:\"a\";i:4;s:1:\"b\";s:11:\"update_role\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:4;a:4:{s:1:\"a\";i:5;s:1:\"b\";s:11:\"delete_role\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:5;a:4:{s:1:\"a\";i:6;s:1:\"b\";s:15:\"delete_any_role\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:6;a:4:{s:1:\"a\";i:7;s:1:\"b\";s:15:\"view_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:8:{i:0;i:1;i:1;i:3;i:2;i:5;i:3;i:6;i:4;i:7;i:5;i:8;i:6;i:9;i:7;i:10;}}i:7;a:4:{s:1:\"a\";i:8;s:1:\"b\";s:19:\"view_any_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:8:{i:0;i:1;i:1;i:3;i:2;i:5;i:3;i:6;i:4;i:7;i:5;i:8;i:6;i:9;i:7;i:10;}}i:8;a:4:{s:1:\"a\";i:9;s:1:\"b\";s:17:\"create_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:9;a:4:{s:1:\"a\";i:10;s:1:\"b\";s:17:\"update_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:10;a:4:{s:1:\"a\";i:11;s:1:\"b\";s:18:\"restore_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:11;a:4:{s:1:\"a\";i:12;s:1:\"b\";s:22:\"restore_any_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:12;a:4:{s:1:\"a\";i:13;s:1:\"b\";s:20:\"replicate_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:13;a:4:{s:1:\"a\";i:14;s:1:\"b\";s:18:\"reorder_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:14;a:4:{s:1:\"a\";i:15;s:1:\"b\";s:17:\"delete_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:15;a:4:{s:1:\"a\";i:16;s:1:\"b\";s:21:\"delete_any_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:16;a:4:{s:1:\"a\";i:17;s:1:\"b\";s:23:\"force_delete_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:17;a:4:{s:1:\"a\";i:18;s:1:\"b\";s:27:\"force_delete_any_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:18;a:4:{s:1:\"a\";i:19;s:1:\"b\";s:9:\"view_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:19;a:4:{s:1:\"a\";i:20;s:1:\"b\";s:13:\"view_any_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:20;a:4:{s:1:\"a\";i:21;s:1:\"b\";s:11:\"create_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:21;a:4:{s:1:\"a\";i:22;s:1:\"b\";s:11:\"update_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:22;a:4:{s:1:\"a\";i:23;s:1:\"b\";s:12:\"restore_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:23;a:4:{s:1:\"a\";i:24;s:1:\"b\";s:16:\"restore_any_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:24;a:4:{s:1:\"a\";i:25;s:1:\"b\";s:14:\"replicate_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:25;a:4:{s:1:\"a\";i:26;s:1:\"b\";s:12:\"reorder_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:26;a:4:{s:1:\"a\";i:27;s:1:\"b\";s:11:\"delete_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:27;a:4:{s:1:\"a\";i:28;s:1:\"b\";s:15:\"delete_any_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:28;a:4:{s:1:\"a\";i:29;s:1:\"b\";s:17:\"force_delete_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:29;a:4:{s:1:\"a\";i:30;s:1:\"b\";s:21:\"force_delete_any_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:30;a:4:{s:1:\"a\";i:31;s:1:\"b\";s:22:\"widget_UserTotalAssets\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:8:{i:0;i:1;i:1;i:3;i:2;i:5;i:3;i:6;i:4;i:7;i:5;i:8;i:6;i:9;i:7;i:10;}}i:31;a:4:{s:1:\"a\";i:32;s:1:\"b\";s:10:\"view_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:32;a:4:{s:1:\"a\";i:33;s:1:\"b\";s:14:\"view_any_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:33;a:4:{s:1:\"a\";i:34;s:1:\"b\";s:12:\"create_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:34;a:4:{s:1:\"a\";i:35;s:1:\"b\";s:12:\"update_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:35;a:4:{s:1:\"a\";i:36;s:1:\"b\";s:13:\"restore_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:36;a:4:{s:1:\"a\";i:37;s:1:\"b\";s:17:\"restore_any_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:37;a:4:{s:1:\"a\";i:38;s:1:\"b\";s:15:\"replicate_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:38;a:4:{s:1:\"a\";i:39;s:1:\"b\";s:13:\"reorder_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:39;a:4:{s:1:\"a\";i:40;s:1:\"b\";s:12:\"delete_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:40;a:4:{s:1:\"a\";i:41;s:1:\"b\";s:16:\"delete_any_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:41;a:4:{s:1:\"a\";i:42;s:1:\"b\";s:18:\"force_delete_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:42;a:4:{s:1:\"a\";i:43;s:1:\"b\";s:22:\"force_delete_any_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:43;a:4:{s:1:\"a\";i:44;s:1:\"b\";s:20:\"view_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:44;a:4:{s:1:\"a\";i:45;s:1:\"b\";s:24:\"view_any_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:45;a:4:{s:1:\"a\";i:46;s:1:\"b\";s:22:\"create_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:46;a:4:{s:1:\"a\";i:47;s:1:\"b\";s:22:\"update_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:47;a:4:{s:1:\"a\";i:48;s:1:\"b\";s:23:\"restore_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:48;a:4:{s:1:\"a\";i:49;s:1:\"b\";s:27:\"restore_any_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:49;a:4:{s:1:\"a\";i:50;s:1:\"b\";s:25:\"replicate_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:50;a:4:{s:1:\"a\";i:51;s:1:\"b\";s:23:\"reorder_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:51;a:4:{s:1:\"a\";i:52;s:1:\"b\";s:22:\"delete_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:52;a:4:{s:1:\"a\";i:53;s:1:\"b\";s:26:\"delete_any_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:53;a:4:{s:1:\"a\";i:54;s:1:\"b\";s:28:\"force_delete_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:54;a:4:{s:1:\"a\";i:55;s:1:\"b\";s:32:\"force_delete_any_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:55;a:4:{s:1:\"a\";i:56;s:1:\"b\";s:25:\"view_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:56;a:4:{s:1:\"a\";i:57;s:1:\"b\";s:29:\"view_any_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:57;a:4:{s:1:\"a\";i:58;s:1:\"b\";s:27:\"create_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:58;a:4:{s:1:\"a\";i:59;s:1:\"b\";s:27:\"update_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:59;a:4:{s:1:\"a\";i:60;s:1:\"b\";s:28:\"restore_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:60;a:4:{s:1:\"a\";i:61;s:1:\"b\";s:32:\"restore_any_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:61;a:4:{s:1:\"a\";i:62;s:1:\"b\";s:30:\"replicate_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:62;a:4:{s:1:\"a\";i:63;s:1:\"b\";s:28:\"reorder_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:63;a:4:{s:1:\"a\";i:64;s:1:\"b\";s:27:\"delete_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:64;a:4:{s:1:\"a\";i:65;s:1:\"b\";s:31:\"delete_any_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:65;a:4:{s:1:\"a\";i:66;s:1:\"b\";s:33:\"force_delete_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:66;a:4:{s:1:\"a\";i:67;s:1:\"b\";s:37:\"force_delete_any_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:67;a:4:{s:1:\"a\";i:68;s:1:\"b\";s:10:\"view_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:68;a:4:{s:1:\"a\";i:69;s:1:\"b\";s:14:\"view_any_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:69;a:4:{s:1:\"a\";i:70;s:1:\"b\";s:12:\"create_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:70;a:4:{s:1:\"a\";i:71;s:1:\"b\";s:12:\"update_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:71;a:4:{s:1:\"a\";i:72;s:1:\"b\";s:13:\"restore_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:72;a:4:{s:1:\"a\";i:73;s:1:\"b\";s:17:\"restore_any_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:73;a:4:{s:1:\"a\";i:74;s:1:\"b\";s:15:\"replicate_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:74;a:4:{s:1:\"a\";i:75;s:1:\"b\";s:13:\"reorder_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:75;a:4:{s:1:\"a\";i:76;s:1:\"b\";s:12:\"delete_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:76;a:4:{s:1:\"a\";i:77;s:1:\"b\";s:16:\"delete_any_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:77;a:4:{s:1:\"a\";i:78;s:1:\"b\";s:18:\"force_delete_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:78;a:4:{s:1:\"a\";i:79;s:1:\"b\";s:22:\"force_delete_any_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:79;a:4:{s:1:\"a\";i:80;s:1:\"b\";s:10:\"view_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:80;a:4:{s:1:\"a\";i:81;s:1:\"b\";s:14:\"view_any_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:81;a:4:{s:1:\"a\";i:82;s:1:\"b\";s:12:\"create_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:82;a:4:{s:1:\"a\";i:83;s:1:\"b\";s:12:\"update_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:83;a:4:{s:1:\"a\";i:84;s:1:\"b\";s:13:\"restore_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:84;a:4:{s:1:\"a\";i:85;s:1:\"b\";s:17:\"restore_any_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:85;a:4:{s:1:\"a\";i:86;s:1:\"b\";s:15:\"replicate_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:86;a:4:{s:1:\"a\";i:87;s:1:\"b\";s:13:\"reorder_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:87;a:4:{s:1:\"a\";i:88;s:1:\"b\";s:12:\"delete_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:88;a:4:{s:1:\"a\";i:89;s:1:\"b\";s:16:\"delete_any_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:89;a:4:{s:1:\"a\";i:90;s:1:\"b\";s:18:\"force_delete_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:90;a:4:{s:1:\"a\";i:91;s:1:\"b\";s:22:\"force_delete_any_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:91;a:4:{s:1:\"a\";i:92;s:1:\"b\";s:15:\"view_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:92;a:4:{s:1:\"a\";i:93;s:1:\"b\";s:19:\"view_any_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:93;a:4:{s:1:\"a\";i:94;s:1:\"b\";s:17:\"create_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:94;a:4:{s:1:\"a\";i:95;s:1:\"b\";s:17:\"update_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:95;a:4:{s:1:\"a\";i:96;s:1:\"b\";s:18:\"restore_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:96;a:4:{s:1:\"a\";i:97;s:1:\"b\";s:22:\"restore_any_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:97;a:4:{s:1:\"a\";i:98;s:1:\"b\";s:20:\"replicate_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:98;a:4:{s:1:\"a\";i:99;s:1:\"b\";s:18:\"reorder_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:99;a:4:{s:1:\"a\";i:100;s:1:\"b\";s:17:\"delete_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:100;a:4:{s:1:\"a\";i:101;s:1:\"b\";s:21:\"delete_any_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:101;a:4:{s:1:\"a\";i:102;s:1:\"b\";s:23:\"force_delete_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:102;a:4:{s:1:\"a\";i:103;s:1:\"b\";s:27:\"force_delete_any_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:103;a:4:{s:1:\"a\";i:104;s:1:\"b\";s:13:\"view_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:104;a:4:{s:1:\"a\";i:105;s:1:\"b\";s:17:\"view_any_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:105;a:4:{s:1:\"a\";i:106;s:1:\"b\";s:15:\"create_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:106;a:4:{s:1:\"a\";i:107;s:1:\"b\";s:15:\"update_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:107;a:4:{s:1:\"a\";i:108;s:1:\"b\";s:16:\"restore_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:108;a:4:{s:1:\"a\";i:109;s:1:\"b\";s:20:\"restore_any_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:109;a:4:{s:1:\"a\";i:110;s:1:\"b\";s:18:\"replicate_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:110;a:4:{s:1:\"a\";i:111;s:1:\"b\";s:16:\"reorder_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:111;a:4:{s:1:\"a\";i:112;s:1:\"b\";s:15:\"delete_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:112;a:4:{s:1:\"a\";i:113;s:1:\"b\";s:19:\"delete_any_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:113;a:4:{s:1:\"a\";i:114;s:1:\"b\";s:21:\"force_delete_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:114;a:4:{s:1:\"a\";i:115;s:1:\"b\";s:25:\"force_delete_any_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:115;a:4:{s:1:\"a\";i:116;s:1:\"b\";s:13:\"view_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:116;a:4:{s:1:\"a\";i:117;s:1:\"b\";s:17:\"view_any_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:117;a:4:{s:1:\"a\";i:118;s:1:\"b\";s:15:\"create_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:118;a:4:{s:1:\"a\";i:119;s:1:\"b\";s:15:\"update_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:119;a:4:{s:1:\"a\";i:120;s:1:\"b\";s:16:\"restore_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:120;a:4:{s:1:\"a\";i:121;s:1:\"b\";s:20:\"restore_any_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:121;a:4:{s:1:\"a\";i:122;s:1:\"b\";s:18:\"replicate_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:122;a:4:{s:1:\"a\";i:123;s:1:\"b\";s:16:\"reorder_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:123;a:4:{s:1:\"a\";i:124;s:1:\"b\";s:15:\"delete_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:124;a:4:{s:1:\"a\";i:125;s:1:\"b\";s:19:\"delete_any_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:125;a:4:{s:1:\"a\";i:126;s:1:\"b\";s:21:\"force_delete_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:126;a:4:{s:1:\"a\";i:127;s:1:\"b\";s:25:\"force_delete_any_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:127;a:4:{s:1:\"a\";i:128;s:1:\"b\";s:13:\"view_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:128;a:4:{s:1:\"a\";i:129;s:1:\"b\";s:17:\"view_any_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:129;a:4:{s:1:\"a\";i:130;s:1:\"b\";s:15:\"create_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:130;a:4:{s:1:\"a\";i:131;s:1:\"b\";s:15:\"update_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:131;a:4:{s:1:\"a\";i:132;s:1:\"b\";s:16:\"restore_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:132;a:4:{s:1:\"a\";i:133;s:1:\"b\";s:20:\"restore_any_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:133;a:4:{s:1:\"a\";i:134;s:1:\"b\";s:18:\"replicate_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:134;a:4:{s:1:\"a\";i:135;s:1:\"b\";s:16:\"reorder_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:135;a:4:{s:1:\"a\";i:136;s:1:\"b\";s:15:\"delete_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:136;a:4:{s:1:\"a\";i:137;s:1:\"b\";s:19:\"delete_any_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:137;a:4:{s:1:\"a\";i:138;s:1:\"b\";s:21:\"force_delete_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:138;a:4:{s:1:\"a\";i:139;s:1:\"b\";s:25:\"force_delete_any_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:139;a:4:{s:1:\"a\";i:140;s:1:\"b\";s:20:\"view_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:140;a:4:{s:1:\"a\";i:141;s:1:\"b\";s:24:\"view_any_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:141;a:4:{s:1:\"a\";i:142;s:1:\"b\";s:22:\"create_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:142;a:4:{s:1:\"a\";i:143;s:1:\"b\";s:22:\"update_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:143;a:4:{s:1:\"a\";i:144;s:1:\"b\";s:23:\"restore_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:144;a:4:{s:1:\"a\";i:145;s:1:\"b\";s:27:\"restore_any_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:145;a:4:{s:1:\"a\";i:146;s:1:\"b\";s:25:\"replicate_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:146;a:4:{s:1:\"a\";i:147;s:1:\"b\";s:23:\"reorder_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:147;a:4:{s:1:\"a\";i:148;s:1:\"b\";s:22:\"delete_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:148;a:4:{s:1:\"a\";i:149;s:1:\"b\";s:26:\"delete_any_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:149;a:4:{s:1:\"a\";i:150;s:1:\"b\";s:28:\"force_delete_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:150;a:4:{s:1:\"a\";i:151;s:1:\"b\";s:32:\"force_delete_any_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:151;a:4:{s:1:\"a\";i:152;s:1:\"b\";s:19:\"view_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:152;a:4:{s:1:\"a\";i:153;s:1:\"b\";s:23:\"view_any_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:153;a:4:{s:1:\"a\";i:154;s:1:\"b\";s:21:\"create_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:154;a:4:{s:1:\"a\";i:155;s:1:\"b\";s:21:\"update_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:155;a:4:{s:1:\"a\";i:156;s:1:\"b\";s:22:\"restore_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:156;a:4:{s:1:\"a\";i:157;s:1:\"b\";s:26:\"restore_any_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:157;a:4:{s:1:\"a\";i:158;s:1:\"b\";s:24:\"replicate_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:158;a:4:{s:1:\"a\";i:159;s:1:\"b\";s:22:\"reorder_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:159;a:4:{s:1:\"a\";i:160;s:1:\"b\";s:21:\"delete_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:160;a:4:{s:1:\"a\";i:161;s:1:\"b\";s:25:\"delete_any_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:161;a:4:{s:1:\"a\";i:162;s:1:\"b\";s:27:\"force_delete_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:162;a:4:{s:1:\"a\";i:163;s:1:\"b\";s:31:\"force_delete_any_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:163;a:4:{s:1:\"a\";i:164;s:1:\"b\";s:14:\"view_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:164;a:4:{s:1:\"a\";i:165;s:1:\"b\";s:18:\"view_any_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:165;a:4:{s:1:\"a\";i:166;s:1:\"b\";s:16:\"create_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:166;a:4:{s:1:\"a\";i:167;s:1:\"b\";s:16:\"update_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:167;a:4:{s:1:\"a\";i:168;s:1:\"b\";s:17:\"restore_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:168;a:4:{s:1:\"a\";i:169;s:1:\"b\";s:21:\"restore_any_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:169;a:4:{s:1:\"a\";i:170;s:1:\"b\";s:19:\"replicate_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:170;a:4:{s:1:\"a\";i:171;s:1:\"b\";s:17:\"reorder_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:171;a:4:{s:1:\"a\";i:172;s:1:\"b\";s:16:\"delete_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:172;a:4:{s:1:\"a\";i:173;s:1:\"b\";s:20:\"delete_any_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:173;a:4:{s:1:\"a\";i:174;s:1:\"b\";s:22:\"force_delete_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:174;a:4:{s:1:\"a\";i:175;s:1:\"b\";s:26:\"force_delete_any_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:175;a:4:{s:1:\"a\";i:176;s:1:\"b\";s:23:\"view_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:176;a:4:{s:1:\"a\";i:177;s:1:\"b\";s:27:\"view_any_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:177;a:4:{s:1:\"a\";i:178;s:1:\"b\";s:25:\"create_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:178;a:4:{s:1:\"a\";i:179;s:1:\"b\";s:25:\"update_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:179;a:4:{s:1:\"a\";i:180;s:1:\"b\";s:26:\"restore_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:180;a:4:{s:1:\"a\";i:181;s:1:\"b\";s:30:\"restore_any_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:181;a:4:{s:1:\"a\";i:182;s:1:\"b\";s:28:\"replicate_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:182;a:4:{s:1:\"a\";i:183;s:1:\"b\";s:26:\"reorder_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:183;a:4:{s:1:\"a\";i:184;s:1:\"b\";s:25:\"delete_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:184;a:4:{s:1:\"a\";i:185;s:1:\"b\";s:29:\"delete_any_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:185;a:4:{s:1:\"a\";i:186;s:1:\"b\";s:31:\"force_delete_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:186;a:4:{s:1:\"a\";i:187;s:1:\"b\";s:35:\"force_delete_any_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:187;a:4:{s:1:\"a\";i:188;s:1:\"b\";s:20:\"view_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:188;a:4:{s:1:\"a\";i:189;s:1:\"b\";s:24:\"view_any_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:189;a:4:{s:1:\"a\";i:190;s:1:\"b\";s:22:\"create_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:190;a:4:{s:1:\"a\";i:191;s:1:\"b\";s:22:\"update_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:191;a:4:{s:1:\"a\";i:192;s:1:\"b\";s:23:\"restore_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:192;a:4:{s:1:\"a\";i:193;s:1:\"b\";s:27:\"restore_any_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:193;a:4:{s:1:\"a\";i:194;s:1:\"b\";s:25:\"replicate_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:194;a:4:{s:1:\"a\";i:195;s:1:\"b\";s:23:\"reorder_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:195;a:4:{s:1:\"a\";i:196;s:1:\"b\";s:22:\"delete_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:196;a:4:{s:1:\"a\";i:197;s:1:\"b\";s:26:\"delete_any_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:197;a:4:{s:1:\"a\";i:198;s:1:\"b\";s:28:\"force_delete_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:198;a:4:{s:1:\"a\";i:199;s:1:\"b\";s:32:\"force_delete_any_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:199;a:4:{s:1:\"a\";i:200;s:1:\"b\";s:16:\"view_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:200;a:4:{s:1:\"a\";i:201;s:1:\"b\";s:20:\"view_any_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:201;a:4:{s:1:\"a\";i:202;s:1:\"b\";s:18:\"create_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:202;a:4:{s:1:\"a\";i:203;s:1:\"b\";s:18:\"update_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:203;a:4:{s:1:\"a\";i:204;s:1:\"b\";s:19:\"restore_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:204;a:4:{s:1:\"a\";i:205;s:1:\"b\";s:23:\"restore_any_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:205;a:4:{s:1:\"a\";i:206;s:1:\"b\";s:21:\"replicate_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:206;a:4:{s:1:\"a\";i:207;s:1:\"b\";s:19:\"reorder_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:207;a:4:{s:1:\"a\";i:208;s:1:\"b\";s:18:\"delete_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:208;a:4:{s:1:\"a\";i:209;s:1:\"b\";s:22:\"delete_any_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:209;a:4:{s:1:\"a\";i:210;s:1:\"b\";s:24:\"force_delete_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:210;a:4:{s:1:\"a\";i:211;s:1:\"b\";s:28:\"force_delete_any_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:211;a:4:{s:1:\"a\";i:212;s:1:\"b\";s:15:\"view_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:212;a:4:{s:1:\"a\";i:213;s:1:\"b\";s:19:\"view_any_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:213;a:4:{s:1:\"a\";i:214;s:1:\"b\";s:17:\"create_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:214;a:4:{s:1:\"a\";i:215;s:1:\"b\";s:17:\"update_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:215;a:4:{s:1:\"a\";i:216;s:1:\"b\";s:18:\"restore_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:216;a:4:{s:1:\"a\";i:217;s:1:\"b\";s:22:\"restore_any_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:217;a:4:{s:1:\"a\";i:218;s:1:\"b\";s:20:\"replicate_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:218;a:4:{s:1:\"a\";i:219;s:1:\"b\";s:18:\"reorder_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:219;a:4:{s:1:\"a\";i:220;s:1:\"b\";s:17:\"delete_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:220;a:4:{s:1:\"a\";i:221;s:1:\"b\";s:21:\"delete_any_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:221;a:4:{s:1:\"a\";i:222;s:1:\"b\";s:23:\"force_delete_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:222;a:4:{s:1:\"a\";i:223;s:1:\"b\";s:27:\"force_delete_any_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:223;a:4:{s:1:\"a\";i:224;s:1:\"b\";s:23:\"view_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:224;a:4:{s:1:\"a\";i:225;s:1:\"b\";s:27:\"view_any_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:225;a:4:{s:1:\"a\";i:226;s:1:\"b\";s:25:\"create_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:226;a:4:{s:1:\"a\";i:227;s:1:\"b\";s:25:\"update_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:227;a:4:{s:1:\"a\";i:228;s:1:\"b\";s:26:\"restore_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:228;a:4:{s:1:\"a\";i:229;s:1:\"b\";s:30:\"restore_any_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:229;a:4:{s:1:\"a\";i:230;s:1:\"b\";s:28:\"replicate_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:230;a:4:{s:1:\"a\";i:231;s:1:\"b\";s:26:\"reorder_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:231;a:4:{s:1:\"a\";i:232;s:1:\"b\";s:25:\"delete_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:232;a:4:{s:1:\"a\";i:233;s:1:\"b\";s:29:\"delete_any_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:233;a:4:{s:1:\"a\";i:234;s:1:\"b\";s:31:\"force_delete_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:234;a:4:{s:1:\"a\";i:235;s:1:\"b\";s:35:\"force_delete_any_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:235;a:4:{s:1:\"a\";i:236;s:1:\"b\";s:19:\"view_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:236;a:4:{s:1:\"a\";i:237;s:1:\"b\";s:23:\"view_any_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:237;a:4:{s:1:\"a\";i:238;s:1:\"b\";s:21:\"create_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:238;a:4:{s:1:\"a\";i:239;s:1:\"b\";s:21:\"update_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:239;a:4:{s:1:\"a\";i:240;s:1:\"b\";s:22:\"restore_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:240;a:4:{s:1:\"a\";i:241;s:1:\"b\";s:26:\"restore_any_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:241;a:4:{s:1:\"a\";i:242;s:1:\"b\";s:24:\"replicate_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:242;a:4:{s:1:\"a\";i:243;s:1:\"b\";s:22:\"reorder_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:243;a:4:{s:1:\"a\";i:244;s:1:\"b\";s:21:\"delete_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:244;a:4:{s:1:\"a\";i:245;s:1:\"b\";s:25:\"delete_any_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:245;a:4:{s:1:\"a\";i:246;s:1:\"b\";s:27:\"force_delete_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:246;a:4:{s:1:\"a\";i:247;s:1:\"b\";s:31:\"force_delete_any_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:247;a:4:{s:1:\"a\";i:248;s:1:\"b\";s:12:\"view_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:248;a:4:{s:1:\"a\";i:249;s:1:\"b\";s:16:\"view_any_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:249;a:4:{s:1:\"a\";i:250;s:1:\"b\";s:14:\"create_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:250;a:4:{s:1:\"a\";i:251;s:1:\"b\";s:14:\"update_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:251;a:4:{s:1:\"a\";i:252;s:1:\"b\";s:15:\"restore_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:252;a:4:{s:1:\"a\";i:253;s:1:\"b\";s:19:\"restore_any_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:253;a:4:{s:1:\"a\";i:254;s:1:\"b\";s:17:\"replicate_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:254;a:4:{s:1:\"a\";i:255;s:1:\"b\";s:15:\"reorder_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:255;a:4:{s:1:\"a\";i:256;s:1:\"b\";s:14:\"delete_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:256;a:4:{s:1:\"a\";i:257;s:1:\"b\";s:18:\"delete_any_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:257;a:4:{s:1:\"a\";i:258;s:1:\"b\";s:20:\"force_delete_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:258;a:4:{s:1:\"a\";i:259;s:1:\"b\";s:24:\"force_delete_any_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:259;a:4:{s:1:\"a\";i:260;s:1:\"b\";s:13:\"view_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:260;a:4:{s:1:\"a\";i:261;s:1:\"b\";s:17:\"view_any_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:261;a:4:{s:1:\"a\";i:262;s:1:\"b\";s:15:\"create_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:262;a:4:{s:1:\"a\";i:263;s:1:\"b\";s:15:\"update_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:263;a:4:{s:1:\"a\";i:264;s:1:\"b\";s:16:\"restore_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:264;a:4:{s:1:\"a\";i:265;s:1:\"b\";s:20:\"restore_any_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:265;a:4:{s:1:\"a\";i:266;s:1:\"b\";s:18:\"replicate_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:266;a:4:{s:1:\"a\";i:267;s:1:\"b\";s:16:\"reorder_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:267;a:4:{s:1:\"a\";i:268;s:1:\"b\";s:15:\"delete_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:268;a:4:{s:1:\"a\";i:269;s:1:\"b\";s:19:\"delete_any_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:269;a:4:{s:1:\"a\";i:270;s:1:\"b\";s:21:\"force_delete_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:270;a:4:{s:1:\"a\";i:271;s:1:\"b\";s:25:\"force_delete_any_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:271;a:4:{s:1:\"a\";i:272;s:1:\"b\";s:13:\"view_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:272;a:4:{s:1:\"a\";i:273;s:1:\"b\";s:17:\"view_any_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:273;a:4:{s:1:\"a\";i:274;s:1:\"b\";s:15:\"create_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:274;a:4:{s:1:\"a\";i:275;s:1:\"b\";s:15:\"update_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:275;a:4:{s:1:\"a\";i:276;s:1:\"b\";s:16:\"restore_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:276;a:4:{s:1:\"a\";i:277;s:1:\"b\";s:20:\"restore_any_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:277;a:4:{s:1:\"a\";i:278;s:1:\"b\";s:18:\"replicate_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:278;a:4:{s:1:\"a\";i:279;s:1:\"b\";s:16:\"reorder_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:279;a:4:{s:1:\"a\";i:280;s:1:\"b\";s:15:\"delete_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:280;a:4:{s:1:\"a\";i:281;s:1:\"b\";s:19:\"delete_any_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:281;a:4:{s:1:\"a\";i:282;s:1:\"b\";s:21:\"force_delete_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:282;a:4:{s:1:\"a\";i:283;s:1:\"b\";s:25:\"force_delete_any_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:283;a:4:{s:1:\"a\";i:284;s:1:\"b\";s:20:\"view_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:284;a:4:{s:1:\"a\";i:285;s:1:\"b\";s:24:\"view_any_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:285;a:4:{s:1:\"a\";i:286;s:1:\"b\";s:22:\"create_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:286;a:4:{s:1:\"a\";i:287;s:1:\"b\";s:22:\"update_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:287;a:4:{s:1:\"a\";i:288;s:1:\"b\";s:23:\"restore_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:288;a:4:{s:1:\"a\";i:289;s:1:\"b\";s:27:\"restore_any_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:289;a:4:{s:1:\"a\";i:290;s:1:\"b\";s:25:\"replicate_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:290;a:4:{s:1:\"a\";i:291;s:1:\"b\";s:23:\"reorder_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:291;a:4:{s:1:\"a\";i:292;s:1:\"b\";s:22:\"delete_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:292;a:4:{s:1:\"a\";i:293;s:1:\"b\";s:26:\"delete_any_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:293;a:4:{s:1:\"a\";i:294;s:1:\"b\";s:28:\"force_delete_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:294;a:4:{s:1:\"a\";i:295;s:1:\"b\";s:32:\"force_delete_any_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:295;a:4:{s:1:\"a\";i:296;s:1:\"b\";s:11:\"view_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:296;a:4:{s:1:\"a\";i:297;s:1:\"b\";s:15:\"view_any_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:297;a:4:{s:1:\"a\";i:298;s:1:\"b\";s:13:\"create_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:298;a:4:{s:1:\"a\";i:299;s:1:\"b\";s:13:\"update_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:299;a:4:{s:1:\"a\";i:300;s:1:\"b\";s:14:\"restore_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:300;a:4:{s:1:\"a\";i:301;s:1:\"b\";s:18:\"restore_any_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:301;a:4:{s:1:\"a\";i:302;s:1:\"b\";s:16:\"replicate_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:302;a:4:{s:1:\"a\";i:303;s:1:\"b\";s:14:\"reorder_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:303;a:4:{s:1:\"a\";i:304;s:1:\"b\";s:13:\"delete_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:304;a:4:{s:1:\"a\";i:305;s:1:\"b\";s:17:\"delete_any_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:305;a:4:{s:1:\"a\";i:306;s:1:\"b\";s:19:\"force_delete_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:306;a:4:{s:1:\"a\";i:307;s:1:\"b\";s:23:\"force_delete_any_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:307;a:4:{s:1:\"a\";i:308;s:1:\"b\";s:25:\"widget_AssetStatsOverview\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:308;a:4:{s:1:\"a\";i:309;s:1:\"b\";s:25:\"widget_PendingAssignments\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:309;a:4:{s:1:\"a\";i:310;s:1:\"b\";s:21:\"widget_PendingReturns\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:310;a:4:{s:1:\"a\";i:311;s:1:\"b\";s:18:\"widget_AssetsTable\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}}s:5:\"roles\";a:8:{i:0;a:3:{s:1:\"a\";i:1;s:1:\"b\";s:11:\"super_admin\";s:1:\"c\";s:3:\"web\";}i:1;a:3:{s:1:\"a\";i:3;s:1:\"b\";s:8:\"employee\";s:1:\"c\";s:3:\"web\";}i:2;a:3:{s:1:\"a\";i:5;s:1:\"b\";s:14:\"senior_manager\";s:1:\"c\";s:3:\"web\";}i:3;a:3:{s:1:\"a\";i:6;s:1:\"b\";s:7:\"manager\";s:1:\"c\";s:3:\"web\";}i:4;a:3:{s:1:\"a\";i:7;s:1:\"b\";s:17:\"senior_supervisor\";s:1:\"c\";s:3:\"web\";}i:5;a:3:{s:1:\"a\";i:8;s:1:\"b\";s:10:\"supervisor\";s:1:\"c\";s:3:\"web\";}i:6;a:3:{s:1:\"a\";i:9;s:1:\"b\";s:14:\"jr._supervisor\";s:1:\"c\";s:3:\"web\";}i:7;a:3:{s:1:\"a\";i:10;s:1:\"b\";s:13:\"rank_and_file\";s:1:\"c\";s:3:\"web\";}}}', 1745982939);
+('356a192b7913b04c54574d18c28d46e6395428ab', 'i:1;', 1751521159),
+('356a192b7913b04c54574d18c28d46e6395428ab:timer', 'i:1751521159;', 1751521159),
+('spatie.permission.cache', 'a:3:{s:5:\"alias\";a:4:{s:1:\"a\";s:2:\"id\";s:1:\"b\";s:4:\"name\";s:1:\"c\";s:10:\"guard_name\";s:1:\"r\";s:5:\"roles\";}s:11:\"permissions\";a:311:{i:0;a:4:{s:1:\"a\";i:1;s:1:\"b\";s:9:\"view_role\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:1;a:4:{s:1:\"a\";i:2;s:1:\"b\";s:13:\"view_any_role\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:2;a:4:{s:1:\"a\";i:3;s:1:\"b\";s:11:\"create_role\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:3;a:4:{s:1:\"a\";i:4;s:1:\"b\";s:11:\"update_role\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:4;a:4:{s:1:\"a\";i:5;s:1:\"b\";s:11:\"delete_role\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:5;a:4:{s:1:\"a\";i:6;s:1:\"b\";s:15:\"delete_any_role\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:6;a:4:{s:1:\"a\";i:7;s:1:\"b\";s:15:\"view_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:8:{i:0;i:1;i:1;i:3;i:2;i:5;i:3;i:6;i:4;i:7;i:5;i:8;i:6;i:9;i:7;i:10;}}i:7;a:4:{s:1:\"a\";i:8;s:1:\"b\";s:19:\"view_any_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:8:{i:0;i:1;i:1;i:3;i:2;i:5;i:3;i:6;i:4;i:7;i:5;i:8;i:6;i:9;i:7;i:10;}}i:8;a:4:{s:1:\"a\";i:9;s:1:\"b\";s:17:\"create_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:9;a:4:{s:1:\"a\";i:10;s:1:\"b\";s:17:\"update_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:10;a:4:{s:1:\"a\";i:11;s:1:\"b\";s:18:\"restore_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:11;a:4:{s:1:\"a\";i:12;s:1:\"b\";s:22:\"restore_any_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:12;a:4:{s:1:\"a\";i:13;s:1:\"b\";s:20:\"replicate_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:13;a:4:{s:1:\"a\";i:14;s:1:\"b\";s:18:\"reorder_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:14;a:4:{s:1:\"a\";i:15;s:1:\"b\";s:17:\"delete_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:15;a:4:{s:1:\"a\";i:16;s:1:\"b\";s:21:\"delete_any_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:16;a:4:{s:1:\"a\";i:17;s:1:\"b\";s:23:\"force_delete_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:17;a:4:{s:1:\"a\";i:18;s:1:\"b\";s:27:\"force_delete_any_assignment\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:18;a:4:{s:1:\"a\";i:19;s:1:\"b\";s:9:\"view_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:19;a:4:{s:1:\"a\";i:20;s:1:\"b\";s:13:\"view_any_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:20;a:4:{s:1:\"a\";i:21;s:1:\"b\";s:11:\"create_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:21;a:4:{s:1:\"a\";i:22;s:1:\"b\";s:11:\"update_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:22;a:4:{s:1:\"a\";i:23;s:1:\"b\";s:12:\"restore_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:23;a:4:{s:1:\"a\";i:24;s:1:\"b\";s:16:\"restore_any_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:24;a:4:{s:1:\"a\";i:25;s:1:\"b\";s:14:\"replicate_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:25;a:4:{s:1:\"a\";i:26;s:1:\"b\";s:12:\"reorder_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:26;a:4:{s:1:\"a\";i:27;s:1:\"b\";s:11:\"delete_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:27;a:4:{s:1:\"a\";i:28;s:1:\"b\";s:15:\"delete_any_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:28;a:4:{s:1:\"a\";i:29;s:1:\"b\";s:17:\"force_delete_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:29;a:4:{s:1:\"a\";i:30;s:1:\"b\";s:21:\"force_delete_any_user\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:30;a:4:{s:1:\"a\";i:31;s:1:\"b\";s:22:\"widget_UserTotalAssets\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:8:{i:0;i:1;i:1;i:3;i:2;i:5;i:3;i:6;i:4;i:7;i:5;i:8;i:6;i:9;i:7;i:10;}}i:31;a:4:{s:1:\"a\";i:32;s:1:\"b\";s:10:\"view_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:32;a:4:{s:1:\"a\";i:33;s:1:\"b\";s:14:\"view_any_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:33;a:4:{s:1:\"a\";i:34;s:1:\"b\";s:12:\"create_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:34;a:4:{s:1:\"a\";i:35;s:1:\"b\";s:12:\"update_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:35;a:4:{s:1:\"a\";i:36;s:1:\"b\";s:13:\"restore_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:36;a:4:{s:1:\"a\";i:37;s:1:\"b\";s:17:\"restore_any_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:37;a:4:{s:1:\"a\";i:38;s:1:\"b\";s:15:\"replicate_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:38;a:4:{s:1:\"a\";i:39;s:1:\"b\";s:13:\"reorder_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:39;a:4:{s:1:\"a\";i:40;s:1:\"b\";s:12:\"delete_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:40;a:4:{s:1:\"a\";i:41;s:1:\"b\";s:16:\"delete_any_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:41;a:4:{s:1:\"a\";i:42;s:1:\"b\";s:18:\"force_delete_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:42;a:4:{s:1:\"a\";i:43;s:1:\"b\";s:22:\"force_delete_any_asset\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:43;a:4:{s:1:\"a\";i:44;s:1:\"b\";s:20:\"view_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:44;a:4:{s:1:\"a\";i:45;s:1:\"b\";s:24:\"view_any_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:45;a:4:{s:1:\"a\";i:46;s:1:\"b\";s:22:\"create_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:46;a:4:{s:1:\"a\";i:47;s:1:\"b\";s:22:\"update_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:47;a:4:{s:1:\"a\";i:48;s:1:\"b\";s:23:\"restore_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:48;a:4:{s:1:\"a\";i:49;s:1:\"b\";s:27:\"restore_any_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:49;a:4:{s:1:\"a\";i:50;s:1:\"b\";s:25:\"replicate_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:50;a:4:{s:1:\"a\";i:51;s:1:\"b\";s:23:\"reorder_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:51;a:4:{s:1:\"a\";i:52;s:1:\"b\";s:22:\"delete_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:52;a:4:{s:1:\"a\";i:53;s:1:\"b\";s:26:\"delete_any_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:53;a:4:{s:1:\"a\";i:54;s:1:\"b\";s:28:\"force_delete_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:54;a:4:{s:1:\"a\";i:55;s:1:\"b\";s:32:\"force_delete_any_asset::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:55;a:4:{s:1:\"a\";i:56;s:1:\"b\";s:25:\"view_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:56;a:4:{s:1:\"a\";i:57;s:1:\"b\";s:29:\"view_any_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:57;a:4:{s:1:\"a\";i:58;s:1:\"b\";s:27:\"create_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:58;a:4:{s:1:\"a\";i:59;s:1:\"b\";s:27:\"update_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:59;a:4:{s:1:\"a\";i:60;s:1:\"b\";s:28:\"restore_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:60;a:4:{s:1:\"a\";i:61;s:1:\"b\";s:32:\"restore_any_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:61;a:4:{s:1:\"a\";i:62;s:1:\"b\";s:30:\"replicate_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:62;a:4:{s:1:\"a\";i:63;s:1:\"b\";s:28:\"reorder_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:63;a:4:{s:1:\"a\";i:64;s:1:\"b\";s:27:\"delete_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:64;a:4:{s:1:\"a\";i:65;s:1:\"b\";s:31:\"delete_any_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:65;a:4:{s:1:\"a\";i:66;s:1:\"b\";s:33:\"force_delete_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:66;a:4:{s:1:\"a\";i:67;s:1:\"b\";s:37:\"force_delete_any_assignment::statuses\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:67;a:4:{s:1:\"a\";i:68;s:1:\"b\";s:10:\"view_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:68;a:4:{s:1:\"a\";i:69;s:1:\"b\";s:14:\"view_any_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:69;a:4:{s:1:\"a\";i:70;s:1:\"b\";s:12:\"create_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:70;a:4:{s:1:\"a\";i:71;s:1:\"b\";s:12:\"update_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:71;a:4:{s:1:\"a\";i:72;s:1:\"b\";s:13:\"restore_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:72;a:4:{s:1:\"a\";i:73;s:1:\"b\";s:17:\"restore_any_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:73;a:4:{s:1:\"a\";i:74;s:1:\"b\";s:15:\"replicate_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:74;a:4:{s:1:\"a\";i:75;s:1:\"b\";s:13:\"reorder_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:75;a:4:{s:1:\"a\";i:76;s:1:\"b\";s:12:\"delete_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:76;a:4:{s:1:\"a\";i:77;s:1:\"b\";s:16:\"delete_any_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:77;a:4:{s:1:\"a\";i:78;s:1:\"b\";s:18:\"force_delete_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:78;a:4:{s:1:\"a\";i:79;s:1:\"b\";s:22:\"force_delete_any_brand\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:79;a:4:{s:1:\"a\";i:80;s:1:\"b\";s:10:\"view_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:80;a:4:{s:1:\"a\";i:81;s:1:\"b\";s:14:\"view_any_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:81;a:4:{s:1:\"a\";i:82;s:1:\"b\";s:12:\"create_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:82;a:4:{s:1:\"a\";i:83;s:1:\"b\";s:12:\"update_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:83;a:4:{s:1:\"a\";i:84;s:1:\"b\";s:13:\"restore_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:84;a:4:{s:1:\"a\";i:85;s:1:\"b\";s:17:\"restore_any_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:85;a:4:{s:1:\"a\";i:86;s:1:\"b\";s:15:\"replicate_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:86;a:4:{s:1:\"a\";i:87;s:1:\"b\";s:13:\"reorder_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:87;a:4:{s:1:\"a\";i:88;s:1:\"b\";s:12:\"delete_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:88;a:4:{s:1:\"a\";i:89;s:1:\"b\";s:16:\"delete_any_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:89;a:4:{s:1:\"a\";i:90;s:1:\"b\";s:18:\"force_delete_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:90;a:4:{s:1:\"a\";i:91;s:1:\"b\";s:22:\"force_delete_any_color\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:91;a:4:{s:1:\"a\";i:92;s:1:\"b\";s:15:\"view_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:92;a:4:{s:1:\"a\";i:93;s:1:\"b\";s:19:\"view_any_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:93;a:4:{s:1:\"a\";i:94;s:1:\"b\";s:17:\"create_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:94;a:4:{s:1:\"a\";i:95;s:1:\"b\";s:17:\"update_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:95;a:4:{s:1:\"a\";i:96;s:1:\"b\";s:18:\"restore_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:96;a:4:{s:1:\"a\";i:97;s:1:\"b\";s:22:\"restore_any_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:97;a:4:{s:1:\"a\";i:98;s:1:\"b\";s:20:\"replicate_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:98;a:4:{s:1:\"a\";i:99;s:1:\"b\";s:18:\"reorder_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:99;a:4:{s:1:\"a\";i:100;s:1:\"b\";s:17:\"delete_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:100;a:4:{s:1:\"a\";i:101;s:1:\"b\";s:21:\"delete_any_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:101;a:4:{s:1:\"a\";i:102;s:1:\"b\";s:23:\"force_delete_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:102;a:4:{s:1:\"a\";i:103;s:1:\"b\";s:27:\"force_delete_any_cost::code\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:103;a:4:{s:1:\"a\";i:104;s:1:\"b\";s:13:\"view_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:104;a:4:{s:1:\"a\";i:105;s:1:\"b\";s:17:\"view_any_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:105;a:4:{s:1:\"a\";i:106;s:1:\"b\";s:15:\"create_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:106;a:4:{s:1:\"a\";i:107;s:1:\"b\";s:15:\"update_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:107;a:4:{s:1:\"a\";i:108;s:1:\"b\";s:16:\"restore_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:108;a:4:{s:1:\"a\";i:109;s:1:\"b\";s:20:\"restore_any_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:109;a:4:{s:1:\"a\";i:110;s:1:\"b\";s:18:\"replicate_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:110;a:4:{s:1:\"a\";i:111;s:1:\"b\";s:16:\"reorder_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:111;a:4:{s:1:\"a\";i:112;s:1:\"b\";s:15:\"delete_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:112;a:4:{s:1:\"a\";i:113;s:1:\"b\";s:19:\"delete_any_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:113;a:4:{s:1:\"a\";i:114;s:1:\"b\";s:21:\"force_delete_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:114;a:4:{s:1:\"a\";i:115;s:1:\"b\";s:25:\"force_delete_any_division\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:115;a:4:{s:1:\"a\";i:116;s:1:\"b\";s:13:\"view_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:116;a:4:{s:1:\"a\";i:117;s:1:\"b\";s:17:\"view_any_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:117;a:4:{s:1:\"a\";i:118;s:1:\"b\";s:15:\"create_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:118;a:4:{s:1:\"a\";i:119;s:1:\"b\";s:15:\"update_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:119;a:4:{s:1:\"a\";i:120;s:1:\"b\";s:16:\"restore_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:120;a:4:{s:1:\"a\";i:121;s:1:\"b\";s:20:\"restore_any_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:121;a:4:{s:1:\"a\";i:122;s:1:\"b\";s:18:\"replicate_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:122;a:4:{s:1:\"a\";i:123;s:1:\"b\";s:16:\"reorder_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:123;a:4:{s:1:\"a\";i:124;s:1:\"b\";s:15:\"delete_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:124;a:4:{s:1:\"a\";i:125;s:1:\"b\";s:19:\"delete_any_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:125;a:4:{s:1:\"a\";i:126;s:1:\"b\";s:21:\"force_delete_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:126;a:4:{s:1:\"a\";i:127;s:1:\"b\";s:25:\"force_delete_any_employee\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:127;a:4:{s:1:\"a\";i:128;s:1:\"b\";s:13:\"view_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:128;a:4:{s:1:\"a\";i:129;s:1:\"b\";s:17:\"view_any_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:129;a:4:{s:1:\"a\";i:130;s:1:\"b\";s:15:\"create_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:130;a:4:{s:1:\"a\";i:131;s:1:\"b\";s:15:\"update_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:131;a:4:{s:1:\"a\";i:132;s:1:\"b\";s:16:\"restore_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:132;a:4:{s:1:\"a\";i:133;s:1:\"b\";s:20:\"restore_any_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:133;a:4:{s:1:\"a\";i:134;s:1:\"b\";s:18:\"replicate_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:134;a:4:{s:1:\"a\";i:135;s:1:\"b\";s:16:\"reorder_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:135;a:4:{s:1:\"a\";i:136;s:1:\"b\";s:15:\"delete_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:136;a:4:{s:1:\"a\";i:137;s:1:\"b\";s:19:\"delete_any_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:137;a:4:{s:1:\"a\";i:138;s:1:\"b\";s:21:\"force_delete_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:138;a:4:{s:1:\"a\";i:139;s:1:\"b\";s:25:\"force_delete_any_hardware\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:139;a:4:{s:1:\"a\";i:140;s:1:\"b\";s:20:\"view_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:140;a:4:{s:1:\"a\";i:141;s:1:\"b\";s:24:\"view_any_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:141;a:4:{s:1:\"a\";i:142;s:1:\"b\";s:22:\"create_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:142;a:4:{s:1:\"a\";i:143;s:1:\"b\";s:22:\"update_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:143;a:4:{s:1:\"a\";i:144;s:1:\"b\";s:23:\"restore_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:144;a:4:{s:1:\"a\";i:145;s:1:\"b\";s:27:\"restore_any_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:145;a:4:{s:1:\"a\";i:146;s:1:\"b\";s:25:\"replicate_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:146;a:4:{s:1:\"a\";i:147;s:1:\"b\";s:23:\"reorder_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:147;a:4:{s:1:\"a\";i:148;s:1:\"b\";s:22:\"delete_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:148;a:4:{s:1:\"a\";i:149;s:1:\"b\";s:26:\"delete_any_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:149;a:4:{s:1:\"a\";i:150;s:1:\"b\";s:28:\"force_delete_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:150;a:4:{s:1:\"a\";i:151;s:1:\"b\";s:32:\"force_delete_any_hardware::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:151;a:4:{s:1:\"a\";i:152;s:1:\"b\";s:19:\"view_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:152;a:4:{s:1:\"a\";i:153;s:1:\"b\";s:23:\"view_any_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:153;a:4:{s:1:\"a\";i:154;s:1:\"b\";s:21:\"create_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:154;a:4:{s:1:\"a\";i:155;s:1:\"b\";s:21:\"update_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:155;a:4:{s:1:\"a\";i:156;s:1:\"b\";s:22:\"restore_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:156;a:4:{s:1:\"a\";i:157;s:1:\"b\";s:26:\"restore_any_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:157;a:4:{s:1:\"a\";i:158;s:1:\"b\";s:24:\"replicate_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:158;a:4:{s:1:\"a\";i:159;s:1:\"b\";s:22:\"reorder_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:159;a:4:{s:1:\"a\";i:160;s:1:\"b\";s:21:\"delete_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:160;a:4:{s:1:\"a\";i:161;s:1:\"b\";s:25:\"delete_any_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:161;a:4:{s:1:\"a\";i:162;s:1:\"b\";s:27:\"force_delete_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:162;a:4:{s:1:\"a\";i:163;s:1:\"b\";s:31:\"force_delete_any_license::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:163;a:4:{s:1:\"a\";i:164;s:1:\"b\";s:14:\"view_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:164;a:4:{s:1:\"a\";i:165;s:1:\"b\";s:18:\"view_any_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:165;a:4:{s:1:\"a\";i:166;s:1:\"b\";s:16:\"create_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:166;a:4:{s:1:\"a\";i:167;s:1:\"b\";s:16:\"update_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:167;a:4:{s:1:\"a\";i:168;s:1:\"b\";s:17:\"restore_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:168;a:4:{s:1:\"a\";i:169;s:1:\"b\";s:21:\"restore_any_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:169;a:4:{s:1:\"a\";i:170;s:1:\"b\";s:19:\"replicate_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:170;a:4:{s:1:\"a\";i:171;s:1:\"b\";s:17:\"reorder_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:171;a:4:{s:1:\"a\";i:172;s:1:\"b\";s:16:\"delete_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:172;a:4:{s:1:\"a\";i:173;s:1:\"b\";s:20:\"delete_any_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:173;a:4:{s:1:\"a\";i:174;s:1:\"b\";s:22:\"force_delete_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:174;a:4:{s:1:\"a\";i:175;s:1:\"b\";s:26:\"force_delete_any_lifecycle\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:175;a:4:{s:1:\"a\";i:176;s:1:\"b\";s:23:\"view_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:176;a:4:{s:1:\"a\";i:177;s:1:\"b\";s:27:\"view_any_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:177;a:4:{s:1:\"a\";i:178;s:1:\"b\";s:25:\"create_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:178;a:4:{s:1:\"a\";i:179;s:1:\"b\";s:25:\"update_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:179;a:4:{s:1:\"a\";i:180;s:1:\"b\";s:26:\"restore_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:180;a:4:{s:1:\"a\";i:181;s:1:\"b\";s:30:\"restore_any_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:181;a:4:{s:1:\"a\";i:182;s:1:\"b\";s:28:\"replicate_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:182;a:4:{s:1:\"a\";i:183;s:1:\"b\";s:26:\"reorder_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:183;a:4:{s:1:\"a\";i:184;s:1:\"b\";s:25:\"delete_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:184;a:4:{s:1:\"a\";i:185;s:1:\"b\";s:29:\"delete_any_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:185;a:4:{s:1:\"a\";i:186;s:1:\"b\";s:31:\"force_delete_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:186;a:4:{s:1:\"a\";i:187;s:1:\"b\";s:35:\"force_delete_any_lifecycle::renewal\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:187;a:4:{s:1:\"a\";i:188;s:1:\"b\";s:20:\"view_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:188;a:4:{s:1:\"a\";i:189;s:1:\"b\";s:24:\"view_any_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:189;a:4:{s:1:\"a\";i:190;s:1:\"b\";s:22:\"create_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:190;a:4:{s:1:\"a\";i:191;s:1:\"b\";s:22:\"update_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:191;a:4:{s:1:\"a\";i:192;s:1:\"b\";s:23:\"restore_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:192;a:4:{s:1:\"a\";i:193;s:1:\"b\";s:27:\"restore_any_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:193;a:4:{s:1:\"a\";i:194;s:1:\"b\";s:25:\"replicate_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:194;a:4:{s:1:\"a\";i:195;s:1:\"b\";s:23:\"reorder_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:195;a:4:{s:1:\"a\";i:196;s:1:\"b\";s:22:\"delete_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:196;a:4:{s:1:\"a\";i:197;s:1:\"b\";s:26:\"delete_any_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:197;a:4:{s:1:\"a\";i:198;s:1:\"b\";s:28:\"force_delete_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:198;a:4:{s:1:\"a\";i:199;s:1:\"b\";s:32:\"force_delete_any_option::to::buy\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:199;a:4:{s:1:\"a\";i:200;s:1:\"b\";s:16:\"view_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:200;a:4:{s:1:\"a\";i:201;s:1:\"b\";s:20:\"view_any_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:201;a:4:{s:1:\"a\";i:202;s:1:\"b\";s:18:\"create_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:202;a:4:{s:1:\"a\";i:203;s:1:\"b\";s:18:\"update_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:203;a:4:{s:1:\"a\";i:204;s:1:\"b\";s:19:\"restore_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:204;a:4:{s:1:\"a\";i:205;s:1:\"b\";s:23:\"restore_any_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:205;a:4:{s:1:\"a\";i:206;s:1:\"b\";s:21:\"replicate_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:206;a:4:{s:1:\"a\";i:207;s:1:\"b\";s:19:\"reorder_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:207;a:4:{s:1:\"a\";i:208;s:1:\"b\";s:18:\"delete_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:208;a:4:{s:1:\"a\";i:209;s:1:\"b\";s:22:\"delete_any_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:209;a:4:{s:1:\"a\";i:210;s:1:\"b\";s:24:\"force_delete_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:210;a:4:{s:1:\"a\";i:211;s:1:\"b\";s:28:\"force_delete_any_p::c::names\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:211;a:4:{s:1:\"a\";i:212;s:1:\"b\";s:15:\"view_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:212;a:4:{s:1:\"a\";i:213;s:1:\"b\";s:19:\"view_any_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:213;a:4:{s:1:\"a\";i:214;s:1:\"b\";s:17:\"create_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:214;a:4:{s:1:\"a\";i:215;s:1:\"b\";s:17:\"update_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:215;a:4:{s:1:\"a\";i:216;s:1:\"b\";s:18:\"restore_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:216;a:4:{s:1:\"a\";i:217;s:1:\"b\";s:22:\"restore_any_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:217;a:4:{s:1:\"a\";i:218;s:1:\"b\";s:20:\"replicate_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:218;a:4:{s:1:\"a\";i:219;s:1:\"b\";s:18:\"reorder_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:219;a:4:{s:1:\"a\";i:220;s:1:\"b\";s:17:\"delete_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:220;a:4:{s:1:\"a\";i:221;s:1:\"b\";s:21:\"delete_any_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:221;a:4:{s:1:\"a\";i:222;s:1:\"b\";s:23:\"force_delete_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:222;a:4:{s:1:\"a\";i:223;s:1:\"b\";s:27:\"force_delete_any_peripheral\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:223;a:4:{s:1:\"a\";i:224;s:1:\"b\";s:23:\"view_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:224;a:4:{s:1:\"a\";i:225;s:1:\"b\";s:27:\"view_any_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:225;a:4:{s:1:\"a\";i:226;s:1:\"b\";s:25:\"create_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:226;a:4:{s:1:\"a\";i:227;s:1:\"b\";s:25:\"update_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:227;a:4:{s:1:\"a\";i:228;s:1:\"b\";s:26:\"restore_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:228;a:4:{s:1:\"a\";i:229;s:1:\"b\";s:30:\"restore_any_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:229;a:4:{s:1:\"a\";i:230;s:1:\"b\";s:28:\"replicate_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:230;a:4:{s:1:\"a\";i:231;s:1:\"b\";s:26:\"reorder_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:231;a:4:{s:1:\"a\";i:232;s:1:\"b\";s:25:\"delete_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:232;a:4:{s:1:\"a\";i:233;s:1:\"b\";s:29:\"delete_any_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:233;a:4:{s:1:\"a\";i:234;s:1:\"b\";s:31:\"force_delete_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:234;a:4:{s:1:\"a\";i:235;s:1:\"b\";s:35:\"force_delete_any_peripherals::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:235;a:4:{s:1:\"a\";i:236;s:1:\"b\";s:19:\"view_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:236;a:4:{s:1:\"a\";i:237;s:1:\"b\";s:23:\"view_any_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:237;a:4:{s:1:\"a\";i:238;s:1:\"b\";s:21:\"create_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:238;a:4:{s:1:\"a\";i:239;s:1:\"b\";s:21:\"update_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:239;a:4:{s:1:\"a\";i:240;s:1:\"b\";s:22:\"restore_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:240;a:4:{s:1:\"a\";i:241;s:1:\"b\";s:26:\"restore_any_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:241;a:4:{s:1:\"a\";i:242;s:1:\"b\";s:24:\"replicate_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:242;a:4:{s:1:\"a\";i:243;s:1:\"b\";s:22:\"reorder_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:243;a:4:{s:1:\"a\";i:244;s:1:\"b\";s:21:\"delete_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:244;a:4:{s:1:\"a\";i:245;s:1:\"b\";s:25:\"delete_any_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:245;a:4:{s:1:\"a\";i:246;s:1:\"b\";s:27:\"force_delete_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:246;a:4:{s:1:\"a\";i:247;s:1:\"b\";s:31:\"force_delete_any_product::model\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:247;a:4:{s:1:\"a\";i:248;s:1:\"b\";s:12:\"view_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:248;a:4:{s:1:\"a\";i:249;s:1:\"b\";s:16:\"view_any_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:249;a:4:{s:1:\"a\";i:250;s:1:\"b\";s:14:\"create_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:250;a:4:{s:1:\"a\";i:251;s:1:\"b\";s:14:\"update_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:251;a:4:{s:1:\"a\";i:252;s:1:\"b\";s:15:\"restore_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:252;a:4:{s:1:\"a\";i:253;s:1:\"b\";s:19:\"restore_any_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:253;a:4:{s:1:\"a\";i:254;s:1:\"b\";s:17:\"replicate_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:254;a:4:{s:1:\"a\";i:255;s:1:\"b\";s:15:\"reorder_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:255;a:4:{s:1:\"a\";i:256;s:1:\"b\";s:14:\"delete_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:256;a:4:{s:1:\"a\";i:257;s:1:\"b\";s:18:\"delete_any_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:257;a:4:{s:1:\"a\";i:258;s:1:\"b\";s:20:\"force_delete_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:258;a:4:{s:1:\"a\";i:259;s:1:\"b\";s:24:\"force_delete_any_project\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:259;a:4:{s:1:\"a\";i:260;s:1:\"b\";s:13:\"view_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:260;a:4:{s:1:\"a\";i:261;s:1:\"b\";s:17:\"view_any_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:261;a:4:{s:1:\"a\";i:262;s:1:\"b\";s:15:\"create_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:262;a:4:{s:1:\"a\";i:263;s:1:\"b\";s:15:\"update_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:263;a:4:{s:1:\"a\";i:264;s:1:\"b\";s:16:\"restore_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:264;a:4:{s:1:\"a\";i:265;s:1:\"b\";s:20:\"restore_any_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:265;a:4:{s:1:\"a\";i:266;s:1:\"b\";s:18:\"replicate_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:266;a:4:{s:1:\"a\";i:267;s:1:\"b\";s:16:\"reorder_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:267;a:4:{s:1:\"a\";i:268;s:1:\"b\";s:15:\"delete_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:268;a:4:{s:1:\"a\";i:269;s:1:\"b\";s:19:\"delete_any_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:269;a:4:{s:1:\"a\";i:270;s:1:\"b\";s:21:\"force_delete_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:270;a:4:{s:1:\"a\";i:271;s:1:\"b\";s:25:\"force_delete_any_purchase\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:271;a:4:{s:1:\"a\";i:272;s:1:\"b\";s:13:\"view_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:272;a:4:{s:1:\"a\";i:273;s:1:\"b\";s:17:\"view_any_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:273;a:4:{s:1:\"a\";i:274;s:1:\"b\";s:15:\"create_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:274;a:4:{s:1:\"a\";i:275;s:1:\"b\";s:15:\"update_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:275;a:4:{s:1:\"a\";i:276;s:1:\"b\";s:16:\"restore_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:276;a:4:{s:1:\"a\";i:277;s:1:\"b\";s:20:\"restore_any_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:277;a:4:{s:1:\"a\";i:278;s:1:\"b\";s:18:\"replicate_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:278;a:4:{s:1:\"a\";i:279;s:1:\"b\";s:16:\"reorder_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:279;a:4:{s:1:\"a\";i:280;s:1:\"b\";s:15:\"delete_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:280;a:4:{s:1:\"a\";i:281;s:1:\"b\";s:19:\"delete_any_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:281;a:4:{s:1:\"a\";i:282;s:1:\"b\";s:21:\"force_delete_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:282;a:4:{s:1:\"a\";i:283;s:1:\"b\";s:25:\"force_delete_any_software\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:283;a:4:{s:1:\"a\";i:284;s:1:\"b\";s:20:\"view_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:284;a:4:{s:1:\"a\";i:285;s:1:\"b\";s:24:\"view_any_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:285;a:4:{s:1:\"a\";i:286;s:1:\"b\";s:22:\"create_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:286;a:4:{s:1:\"a\";i:287;s:1:\"b\";s:22:\"update_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:287;a:4:{s:1:\"a\";i:288;s:1:\"b\";s:23:\"restore_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:288;a:4:{s:1:\"a\";i:289;s:1:\"b\";s:27:\"restore_any_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:289;a:4:{s:1:\"a\";i:290;s:1:\"b\";s:25:\"replicate_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:290;a:4:{s:1:\"a\";i:291;s:1:\"b\";s:23:\"reorder_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:291;a:4:{s:1:\"a\";i:292;s:1:\"b\";s:22:\"delete_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:292;a:4:{s:1:\"a\";i:293;s:1:\"b\";s:26:\"delete_any_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:293;a:4:{s:1:\"a\";i:294;s:1:\"b\";s:28:\"force_delete_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:294;a:4:{s:1:\"a\";i:295;s:1:\"b\";s:32:\"force_delete_any_software::types\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:295;a:4:{s:1:\"a\";i:296;s:1:\"b\";s:11:\"view_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:296;a:4:{s:1:\"a\";i:297;s:1:\"b\";s:15:\"view_any_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:297;a:4:{s:1:\"a\";i:298;s:1:\"b\";s:13:\"create_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:298;a:4:{s:1:\"a\";i:299;s:1:\"b\";s:13:\"update_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:299;a:4:{s:1:\"a\";i:300;s:1:\"b\";s:14:\"restore_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:300;a:4:{s:1:\"a\";i:301;s:1:\"b\";s:18:\"restore_any_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:301;a:4:{s:1:\"a\";i:302;s:1:\"b\";s:16:\"replicate_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:302;a:4:{s:1:\"a\";i:303;s:1:\"b\";s:14:\"reorder_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:303;a:4:{s:1:\"a\";i:304;s:1:\"b\";s:13:\"delete_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:304;a:4:{s:1:\"a\";i:305;s:1:\"b\";s:17:\"delete_any_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:305;a:4:{s:1:\"a\";i:306;s:1:\"b\";s:19:\"force_delete_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:306;a:4:{s:1:\"a\";i:307;s:1:\"b\";s:23:\"force_delete_any_vendor\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:307;a:4:{s:1:\"a\";i:308;s:1:\"b\";s:25:\"widget_AssetStatsOverview\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:308;a:4:{s:1:\"a\";i:309;s:1:\"b\";s:25:\"widget_PendingAssignments\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:309;a:4:{s:1:\"a\";i:310;s:1:\"b\";s:21:\"widget_PendingReturns\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:310;a:4:{s:1:\"a\";i:311;s:1:\"b\";s:18:\"widget_AssetsTable\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}}s:5:\"roles\";a:8:{i:0;a:3:{s:1:\"a\";i:1;s:1:\"b\";s:11:\"super_admin\";s:1:\"c\";s:3:\"web\";}i:1;a:3:{s:1:\"a\";i:3;s:1:\"b\";s:8:\"employee\";s:1:\"c\";s:3:\"web\";}i:2;a:3:{s:1:\"a\";i:5;s:1:\"b\";s:14:\"senior_manager\";s:1:\"c\";s:3:\"web\";}i:3;a:3:{s:1:\"a\";i:6;s:1:\"b\";s:7:\"manager\";s:1:\"c\";s:3:\"web\";}i:4;a:3:{s:1:\"a\";i:7;s:1:\"b\";s:17:\"senior_supervisor\";s:1:\"c\";s:3:\"web\";}i:5;a:3:{s:1:\"a\";i:8;s:1:\"b\";s:10:\"supervisor\";s:1:\"c\";s:3:\"web\";}i:6;a:3:{s:1:\"a\";i:9;s:1:\"b\";s:14:\"jr._supervisor\";s:1:\"c\";s:3:\"web\";}i:7;a:3:{s:1:\"a\";i:10;s:1:\"b\";s:13:\"rank_and_file\";s:1:\"c\";s:3:\"web\";}}}', 1751607264);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cache_locks`
+--
+
+CREATE TABLE `cache_locks` (
+  `key` varchar(255) NOT NULL,
+  `owner` varchar(255) NOT NULL,
+  `expiration` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `colors`
+--
+
+CREATE TABLE `colors` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `hex` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `colors`
@@ -443,6 +565,21 @@ INSERT INTO `colors` (`id`, `name`, `hex`, `created_at`, `updated_at`) VALUES
 (3, 'warning', NULL, '2025-02-08 03:48:44', '2025-02-08 03:48:44'),
 (4, 'danger', NULL, '2025-02-08 03:48:52', '2025-02-08 03:48:52'),
 (5, 'gray', NULL, '2025-02-08 03:49:02', '2025-02-08 03:49:02');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cost_codes`
+--
+
+CREATE TABLE `cost_codes` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` text NOT NULL,
+  `project_id` bigint(20) UNSIGNED NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0=not active/1=active',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `cost_codes`
@@ -893,6 +1030,19 @@ INSERT INTO `cost_codes` (`id`, `name`, `project_id`, `active`, `created_at`, `u
 (442, '2285-000', 440, 1, '2025-01-23 19:08:48', '2025-01-23 19:08:48'),
 (443, '2286-000', 441, 1, '2025-01-23 19:08:48', '2025-01-23 19:08:48');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `divisions`
+--
+
+CREATE TABLE `divisions` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` text NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Dumping data for table `divisions`
 --
@@ -922,6 +1072,31 @@ INSERT INTO `divisions` (`id`, `name`, `created_at`, `updated_at`) VALUES
 (22, 'Buiding Sector', '2025-01-23 19:04:31', '2025-01-23 19:04:31'),
 (23, 'Concrete and Aggregates Division', '2025-01-23 19:04:31', '2025-01-23 19:04:31'),
 (24, 'Construction Operations', '2025-01-23 19:04:31', '2025-01-23 19:04:31');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employees`
+--
+
+CREATE TABLE `employees` (
+  `id` int(11) NOT NULL,
+  `id_number` varchar(20) DEFAULT NULL,
+  `first_name` varchar(50) DEFAULT NULL,
+  `middle_name` varchar(50) DEFAULT NULL,
+  `last_name` varchar(50) DEFAULT NULL,
+  `suffix` varchar(10) DEFAULT NULL,
+  `full_name` varchar(100) DEFAULT NULL,
+  `microsoft` varchar(100) DEFAULT NULL,
+  `gmail` varchar(100) DEFAULT NULL,
+  `rank_and_file` varchar(50) DEFAULT NULL,
+  `employment_status` varchar(50) DEFAULT NULL,
+  `current_position` varchar(50) DEFAULT NULL,
+  `cost_code` varchar(20) DEFAULT NULL,
+  `project_division_department` varchar(100) DEFAULT NULL,
+  `division` varchar(50) DEFAULT NULL,
+  `cbe` varchar(5) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `employees`
@@ -6175,6 +6350,44 @@ INSERT INTO `employees` (`id`, `id_number`, `first_name`, `middle_name`, `last_n
 (5221, 'A9025031', 'Mike Christopher', 'Paulite', 'Zoleta', '', 'Mike Christopher Zoleta', '#N/A', 'mpzoleta@firstbalfour.com', 'Junior Supervisor', 'Project Hire', 'Field Supervisor - Electrical', '2243-000', 'Project Polaris Phase 1', 'Building Sector', 'Y'),
 (5222, 'A9024639', 'Odonnel Jade', 'Modesto', 'Zurita', '', 'Odonnel Jade Zurita', '#N/A', 'omzurita@firstbalfour.com', 'Rank & File', 'Project Hire', 'Equipment Coordinator', '2248-000', 'LGBU - 1 Year Civil Works Routine and Maintenance Services in Leyte', 'Energy Sector', 'Y');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `failed_jobs`
+--
+
+CREATE TABLE `failed_jobs` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `uuid` varchar(255) NOT NULL,
+  `connection` text NOT NULL,
+  `queue` text NOT NULL,
+  `payload` longtext NOT NULL,
+  `exception` longtext NOT NULL,
+  `failed_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hardware`
+--
+
+CREATE TABLE `hardware` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `asset_id` bigint(20) UNSIGNED NOT NULL,
+  `specifications` varchar(255) NOT NULL,
+  `serial_number` varchar(255) NOT NULL,
+  `mac_address` varchar(255) DEFAULT NULL,
+  `accessories` varchar(255) DEFAULT NULL,
+  `manufacturer` varchar(255) DEFAULT NULL,
+  `warranty_expiration` date DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `hardware_type` bigint(20) UNSIGNED NOT NULL,
+  `remarks` text DEFAULT NULL,
+  `pc_name_id` bigint(20) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Dumping data for table `hardware`
 --
@@ -6299,7 +6512,23 @@ INSERT INTO `hardware` (`id`, `asset_id`, `specifications`, `serial_number`, `ma
 (190, 357, '16GB RAM, 512GB SSD', 'SN12345', '00:11:22:33:44:55', 'Mouse, Keyboard', 'Dell', '2025-12-31', '2025-01-29 20:43:43', '2025-01-29 20:43:43', 1, NULL, NULL),
 (191, 369, '120hz, 1000dpi', '5422-8274-0391-6602', '5A:54:12:88:C9:E3', 'Bag, Mouse', NULL, '2030-12-31', '2025-03-15 06:59:50', '2025-03-15 06:59:50', 2, NULL, 1),
 (192, 372, 'Magna quo ducimus q', '270', 'Eos dicta est nulla ', 'Aspernatur id iste ', NULL, '2000-04-21', '2025-03-15 09:46:18', '2025-03-15 09:46:18', 1, NULL, NULL),
-(194, 375, '16GB RAM, 512GB SSD, Intel Core i7', 'SN12345', '00:11:22:33:44:55', 'Mouse, Keyboard', 'Dell', '2025-12-31', '2025-03-15 10:07:19', '2025-03-15 10:07:19', 1, NULL, 4);
+(194, 375, '16GB RAM, 512GB SSD, Intel Core i7', 'SN12345', '00:11:22:33:44:55', 'Mouse, Keyboard', 'Dell', '2025-12-31', '2025-03-15 10:07:19', '2025-03-15 10:07:19', 1, NULL, 4),
+(198, 395, 'Consequuntur qui nob', '150', 'Quidem sint expedit', 'Ea aliquam enim dign', NULL, '2001-10-18', '2025-07-03 04:18:45', '2025-07-03 04:28:26', 6, NULL, 2),
+(199, 396, 'Intel i7, 16GB RAM, 512GB SSD', 'DL123456789', '00:11:22:33:44:55', 'Charger, Mouse', 'Dell Inc.', '2027-01-15', '2025-07-03 04:30:27', '2025-07-03 04:30:27', 44, NULL, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hardware_software`
+--
+
+CREATE TABLE `hardware_software` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `hardware_asset_id` bigint(20) UNSIGNED NOT NULL,
+  `software_asset_id` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `hardware_software`
@@ -6340,6 +6569,19 @@ INSERT INTO `hardware_software` (`id`, `hardware_asset_id`, `software_asset_id`,
 (35, 341, 5, '2025-01-29 16:14:10', '2025-01-29 16:14:10'),
 (36, 369, 30, '2025-03-15 06:59:50', '2025-03-15 06:59:50');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hardware_types`
+--
+
+CREATE TABLE `hardware_types` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `hardware_type` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Dumping data for table `hardware_types`
 --
@@ -6371,7 +6613,32 @@ INSERT INTO `hardware_types` (`id`, `hardware_type`, `created_at`, `updated_at`)
 (32, 'Test3', '2024-11-11 20:07:52', '2024-11-11 20:07:52'),
 (33, 'Test4', '2024-11-11 20:08:18', '2024-11-11 20:08:18'),
 (34, 'Test5', '2024-11-11 20:11:52', '2024-11-11 20:11:52'),
-(35, 'Test6', '2024-12-18 23:43:57', '2024-12-18 23:43:57');
+(35, 'Test6', '2024-12-18 23:43:57', '2024-12-18 23:43:57'),
+(38, 'Unit Tests', '2025-07-02 06:44:34', '2025-07-02 06:44:34'),
+(43, 'Test7', '2025-07-03 04:16:38', '2025-07-03 04:16:38'),
+(44, 'Tech', '2025-07-03 04:30:27', '2025-07-03 04:30:27');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `import_batches`
+--
+
+CREATE TABLE `import_batches` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `import_log_id` bigint(20) UNSIGNED NOT NULL,
+  `batch_number` int(11) NOT NULL,
+  `total_rows` int(11) NOT NULL,
+  `processed_rows` int(11) NOT NULL DEFAULT 0,
+  `successful_rows` int(11) NOT NULL DEFAULT 0,
+  `failed_rows` int(11) NOT NULL DEFAULT 0,
+  `row_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`row_data`)),
+  `row_results` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`row_results`)),
+  `status` enum('pending','processing','completed','failed') NOT NULL DEFAULT 'pending',
+  `error_message` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `import_batches`
@@ -6382,6 +6649,31 @@ INSERT INTO `import_batches` (`id`, `import_log_id`, `batch_number`, `total_rows
 (2, 1, 1, 3, 3, 3, 0, '[{\"asset_type\":\"hardware\",\"asset_status\":\"Active\",\"brand_name\":\"Dell\",\"model_id\":\"Latitude 5420\",\"cost_code\":\"14\",\"tag_number\":\"HW12345\",\"acquisition_date\":\"2023-01-01\",\"retirement_date\":\"2028-01-01\",\"purchase_order_no\":\"PO123\",\"sales_invoice_no\":\"INV456\",\"purchase_order_date\":\"2023-01-01\",\"purchase_order_amount\":\"1500.00\",\"requestor\":\"John Doe\",\"hardware_type\":\"1\",\"serial_number\":\"SN12345\",\"specifications\":\"16GB RAM, 512GB SSD, Intel Core i7\",\"manufacturer\":\"Dell\",\"warranty_expiration\":\"2025-12-31\",\"mac_address\":\"00:11:22:33:44:55\",\"accessories\":\"Mouse, Keyboard\",\"pc_name\":\"LAPTOP-ABC123\",\"version\":\"\",\"license_key\":\"\",\"software_type\":\"\",\"license_type\":\"\",\"peripherals_type\":\"\",\"vendor_name\":\"Dell Inc.\",\"row_index\":1},{\"asset_type\":\"software\",\"asset_status\":\"Active\",\"brand_name\":\"Dell\",\"model_id\":\"Elite Server 2000 37aw\",\"cost_code\":\"18\",\"tag_number\":\"HW6789\",\"acquisition_date\":\"2023-02-01\",\"retirement_date\":\"2024-02-01\",\"purchase_order_no\":\"PO789\",\"sales_invoice_no\":\"INV101\",\"purchase_order_date\":\"2023-02-01\",\"purchase_order_amount\":\"300.00\",\"requestor\":\"Jane Smith\",\"hardware_type\":\"\",\"serial_number\":\"\",\"specifications\":\"\",\"manufacturer\":\"\",\"warranty_expiration\":\"\",\"mac_address\":\"\",\"accessories\":\"\",\"pc_name\":\"LAPTOP-ABC123\",\"version\":\"2021\",\"license_key\":\"1234-4312-4312-4312-4312\",\"software_type\":\"5\",\"license_type\":\"1\",\"peripherals_type\":\"\",\"vendor_name\":\"Microsoft\",\"row_index\":2},{\"asset_type\":\"peripherals\",\"asset_status\":\"Active\",\"brand_name\":\"Logitech\",\"model_id\":\"MX Master 3\",\"cost_code\":\"18\",\"tag_number\":\"PR12345\",\"acquisition_date\":\"2023-03-01\",\"retirement_date\":\"2026-03-01\",\"purchase_order_no\":\"PO202\",\"sales_invoice_no\":\"INV303\",\"purchase_order_date\":\"2023-03-01\",\"purchase_order_amount\":\"100.00\",\"requestor\":\"Bob Johnson\",\"hardware_type\":\"\",\"serial_number\":\"LGT123456\",\"specifications\":\"Wireless Mouse\",\"manufacturer\":\"Logitech\",\"warranty_expiration\":\"2024-03-01\",\"mac_address\":\"\",\"accessories\":\"\",\"pc_name\":\"\",\"version\":\"\",\"license_key\":\"\",\"software_type\":\"\",\"license_type\":\"\",\"peripherals_type\":\"2\",\"vendor_name\":\"Logitech Inc.\",\"row_index\":3}]', '[{\"status\":\"success\",\"asset_id\":375,\"message\":\"Successfully created hardware asset.\"},{\"status\":\"success\",\"asset_id\":376,\"message\":\"Successfully created software asset.\"},{\"status\":\"success\",\"asset_id\":377,\"message\":\"Successfully created peripherals asset.\"}]', 'completed', NULL, '2025-03-15 10:07:19', '2025-03-15 10:07:19'),
 (3, 2, 1, 3, 0, 0, 0, '[{\"asset_type\":\"hardware\",\"asset_status\":\"Active\",\"brand_name\":\"Dell\",\"model_id\":\"Latitude 5420\",\"cost_code\":\"396\",\"tag_number\":\"HW12345\",\"acquisition_date\":\"2023-01-01\",\"retirement_date\":\"2028-01-01\",\"purchase_order_no\":\"PO123\",\"sales_invoice_no\":\"INV456\",\"purchase_order_date\":\"2023-01-01\",\"purchase_order_amount\":\"1500.00\",\"requestor\":\"John Doe\",\"hardware_type\":\"1\",\"serial_number\":\"SN12345\",\"specifications\":\"16GB RAM, 512GB SSD, Intel Core i7\",\"manufacturer\":\"Dell\",\"warranty_expiration\":\"2025-12-31\",\"mac_address\":\"00:11:22:33:44:55\",\"accessories\":\"Mouse, Keyboard\",\"pc_name\":\"LAPTOP-ABC123\",\"version\":\"\",\"license_key\":\"\",\"software_type\":\"\",\"license_type\":\"\",\"peripherals_type\":\"\",\"vendor_name\":\"Dell Inc.\",\"row_index\":1},{\"asset_type\":\"software\",\"asset_status\":\"Active\",\"brand_name\":\"Dell\",\"model_id\":\"Elite Server 2000 37aw\",\"cost_code\":\"6\",\"tag_number\":\"\",\"acquisition_date\":\"2023-02-01\",\"retirement_date\":\"2024-02-01\",\"purchase_order_no\":\"PO789\",\"sales_invoice_no\":\"INV101\",\"purchase_order_date\":\"2023-02-01\",\"purchase_order_amount\":\"300.00\",\"requestor\":\"Jane Smith\",\"hardware_type\":\"\",\"serial_number\":\"\",\"specifications\":\"\",\"manufacturer\":\"\",\"warranty_expiration\":\"\",\"mac_address\":\"\",\"accessories\":\"\",\"pc_name\":\"LAPTOP-ABC123\",\"version\":\"2021\",\"license_key\":\"XXXX-XXXX-XXXX-XXXX\",\"software_type\":\"4\",\"license_type\":\"Subscription\",\"peripherals_type\":\"\",\"vendor_name\":\"Microsoft\",\"row_index\":2},{\"asset_type\":\"peripherals\",\"asset_status\":\"Active\",\"brand_name\":\"Logitech\",\"model_id\":\"MX Master 3\",\"cost_code\":\"442\",\"tag_number\":\"PR12345\",\"acquisition_date\":\"2023-03-01\",\"retirement_date\":\"2026-03-01\",\"purchase_order_no\":\"PO202\",\"sales_invoice_no\":\"INV303\",\"purchase_order_date\":\"2023-03-01\",\"purchase_order_amount\":\"100.00\",\"requestor\":\"Bob Johnson\",\"hardware_type\":\"\",\"serial_number\":\"LGT123456\",\"specifications\":\"Wireless Mouse\",\"manufacturer\":\"Logitech\",\"warranty_expiration\":\"2024-03-01\",\"mac_address\":\"\",\"accessories\":\"\",\"pc_name\":\"\",\"version\":\"\",\"license_key\":\"\",\"software_type\":\"\",\"license_type\":\"\",\"peripherals_type\":\"2\",\"vendor_name\":\"Logitech Inc.\",\"row_index\":3}]', '[{\"status\":\"error\",\"message\":\"SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry \'HW12345\' for key \'assets_tag_number_unique\' (Connection: mysql, SQL: insert into `assets` (`asset_type`, `asset_status`, `model_id`, `cost_code`, `tag_number`, `updated_at`, `created_at`) values (hardware, 1, 2, 396, HW12345, 2025-03-15 18:23:31, 2025-03-15 18:23:31))\"}]', 'failed', 'SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry \'HW12345\' for key \'assets_tag_number_unique\' (Connection: mysql, SQL: insert into `assets` (`asset_type`, `asset_status`, `model_id`, `cost_code`, `tag_number`, `updated_at`, `created_at`) values (hardware, 1, 2, 396, HW12345, 2025-03-15 18:23:31, 2025-03-15 18:23:31))', '2025-03-15 10:23:18', '2025-03-15 10:23:31');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `import_logs`
+--
+
+CREATE TABLE `import_logs` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `file_path` varchar(255) DEFAULT NULL,
+  `mime_type` varchar(255) NOT NULL,
+  `total_rows` int(11) NOT NULL DEFAULT 0,
+  `processed_rows` int(11) NOT NULL DEFAULT 0,
+  `successful_rows` int(11) NOT NULL DEFAULT 0,
+  `failed_rows` int(11) NOT NULL DEFAULT 0,
+  `settings` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`settings`)),
+  `status` enum('pending','processing','completed','failed') NOT NULL DEFAULT 'pending',
+  `error_message` text DEFAULT NULL,
+  `started_at` timestamp NULL DEFAULT NULL,
+  `completed_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Dumping data for table `import_logs`
 --
@@ -6389,6 +6681,39 @@ INSERT INTO `import_batches` (`id`, `import_log_id`, `batch_number`, `total_rows
 INSERT INTO `import_logs` (`id`, `user_id`, `file_name`, `file_path`, `mime_type`, `total_rows`, `processed_rows`, `successful_rows`, `failed_rows`, `settings`, `status`, `error_message`, `started_at`, `completed_at`, `created_at`, `updated_at`) VALUES
 (1, 1, 'asset_import_template.csv', 'imports/asset_import_template.csv', 'text/csv', 3, 3, 3, 0, '{\"has_headers\":true,\"import_type\":\"create\",\"mappings\":{\"asset_type\":\"asset_type\",\"asset_status\":\"asset_status\",\"brand_name\":\"brand_name\",\"model_id\":\"model_id\",\"cost_code\":\"cost_code\",\"tag_number\":\"tag_number\",\"acquisition_date\":\"acquisition_date\",\"retirement_date\":\"retirement_date\",\"purchase_order_no\":\"purchase_order_no\",\"sales_invoice_no\":\"sales_invoice_no\",\"purchase_order_date\":\"purchase_order_date\",\"purchase_order_amount\":\"purchase_order_amount\",\"requestor\":\"requestor\",\"hardware_type\":\"hardware_type\",\"serial_number\":\"serial_number\",\"specifications\":\"specifications\",\"manufacturer\":\"manufacturer\",\"warranty_expiration\":\"warranty_expiration\",\"mac_address\":\"mac_address\",\"accessories\":\"accessories\",\"pc_name\":\"pc_name\",\"version\":\"version\",\"license_key\":\"license_key\",\"software_type\":\"software_type\",\"license_type\":\"license_type\",\"peripherals_type\":\"peripherals_type\",\"vendor_name\":\"vendor_name\",\"vendor_address_1\":null,\"vendor_address_2\":null,\"vendor_city\":null,\"vendor_tel_no_1\":null,\"vendor_tel_no_2\":null,\"vendor_contact_person\":null,\"vendor_mobile_number\":null,\"vendor_email\":null,\"vendor_url\":null,\"vendor_remarks\":null},\"mapped_data\":[{\"asset_type\":\"hardware\",\"asset_status\":\"Active\",\"brand_name\":\"Dell\",\"model_id\":\"Latitude 5420\",\"cost_code\":\"14\",\"tag_number\":\"HW12345\",\"acquisition_date\":\"2023-01-01\",\"retirement_date\":\"2028-01-01\",\"purchase_order_no\":\"PO123\",\"sales_invoice_no\":\"INV456\",\"purchase_order_date\":\"2023-01-01\",\"purchase_order_amount\":\"1500.00\",\"requestor\":\"John Doe\",\"hardware_type\":\"1\",\"serial_number\":\"SN12345\",\"specifications\":\"16GB RAM, 512GB SSD, Intel Core i7\",\"manufacturer\":\"Dell\",\"warranty_expiration\":\"2025-12-31\",\"mac_address\":\"00:11:22:33:44:55\",\"accessories\":\"Mouse, Keyboard\",\"pc_name\":\"LAPTOP-ABC123\",\"version\":\"\",\"license_key\":\"\",\"software_type\":\"\",\"license_type\":\"\",\"peripherals_type\":\"\",\"vendor_name\":\"Dell Inc.\",\"row_index\":1},{\"asset_type\":\"software\",\"asset_status\":\"Active\",\"brand_name\":\"Dell\",\"model_id\":\"Elite Server 2000 37aw\",\"cost_code\":\"18\",\"tag_number\":\"HW6789\",\"acquisition_date\":\"2023-02-01\",\"retirement_date\":\"2024-02-01\",\"purchase_order_no\":\"PO789\",\"sales_invoice_no\":\"INV101\",\"purchase_order_date\":\"2023-02-01\",\"purchase_order_amount\":\"300.00\",\"requestor\":\"Jane Smith\",\"hardware_type\":\"\",\"serial_number\":\"\",\"specifications\":\"\",\"manufacturer\":\"\",\"warranty_expiration\":\"\",\"mac_address\":\"\",\"accessories\":\"\",\"pc_name\":\"LAPTOP-ABC123\",\"version\":\"2021\",\"license_key\":\"1234-4312-4312-4312-4312\",\"software_type\":\"5\",\"license_type\":\"1\",\"peripherals_type\":\"\",\"vendor_name\":\"Microsoft\",\"row_index\":2},{\"asset_type\":\"peripherals\",\"asset_status\":\"Active\",\"brand_name\":\"Logitech\",\"model_id\":\"MX Master 3\",\"cost_code\":\"18\",\"tag_number\":\"PR12345\",\"acquisition_date\":\"2023-03-01\",\"retirement_date\":\"2026-03-01\",\"purchase_order_no\":\"PO202\",\"sales_invoice_no\":\"INV303\",\"purchase_order_date\":\"2023-03-01\",\"purchase_order_amount\":\"100.00\",\"requestor\":\"Bob Johnson\",\"hardware_type\":\"\",\"serial_number\":\"LGT123456\",\"specifications\":\"Wireless Mouse\",\"manufacturer\":\"Logitech\",\"warranty_expiration\":\"2024-03-01\",\"mac_address\":\"\",\"accessories\":\"\",\"pc_name\":\"\",\"version\":\"\",\"license_key\":\"\",\"software_type\":\"\",\"license_type\":\"\",\"peripherals_type\":\"2\",\"vendor_name\":\"Logitech Inc.\",\"row_index\":3}]}', 'processing', NULL, '2025-03-15 10:07:19', NULL, '2025-03-15 09:49:12', '2025-03-15 10:07:20'),
 (2, 1, 'asset_import_template.csv', 'imports/asset_import_template.csv', 'text/csv', 3, 0, 0, 0, '{\"has_headers\":true,\"import_type\":\"create\",\"mappings\":{\"asset_type\":\"asset_type\",\"asset_status\":\"asset_status\",\"brand_name\":\"brand_name\",\"model_id\":\"model_id\",\"cost_code\":\"cost_code\",\"tag_number\":\"tag_number\",\"acquisition_date\":\"acquisition_date\",\"retirement_date\":\"retirement_date\",\"purchase_order_no\":\"purchase_order_no\",\"sales_invoice_no\":\"sales_invoice_no\",\"purchase_order_date\":\"purchase_order_date\",\"purchase_order_amount\":\"purchase_order_amount\",\"requestor\":\"requestor\",\"hardware_type\":\"hardware_type\",\"serial_number\":\"serial_number\",\"specifications\":\"specifications\",\"manufacturer\":\"manufacturer\",\"warranty_expiration\":\"warranty_expiration\",\"mac_address\":\"mac_address\",\"accessories\":\"accessories\",\"pc_name\":\"pc_name\",\"version\":\"version\",\"license_key\":\"license_key\",\"software_type\":\"software_type\",\"license_type\":\"license_type\",\"peripherals_type\":\"peripherals_type\",\"vendor_name\":\"vendor_name\",\"vendor_address_1\":null,\"vendor_address_2\":null,\"vendor_city\":null,\"vendor_tel_no_1\":null,\"vendor_tel_no_2\":null,\"vendor_contact_person\":null,\"vendor_mobile_number\":null,\"vendor_email\":null,\"vendor_url\":null,\"vendor_remarks\":null},\"mapped_data\":[{\"asset_type\":\"hardware\",\"asset_status\":\"Active\",\"brand_name\":\"Dell\",\"model_id\":\"Latitude 5420\",\"cost_code\":\"396\",\"tag_number\":\"HW12345\",\"acquisition_date\":\"2023-01-01\",\"retirement_date\":\"2028-01-01\",\"purchase_order_no\":\"PO123\",\"sales_invoice_no\":\"INV456\",\"purchase_order_date\":\"2023-01-01\",\"purchase_order_amount\":\"1500.00\",\"requestor\":\"John Doe\",\"hardware_type\":\"1\",\"serial_number\":\"SN12345\",\"specifications\":\"16GB RAM, 512GB SSD, Intel Core i7\",\"manufacturer\":\"Dell\",\"warranty_expiration\":\"2025-12-31\",\"mac_address\":\"00:11:22:33:44:55\",\"accessories\":\"Mouse, Keyboard\",\"pc_name\":\"LAPTOP-ABC123\",\"version\":\"\",\"license_key\":\"\",\"software_type\":\"\",\"license_type\":\"\",\"peripherals_type\":\"\",\"vendor_name\":\"Dell Inc.\",\"row_index\":1},{\"asset_type\":\"software\",\"asset_status\":\"Active\",\"brand_name\":\"Dell\",\"model_id\":\"Elite Server 2000 37aw\",\"cost_code\":\"6\",\"tag_number\":\"\",\"acquisition_date\":\"2023-02-01\",\"retirement_date\":\"2024-02-01\",\"purchase_order_no\":\"PO789\",\"sales_invoice_no\":\"INV101\",\"purchase_order_date\":\"2023-02-01\",\"purchase_order_amount\":\"300.00\",\"requestor\":\"Jane Smith\",\"hardware_type\":\"\",\"serial_number\":\"\",\"specifications\":\"\",\"manufacturer\":\"\",\"warranty_expiration\":\"\",\"mac_address\":\"\",\"accessories\":\"\",\"pc_name\":\"LAPTOP-ABC123\",\"version\":\"2021\",\"license_key\":\"XXXX-XXXX-XXXX-XXXX\",\"software_type\":\"4\",\"license_type\":\"Subscription\",\"peripherals_type\":\"\",\"vendor_name\":\"Microsoft\",\"row_index\":2},{\"asset_type\":\"peripherals\",\"asset_status\":\"Active\",\"brand_name\":\"Logitech\",\"model_id\":\"MX Master 3\",\"cost_code\":\"442\",\"tag_number\":\"PR12345\",\"acquisition_date\":\"2023-03-01\",\"retirement_date\":\"2026-03-01\",\"purchase_order_no\":\"PO202\",\"sales_invoice_no\":\"INV303\",\"purchase_order_date\":\"2023-03-01\",\"purchase_order_amount\":\"100.00\",\"requestor\":\"Bob Johnson\",\"hardware_type\":\"\",\"serial_number\":\"LGT123456\",\"specifications\":\"Wireless Mouse\",\"manufacturer\":\"Logitech\",\"warranty_expiration\":\"2024-03-01\",\"mac_address\":\"\",\"accessories\":\"\",\"pc_name\":\"\",\"version\":\"\",\"license_key\":\"\",\"software_type\":\"\",\"license_type\":\"\",\"peripherals_type\":\"2\",\"vendor_name\":\"Logitech Inc.\",\"row_index\":3}]}', 'failed', 'One or more batches failed to process.', '2025-03-15 10:23:31', '2025-03-15 10:23:31', '2025-03-15 10:20:11', '2025-03-15 10:23:31');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `import_mapping_preferences`
+--
+
+CREATE TABLE `import_mapping_preferences` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `entity_type` varchar(255) NOT NULL,
+  `mappings` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`mappings`)),
+  `is_default` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `jobs`
+--
+
+CREATE TABLE `jobs` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `queue` varchar(255) NOT NULL,
+  `payload` longtext NOT NULL,
+  `attempts` tinyint(3) UNSIGNED NOT NULL,
+  `reserved_at` int(10) UNSIGNED DEFAULT NULL,
+  `available_at` int(10) UNSIGNED NOT NULL,
+  `created_at` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `jobs`
@@ -6402,6 +6727,38 @@ INSERT INTO `jobs` (`id`, `queue`, `payload`, `attempts`, `reserved_at`, `availa
 (5, 'default', '{\"uuid\":\"d0e55ae9-5998-4d2e-988a-83f24f4c935e\",\"displayName\":\"App\\\\Notifications\\\\AssetCreatedNotification\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Notifications\\\\SendQueuedNotifications\",\"command\":\"O:48:\\\"Illuminate\\\\Notifications\\\\SendQueuedNotifications\\\":3:{s:11:\\\"notifiables\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:15:\\\"App\\\\Models\\\\User\\\";s:2:\\\"id\\\";a:1:{i:0;i:30;}s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}s:12:\\\"notification\\\";O:42:\\\"App\\\\Notifications\\\\AssetCreatedNotification\\\":2:{s:5:\\\"asset\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:16:\\\"App\\\\Models\\\\Asset\\\";s:2:\\\"id\\\";i:245;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}s:2:\\\"id\\\";s:36:\\\"33567f15-c323-4c56-a4dd-563380f4f095\\\";}s:8:\\\"channels\\\";a:1:{i:0;s:8:\\\"database\\\";}}\"}}', 0, NULL, 1731566948, 1731566948),
 (6, 'default', '{\"uuid\":\"bddc9c61-c0f1-4d74-a89e-b630b78e2bea\",\"displayName\":\"Filament\\\\Notifications\\\\DatabaseNotification\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Notifications\\\\SendQueuedNotifications\",\"command\":\"O:48:\\\"Illuminate\\\\Notifications\\\\SendQueuedNotifications\\\":3:{s:11:\\\"notifiables\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:15:\\\"App\\\\Models\\\\User\\\";s:2:\\\"id\\\";a:1:{i:0;i:30;}s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}s:12:\\\"notification\\\";O:43:\\\"Filament\\\\Notifications\\\\DatabaseNotification\\\":2:{s:4:\\\"data\\\";a:11:{s:7:\\\"actions\\\";a:0:{}s:4:\\\"body\\\";s:64:\\\"Asset Dicta laborum Qui s Voluptate vel fugiat has been created.\\\";s:5:\\\"color\\\";s:7:\\\"success\\\";s:8:\\\"duration\\\";s:10:\\\"persistent\\\";s:4:\\\"icon\\\";s:23:\\\"heroicon-o-check-circle\\\";s:9:\\\"iconColor\\\";s:7:\\\"success\\\";s:6:\\\"status\\\";s:7:\\\"success\\\";s:5:\\\"title\\\";s:35:\\\"Hardware Asset Created Successfully\\\";s:4:\\\"view\\\";s:36:\\\"filament-notifications::notification\\\";s:8:\\\"viewData\\\";a:0:{}s:6:\\\"format\\\";s:8:\\\"filament\\\";}s:2:\\\"id\\\";s:36:\\\"0930d734-9781-4943-bd6f-91dfe1230ea8\\\";}s:8:\\\"channels\\\";a:1:{i:0;s:8:\\\"database\\\";}}\"}}', 0, NULL, 1731566948, 1731566948);
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `job_batches`
+--
+
+CREATE TABLE `job_batches` (
+  `id` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `total_jobs` int(11) NOT NULL,
+  `pending_jobs` int(11) NOT NULL,
+  `failed_jobs` int(11) NOT NULL,
+  `failed_job_ids` longtext NOT NULL,
+  `options` mediumtext DEFAULT NULL,
+  `cancelled_at` int(11) DEFAULT NULL,
+  `created_at` int(11) NOT NULL,
+  `finished_at` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `license_types`
+--
+
+CREATE TABLE `license_types` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `license_type` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Dumping data for table `license_types`
 --
@@ -6413,7 +6770,26 @@ INSERT INTO `license_types` (`id`, `license_type`, `created_at`, `updated_at`) V
 (4, 'Open Source', '2024-07-29 06:37:47', '2024-07-29 06:37:47'),
 (5, 'License Leasing', '2024-07-29 06:37:57', '2024-07-29 06:37:57'),
 (6, 'Pay As You Go', '2024-07-29 06:38:12', '2024-07-29 06:38:12'),
-(8, 'Unknown', '2024-08-10 02:51:16', '2024-08-10 02:51:16');
+(8, 'Unknown', '2024-08-10 02:51:16', '2024-08-10 02:51:16'),
+(11, 'Subscription', '2025-07-03 04:30:27', '2025-07-03 04:30:27');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lifecycles`
+--
+
+CREATE TABLE `lifecycles` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `asset_id` bigint(20) UNSIGNED NOT NULL,
+  `acquisition_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `retirement_date` date DEFAULT NULL,
+  `auto_renewal_enabled` tinyint(1) NOT NULL DEFAULT 0,
+  `renewal_in_progress` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `remarks` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `lifecycles`
@@ -6612,7 +6988,29 @@ INSERT INTO `lifecycles` (`id`, `asset_id`, `acquisition_date`, `retirement_date
 (249, 372, '1981-03-14 16:00:00', '2025-03-15', 0, 0, '2025-03-15 09:46:18', '2025-03-15 09:46:18', NULL),
 (252, 375, '2022-12-31 16:00:00', '2028-01-01', 0, 0, '2025-03-15 10:07:19', '2025-03-15 10:07:19', NULL),
 (253, 376, '2023-01-31 16:00:00', '2024-02-01', 0, 0, '2025-03-15 10:07:19', '2025-03-15 10:07:19', NULL),
-(254, 377, '2023-02-28 16:00:00', '2026-03-01', 0, 0, '2025-03-15 10:07:19', '2025-03-15 10:07:19', NULL);
+(254, 377, '2023-02-28 16:00:00', '2026-03-01', 0, 0, '2025-03-15 10:07:19', '2025-03-15 10:07:19', NULL),
+(267, 395, '2017-12-13 16:00:00', '2025-07-03', 0, 0, '2025-07-03 04:18:45', '2025-07-03 04:28:26', NULL),
+(268, 396, '2024-01-14 16:00:00', '2029-01-15', 0, 0, '2025-07-03 04:30:27', '2025-07-03 04:30:27', NULL),
+(269, 397, '2024-01-31 16:00:00', '2025-02-01', 0, 0, '2025-07-03 04:30:27', '2025-07-03 04:30:27', NULL),
+(270, 398, '2024-02-29 16:00:00', '2027-03-01', 0, 0, '2025-07-03 04:30:27', '2025-07-03 04:30:27', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lifecycle_renewals`
+--
+
+CREATE TABLE `lifecycle_renewals` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `lifecycle_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `old_retirement_date` datetime NOT NULL,
+  `new_retirement_date` datetime NOT NULL,
+  `is_automatic` tinyint(1) NOT NULL DEFAULT 0,
+  `remarks` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `lifecycle_renewals`
@@ -6636,6 +7034,18 @@ INSERT INTO `lifecycle_renewals` (`id`, `lifecycle_id`, `user_id`, `old_retireme
 (15, 241, NULL, '2025-03-24 00:00:00', '2025-04-24 00:00:00', 1, 'Automatic renewal processed', '2025-03-13 16:00:03', '2025-03-13 16:00:03'),
 (16, 242, NULL, '2025-03-15 00:00:00', '2025-04-15 00:00:00', 1, 'Automatic renewal processed', '2025-03-13 16:00:03', '2025-03-13 16:00:03'),
 (17, 244, NULL, '2025-03-15 00:00:00', '2025-04-15 00:00:00', 1, 'Automatic renewal processed', '2025-03-13 16:00:03', '2025-03-13 16:00:03');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `migrations`
+--
+
+CREATE TABLE `migrations` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `migration` varchar(255) NOT NULL,
+  `batch` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `migrations`
@@ -6715,6 +7125,21 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (150, '2025_03_15_155735_create_import_logs_table', 46),
 (151, '2025_03_15_155737_create_import_batches_table', 46),
 (152, '2025_03_15_155738_create_import_mapping_preferences_table', 46);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `models`
+--
+
+CREATE TABLE `models` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `brand_id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `models`
@@ -6807,7 +7232,33 @@ INSERT INTO `models` (`id`, `brand_id`, `name`, `description`, `created_at`, `up
 (84, 21, 'Cheesedog', 'Trial', '2025-01-13 17:24:03', '2025-01-13 17:24:03'),
 (85, 26, 'Eoreim', 'Sample Description', '2025-01-13 17:25:23', '2025-01-13 17:25:23'),
 (86, 21, 'iPhone 14 Pro Max', NULL, '2025-01-13 17:37:01', '2025-01-13 17:37:01'),
-(88, 3, 'MX Master 3', 'Auto-created during import', '2025-03-15 10:07:19', '2025-03-15 10:07:19');
+(88, 3, 'MX Master 3', 'Auto-created during import', '2025-03-15 10:07:19', '2025-03-15 10:07:19'),
+(100, 1, 'Latitude 7420', NULL, '2025-07-03 04:30:27', '2025-07-03 04:30:27'),
+(101, 32, 'Office 365', NULL, '2025-07-03 04:30:27', '2025-07-03 04:30:27');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `model_has_permissions`
+--
+
+CREATE TABLE `model_has_permissions` (
+  `permission_id` bigint(20) UNSIGNED NOT NULL,
+  `model_type` varchar(255) NOT NULL,
+  `model_id` bigint(20) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `model_has_roles`
+--
+
+CREATE TABLE `model_has_roles` (
+  `role_id` bigint(20) UNSIGNED NOT NULL,
+  `model_type` varchar(255) NOT NULL,
+  `model_id` bigint(20) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `model_has_roles`
@@ -6818,6 +7269,23 @@ INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES
 (3, 'App\\Models\\User', 2),
 (3, 'App\\Models\\User', 21),
 (8, 'App\\Models\\User', 30);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` char(36) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `notifiable_type` varchar(255) NOT NULL,
+  `notifiable_id` bigint(20) UNSIGNED NOT NULL,
+  `data` text NOT NULL,
+  `read_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `notifications`
@@ -6934,6 +7402,7 @@ INSERT INTO `notifications` (`id`, `type`, `notifiable_type`, `notifiable_id`, `
 ('bee42e0c-8537-44e7-9fd2-7128291a3c24', 'Filament\\Notifications\\DatabaseNotification', 'App\\Models\\User', 2, '{\"actions\":[],\"body\":\"Asset has been successfully assigned.\",\"color\":null,\"duration\":\"persistent\",\"icon\":\"heroicon-o-check-circle\",\"iconColor\":\"success\",\"status\":\"success\",\"title\":\"Assignment Approved\",\"view\":\"filament-notifications::notification\",\"viewData\":[],\"format\":\"filament\"}', NULL, '2025-01-06 04:20:21', '2025-01-06 04:20:21'),
 ('c006c1fe-61d9-48dd-905f-9bd5126a5caa', 'Filament\\Notifications\\DatabaseNotification', 'App\\Models\\User', 1, '{\"actions\":[],\"body\":\"<p><strong>Odit ut facilis dict Consequatur Adipisc<\\/strong> has been created.<\\/p>\\n\",\"color\":\"success\",\"duration\":\"persistent\",\"icon\":\"heroicon-o-check-circle\",\"iconColor\":\"success\",\"status\":\"success\",\"title\":\"Hardware Asset Created\",\"view\":\"filament-notifications::notification\",\"viewData\":[],\"format\":\"filament\"}', NULL, '2024-12-19 22:49:35', '2024-12-19 22:49:35'),
 ('c35c6193-485b-4fbc-8880-2db3e0455fc4', 'Filament\\Notifications\\DatabaseNotification', 'App\\Models\\User', 1, '{\"actions\":[],\"body\":\"<p>Dell XPS 13 has been created<\\/p>\\n\",\"color\":\"success\",\"duration\":\"persistent\",\"icon\":\"heroicon-o-check-circle\",\"iconColor\":\"success\",\"status\":\"success\",\"title\":\"Hardware Asset Created\",\"view\":\"filament-notifications::notification\",\"viewData\":[],\"format\":\"filament\"}', NULL, '2025-01-29 17:41:25', '2025-01-29 17:41:25'),
+('c3e4d4c4-7508-42f2-ae3d-9b7636929a4c', 'Filament\\Notifications\\DatabaseNotification', 'App\\Models\\User', 1, '{\"actions\":[],\"body\":\"<p>Dell Pro Monitor 1000 90zy has been created<\\/p>\\n\",\"color\":\"success\",\"duration\":\"persistent\",\"icon\":\"heroicon-o-check-circle\",\"iconColor\":\"success\",\"status\":\"success\",\"title\":\"Hardware Asset Created\",\"view\":\"filament-notifications::notification\",\"viewData\":[],\"format\":\"filament\"}', NULL, '2025-07-03 04:18:56', '2025-07-03 04:18:56'),
 ('c474910e-c7da-46f9-9001-1e1fd4f2b81a', 'Filament\\Notifications\\DatabaseNotification', 'App\\Models\\User', 21, '{\"actions\":[{\"name\":\"view\",\"color\":null,\"event\":null,\"eventData\":[],\"dispatchDirection\":false,\"dispatchToComponent\":null,\"extraAttributes\":[],\"icon\":null,\"iconPosition\":\"before\",\"iconSize\":null,\"isOutlined\":false,\"isDisabled\":false,\"label\":\"View Assignment\",\"shouldClose\":false,\"shouldMarkAsRead\":false,\"shouldMarkAsUnread\":false,\"shouldOpenUrlInNewTab\":false,\"size\":\"sm\",\"tooltip\":null,\"url\":\"http:\\/\\/127.0.0.1:8000\\/app\\/assignments\\/179\",\"view\":\"filament-actions::button-action\"}],\"body\":\"<p>Asset ** {&quot;id&quot;:9,&quot;brand_id&quot;:2,&quot;name&quot;:&quot;Ultra Laptop 3000 65oo&quot;,&quot;description&quot;:&quot;Minima vitae numquam itaque optio esse eligendi voluptatem. Hic cum adipisci qui autem. Ipsa velit sed totam aspernatur sapiente ut. Distinctio dolores ut eius vel aut vel. Sed aperiam deserunt nesciunt qui quia fugit est quo.&quot;,&quot;created_at&quot;:&quot;2025-01-11T03:17:21.000000Z&quot;,&quot;updated_at&quot;:&quot;2025-01-11T03:17:21.000000Z&quot;}** has been assigned to you.<\\/p>\\n\",\"color\":null,\"duration\":\"persistent\",\"icon\":\"heroicon-o-clipboard-document-check\",\"iconColor\":\"info\",\"status\":\"info\",\"title\":\"New Asset Assignment\",\"view\":\"filament-notifications::notification\",\"viewData\":[],\"format\":\"filament\"}', NULL, '2025-01-29 20:23:00', '2025-01-29 20:23:00'),
 ('c5a71f9e-6f8f-4b46-84d2-37c7279db752', 'Filament\\Notifications\\DatabaseNotification', 'App\\Models\\User', 1, '{\"actions\":[],\"body\":\"<p>Kuphal PLC Ultra Printer T 54eb has been created<\\/p>\\n\",\"color\":\"success\",\"duration\":\"persistent\",\"icon\":\"heroicon-o-check-circle\",\"iconColor\":\"success\",\"status\":\"success\",\"title\":\"Software Asset Created\",\"view\":\"filament-notifications::notification\",\"viewData\":[],\"format\":\"filament\"}', NULL, '2025-01-29 16:18:09', '2025-01-29 16:18:09'),
 ('c7b56dc2-8511-42be-89ee-9412f6e8f874', 'Filament\\Notifications\\DatabaseNotification', 'App\\Models\\User', 21, '{\"actions\":[{\"name\":\"view\",\"color\":null,\"event\":null,\"eventData\":[],\"dispatchDirection\":false,\"dispatchToComponent\":null,\"extraAttributes\":[],\"icon\":null,\"iconPosition\":\"before\",\"iconSize\":null,\"isOutlined\":false,\"isDisabled\":false,\"label\":\"View Assignment\",\"shouldClose\":false,\"shouldMarkAsRead\":false,\"shouldMarkAsUnread\":false,\"shouldOpenUrlInNewTab\":false,\"size\":\"sm\",\"tooltip\":null,\"url\":\"http:\\/\\/127.0.0.1:8000\\/app\\/assignments\\/182\",\"view\":\"filament-actions::button-action\"}],\"body\":\"<p>Asset <strong>HP Ultra Laptop 3000 65oo<\\/strong> has been assigned to you.<\\/p>\\n\",\"color\":null,\"duration\":\"persistent\",\"icon\":\"heroicon-o-clipboard-document-check\",\"iconColor\":\"info\",\"status\":\"info\",\"title\":\"New Asset Assignment\",\"view\":\"filament-notifications::notification\",\"viewData\":[],\"format\":\"filament\"}', NULL, '2025-01-29 21:10:18', '2025-01-29 21:10:18'),
@@ -6971,6 +7440,22 @@ INSERT INTO `notifications` (`id`, `type`, `notifiable_type`, `notifiable_id`, `
 ('fce8dbc5-2bd7-43ef-b849-dd2e06ab8454', 'Filament\\Notifications\\DatabaseNotification', 'App\\Models\\User', 1, '{\"actions\":[],\"body\":\"<p><strong>Sed blanditiis offic Excepturi corporis n<\\/strong> has been created.<\\/p>\\n\",\"color\":\"success\",\"duration\":\"persistent\",\"icon\":\"heroicon-o-check-circle\",\"iconColor\":\"success\",\"status\":\"success\",\"title\":\"Hardware Asset Created\",\"view\":\"filament-notifications::notification\",\"viewData\":[],\"format\":\"filament\"}', NULL, '2024-12-19 23:21:38', '2024-12-19 23:21:38'),
 ('ff6f2142-dc38-411d-ab80-b0f52adadf85', 'Filament\\Notifications\\DatabaseNotification', 'App\\Models\\User', 30, '{\"actions\":[{\"name\":\"view\",\"color\":null,\"event\":null,\"eventData\":[],\"dispatchDirection\":false,\"dispatchToComponent\":null,\"extraAttributes\":[],\"icon\":null,\"iconPosition\":\"before\",\"iconSize\":null,\"isOutlined\":false,\"isDisabled\":false,\"label\":\"View Assignment\",\"shouldClose\":false,\"shouldMarkAsRead\":false,\"shouldMarkAsUnread\":false,\"shouldOpenUrlInNewTab\":false,\"size\":\"sm\",\"tooltip\":null,\"url\":\"http:\\/\\/127.0.0.1:8000\\/app\\/assignments\\/196\",\"view\":\"filament-actions::button-action\"}],\"body\":\"<p>Asset <strong>HP Max Scanner 2000 79zp<\\/strong> has been assigned to you.<\\/p>\\n\",\"color\":null,\"duration\":\"persistent\",\"icon\":\"heroicon-o-clipboard-document-check\",\"iconColor\":\"info\",\"status\":\"info\",\"title\":\"New Asset Assignment\",\"view\":\"filament-notifications::notification\",\"viewData\":[],\"format\":\"filament\"}', NULL, '2025-04-29 04:14:32', '2025-04-29 04:14:32');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `option_to_buy`
+--
+
+CREATE TABLE `option_to_buy` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `assignment_id` bigint(20) UNSIGNED NOT NULL,
+  `asset_cost` bigint(20) NOT NULL,
+  `option_to_buy_status` bigint(20) UNSIGNED NOT NULL,
+  `document_path` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Dumping data for table `option_to_buy`
 --
@@ -6997,6 +7482,32 @@ INSERT INTO `option_to_buy` (`id`, `assignment_id`, `asset_cost`, `option_to_buy
 (19, 162, 58000, 10, NULL, '2025-03-15 06:29:46', '2025-03-15 06:29:46'),
 (20, 159, 59000, 9, 'option-to-buy-documents/Resume - Abutal, Clark Wayne A. (1).pdf', '2025-03-15 06:34:46', '2025-03-15 06:36:08');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `password_reset_tokens`
+--
+
+CREATE TABLE `password_reset_tokens` (
+  `email` varchar(255) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pc_names`
+--
+
+CREATE TABLE `pc_names` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Dumping data for table `pc_names`
 --
@@ -7005,6 +7516,25 @@ INSERT INTO `pc_names` (`id`, `name`, `description`, `created_at`, `updated_at`)
 (1, 'MAINPC-361', 'Main Office Desktop', '2025-01-15 18:21:21', '2025-01-15 18:21:21'),
 (2, 'DEVPC1-926', 'Developer #SJ61AVUJ Desktop', '2025-01-15 18:27:39', '2025-01-15 18:27:39'),
 (4, 'LAPTOP-ABC123', 'Auto-created during import', '2025-03-15 10:07:19', '2025-03-15 10:07:19');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `peripherals`
+--
+
+CREATE TABLE `peripherals` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `asset_id` bigint(20) UNSIGNED NOT NULL,
+  `specifications` varchar(255) NOT NULL,
+  `serial_number` varchar(255) NOT NULL,
+  `manufacturer` varchar(255) DEFAULT NULL,
+  `warranty_expiration` date DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `peripherals_type` bigint(20) UNSIGNED NOT NULL,
+  `remarks` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `peripherals`
@@ -7047,7 +7577,21 @@ INSERT INTO `peripherals` (`id`, `asset_id`, `specifications`, `serial_number`, 
 (45, 351, 'Dicta iste quasi vol', '690', 'Dicta qui architecto', '1979-07-26', '2025-01-29 17:49:22', '2025-01-29 17:49:22', 1, NULL),
 (46, 356, 'Wireless Mouse', 'LGT123456', 'Logitech', '2024-03-01', '2025-01-29 20:39:45', '2025-01-29 20:39:45', 1, NULL),
 (47, 359, 'Wireless Mouse', 'LGT123456', 'Logitech', '2024-03-01', '2025-01-29 20:43:43', '2025-01-29 20:43:43', 1, NULL),
-(48, 377, 'Wireless Mouse', 'LGT123456', 'Logitech', '2024-03-01', '2025-03-15 10:07:19', '2025-03-15 10:07:19', 2, NULL);
+(48, 377, 'Wireless Mouse', 'LGT123456', 'Logitech', '2024-03-01', '2025-03-15 10:07:19', '2025-03-15 10:07:19', 2, NULL),
+(49, 398, 'Wireless Mouse, USB-C', 'LGT789012345', 'Logitech', '2026-03-01', '2025-07-03 04:30:27', '2025-07-03 04:30:27', 7, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `peripherals_types`
+--
+
+CREATE TABLE `peripherals_types` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `peripherals_type` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `peripherals_types`
@@ -7058,7 +7602,22 @@ INSERT INTO `peripherals_types` (`id`, `peripherals_type`, `created_at`, `update
 (2, 'Laptop Bag', '2024-07-30 00:10:55', '2024-07-30 00:10:55'),
 (3, 'Pouch', '2024-07-30 00:12:59', '2024-07-30 00:13:18'),
 (4, 'USB Cable', '2024-08-10 02:51:42', '2024-08-10 02:51:42'),
-(5, 'Sata Cable', '2024-08-15 05:23:32', '2024-08-15 05:23:32');
+(5, 'Sata Cable', '2024-08-15 05:23:32', '2024-08-15 05:23:32'),
+(7, 'Mouse', '2025-07-03 04:30:27', '2025-07-03 04:30:27');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `permissions`
+--
+
+CREATE TABLE `permissions` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `guard_name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `permissions`
@@ -7376,6 +7935,21 @@ INSERT INTO `permissions` (`id`, `name`, `guard_name`, `created_at`, `updated_at
 (309, 'widget_PendingAssignments', 'web', '2025-04-28 01:59:25', '2025-04-28 01:59:25'),
 (310, 'widget_PendingReturns', 'web', '2025-04-28 01:59:25', '2025-04-28 01:59:25'),
 (311, 'widget_AssetsTable', 'web', '2025-04-28 01:59:25', '2025-04-28 01:59:25');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `projects`
+--
+
+CREATE TABLE `projects` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` text NOT NULL,
+  `short_name` text DEFAULT NULL,
+  `division_id` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `projects`
@@ -8267,6 +8841,26 @@ INSERT INTO `projects` (`id`, `name`, `short_name`, `division_id`, `created_at`,
 (951, 'Restoration-001 Bacman Restoration Works Damaged by Typhoon Kristine', '', 14, '2025-01-23 19:07:27', '2025-01-23 19:07:27'),
 (952, 'LGBU - Rehabilitation of Sump at Pad 212', '', 14, '2025-01-23 19:07:27', '2025-01-23 19:07:27');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `purchases`
+--
+
+CREATE TABLE `purchases` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `asset_id` bigint(20) UNSIGNED NOT NULL,
+  `sales_invoice_no` varchar(255) NOT NULL,
+  `purchase_order_no` varchar(255) NOT NULL,
+  `purchase_order_amount` bigint(20) NOT NULL,
+  `purchase_order_date` date NOT NULL,
+  `vendor_id` bigint(20) UNSIGNED NOT NULL,
+  `requestor` varchar(255) DEFAULT NULL,
+  `remarks` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Dumping data for table `purchases`
 --
@@ -8409,7 +9003,25 @@ INSERT INTO `purchases` (`id`, `asset_id`, `sales_invoice_no`, `purchase_order_n
 (171, 372, 'Totam ea corporis cu', 'Sed est officia qui ', 47, '1971-11-20', 1, 'Amet quas voluptatu', NULL, '2025-03-15 09:46:18', '2025-03-15 09:46:18'),
 (174, 375, 'INV456', 'PO123', 1500, '2023-01-01', 27, 'John Doe', NULL, '2025-03-15 10:07:19', '2025-03-15 10:07:19'),
 (175, 376, 'INV101', 'PO789', 300, '2023-02-01', 3, 'Jane Smith', NULL, '2025-03-15 10:07:19', '2025-03-15 10:07:19'),
-(176, 377, 'INV303', 'PO202', 100, '2023-03-01', 28, 'Bob Johnson', NULL, '2025-03-15 10:07:19', '2025-03-15 10:07:19');
+(176, 377, 'INV303', 'PO202', 100, '2023-03-01', 28, 'Bob Johnson', NULL, '2025-03-15 10:07:19', '2025-03-15 10:07:19'),
+(189, 395, 'Fugiat laboriosam ', 'Totam architecto do ', 18, '1978-05-04', 2, 'Laboris ratione pari', NULL, '2025-07-03 04:18:45', '2025-07-03 04:18:45'),
+(190, 396, 'INV-2024-001', 'PO-2024-001', 85000, '2024-01-10', 27, 'John Doe', NULL, '2025-07-03 04:30:27', '2025-07-03 04:30:27'),
+(191, 397, 'INV-2024-002', 'PO-2024-002', 15000, '2024-01-28', 3, 'IT Department', NULL, '2025-07-03 04:30:27', '2025-07-03 04:30:27'),
+(192, 398, 'INV-2024-003', 'PO-2024-003', 3500, '2024-02-25', 28, 'Office Manager', NULL, '2025-07-03 04:30:27', '2025-07-03 04:30:27');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `roles`
+--
+
+CREATE TABLE `roles` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `guard_name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `roles`
@@ -8425,6 +9037,17 @@ INSERT INTO `roles` (`id`, `name`, `guard_name`, `created_at`, `updated_at`) VAL
 (8, 'supervisor', 'web', '2025-02-27 06:27:04', '2025-02-27 06:27:04'),
 (9, 'jr._supervisor', 'web', '2025-02-27 06:27:17', '2025-02-27 06:27:17'),
 (10, 'rank_and_file', 'web', '2025-02-27 06:27:32', '2025-02-27 06:27:32');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `role_has_permissions`
+--
+
+CREATE TABLE `role_has_permissions` (
+  `permission_id` bigint(20) UNSIGNED NOT NULL,
+  `role_id` bigint(20) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `role_has_permissions`
@@ -8774,14 +9397,47 @@ INSERT INTO `role_has_permissions` (`permission_id`, `role_id`) VALUES
 (310, 1),
 (311, 1);
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sessions`
+--
+
+CREATE TABLE `sessions` (
+  `id` varchar(255) NOT NULL,
+  `user_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `payload` longtext NOT NULL,
+  `last_activity` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Dumping data for table `sessions`
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('CpGBUA9ITlzOS7GZDPMBUNfg91FVQx6ajWCZbFRu', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiT2p2bTczTk1DQ0pWaDByVTVpemdhR0UzTFZRYXhKa2loaTFCVEMzWiI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyNToiaHR0cDovL2xvY2FsaG9zdDo4MDAwL2FwcCI7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjMxOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBwL2xvZ2luIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1745900361),
-('hb5rtCQ0baBg1oORSyx6xCrmUDKMAvJz67m6kyBJ', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36', 'YTo3OntzOjY6Il90b2tlbiI7czo0MDoiN0E3elFFaURyZHhIQWZwNWZQb25uenVac1BzOWhqemtpNGZiWW9nSSI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjI1OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBwIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTtzOjE3OiJwYXNzd29yZF9oYXNoX3dlYiI7czo2MDoiJDJ5JDEyJFNTT0pvcTZqSG5PWDJmMU5PS040Y3VFVDBFeXJGb2xGejFjbVB4S2JBdHNVQlZhemJTbmJPIjtzOjE3OiJEYXNoYm9hcmRfZmlsdGVycyI7Tjt9', 1745898926),
-('XpxhrggBLaLMeGg9yN7ScZN9rNnJ6WvyU5TiudPm', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36', 'YTo3OntzOjY6Il90b2tlbiI7czo0MDoia3RMYmN6ZkpVeGdZRmwzNFIzem0xZjZpa2J2VWZ1SW16bnFzYzR6MyI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjM3OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYWRtaW4vYXNzZXRzLzIzIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTtzOjE3OiJwYXNzd29yZF9oYXNoX3dlYiI7czo2MDoiJDJ5JDEyJFNTT0pvcTZqSG5PWDJmMU5PS040Y3VFVDBFeXJGb2xGejFjbVB4S2JBdHNVQlZhemJTbmJPIjtzOjg6ImZpbGFtZW50IjthOjA6e319', 1745900461);
+('w93e3B2amrk4cpwG697NwsBVPMA4IVf6Ri9bvxL1', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiaEFVRExZMzQxMWVZSFJ5VTU5UGNWT0g4NDlqNW5VNXVGRjkyYjVGUSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzQ6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9hc3NldHMiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO3M6MTc6InBhc3N3b3JkX2hhc2hfd2ViIjtzOjYwOiIkMnkkMTIkU1NPSm9xNmpIbk9YMmYxTk9LTjRjdUVUMEV5ckZvbEZ6MWNtUHhLYkF0c1VCVmF6YlNuYk8iO3M6ODoiZmlsYW1lbnQiO2E6MDp7fX0=', 1751521371);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `software`
+--
+
+CREATE TABLE `software` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `asset_id` bigint(20) UNSIGNED NOT NULL,
+  `version` varchar(255) DEFAULT NULL,
+  `license_key` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `software_type` bigint(20) UNSIGNED NOT NULL,
+  `remarks` text DEFAULT NULL,
+  `license_type` bigint(20) UNSIGNED DEFAULT NULL,
+  `pc_name` varchar(255) DEFAULT NULL,
+  `pc_name_id` bigint(20) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `software`
@@ -8877,7 +9533,21 @@ INSERT INTO `software` (`id`, `asset_id`, `version`, `license_key`, `created_at`
 (102, 366, 'Accusantium labore e', 'Tempore dolor tempo', '2025-02-14 04:22:00', '2025-02-14 04:22:00', 12, NULL, 3, NULL, 1),
 (103, 367, 'Nam est ut et sed ve', 'Odit enim accusantiu', '2025-02-14 16:04:48', '2025-02-14 16:04:48', 2, NULL, 2, NULL, 1),
 (104, 368, '1', NULL, '2025-03-11 07:03:56', '2025-03-11 07:03:56', 1, NULL, 2, NULL, 1),
-(105, 376, '2021', '1234-4312-4312-4312-4312', '2025-03-15 10:07:19', '2025-03-15 10:07:19', 5, NULL, 1, NULL, 4);
+(105, 376, '2021', '1234-4312-4312-4312-4312', '2025-03-15 10:07:19', '2025-03-15 10:07:19', 5, NULL, 1, NULL, 4),
+(107, 397, '2021', 'XXXXX-XXXXX-XXXXX-XXXXX', '2025-07-03 04:30:27', '2025-07-03 04:30:27', 17, NULL, NULL, NULL, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `software_types`
+--
+
+CREATE TABLE `software_types` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `software_type` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `software_types`
@@ -8895,7 +9565,24 @@ INSERT INTO `software_types` (`id`, `software_type`, `created_at`, `updated_at`)
 (9, 'Embedded Software', '2024-07-29 07:11:55', '2024-07-29 07:11:55'),
 (10, 'Educational Software', '2024-07-29 07:12:04', '2024-07-29 07:12:04'),
 (11, 'Utility Software', '2024-07-29 07:12:10', '2024-07-29 07:12:10'),
-(12, 'Media Software', '2024-08-10 02:51:05', '2024-08-10 02:51:05');
+(12, 'Media Software', '2024-08-10 02:51:05', '2024-08-10 02:51:05'),
+(15, 'Productivity Suite', '2025-07-02 05:18:08', '2025-07-02 05:18:08'),
+(17, 'Digital Suite', '2025-07-03 04:30:27', '2025-07-03 04:30:27');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `transfers`
+--
+
+CREATE TABLE `transfers` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `assignment_id` bigint(20) UNSIGNED NOT NULL,
+  `to_employee` varchar(255) NOT NULL,
+  `status` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `transfers`
@@ -8954,6 +9641,26 @@ INSERT INTO `transfers` (`id`, `assignment_id`, `to_employee`, `status`, `create
 (50, 175, '0001', 5, '2025-02-20 00:46:01', '2025-02-20 00:46:01'),
 (51, 183, '0001', 7, '2025-02-20 00:50:11', '2025-02-20 01:04:17');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `id_num` varchar(255) DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `remember_token` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `google_id` varchar(255) DEFAULT NULL,
+  `microsoft_id` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Dumping data for table `users`
 --
@@ -8969,7 +9676,22 @@ INSERT INTO `users` (`id`, `id_num`, `name`, `email`, `email_verified_at`, `pass
 (29, 'A9011945', 'Juan Dela Cruz', 'juandelacruz@gmail.com', NULL, '$2y$12$estdfqVYrWtTCUbxPPB/Fe4nQd0xfJkIjJrhbh5L5hLTotJJNo.xm', NULL, '2024-09-19 02:04:02', '2024-09-19 02:04:02', NULL, NULL),
 (30, '0020', 'Clark Wayne', 'clark.wayne023@gmail.com', NULL, '$2y$12$cRF1BSXlbb3azUatbUtdquuxQdTvEoBcgJi6WWvDmjg72riXxdLIS', 'niNdZniCctEptUXEZHJb2Ch3QyBonDvbmEwvVZqxkw5hSbGFjlNapUVNPQ4j', '2024-11-11 02:40:12', '2025-04-29 04:03:34', '111019894241161570447', NULL),
 (32, '234321', 'Abutal Clark Wayne Aguila', 's2021100408@firstasia.edu.ph', NULL, '$2y$12$ZykPC4iInYKBR2h4LFSzO.La3w8c2uSrIlOBDwaG/7UIuxK4QNvRS', 'JjDfRwI755eygAvp3mBgi97B2K9WvptFnOrpCxeczUe7YiSugPYuX2F7MJwx', '2024-11-13 21:52:52', '2024-11-13 21:55:13', '115528373249268406292', NULL),
-(37, NULL, 'Louise Joseph L Samantila', 'jlsamantila@Firstbalfour.com', NULL, '$2y$12$jTqVMh5rUwYXsLQ9rJZatOT.zxISyG9BaOuCgFWB3JJYh/1iGSq5K', 'DTbO0P3skHlCv6KqnKFrvh8vl6PgmOdvjAUvk4kkHq8tPQcGck8FUcCdaoGI', '2025-02-03 20:33:37', '2025-02-03 20:33:37', NULL, '82d786de-db49-472d-934e-11af973b131a');
+(37, NULL, 'Louise Joseph L Samantila', 'jlsamantila@Firstbalfour.com', NULL, '$2y$12$jTqVMh5rUwYXsLQ9rJZatOT.zxISyG9BaOuCgFWB3JJYh/1iGSq5K', 'DTbO0P3skHlCv6KqnKFrvh8vl6PgmOdvjAUvk4kkHq8tPQcGck8FUcCdaoGI', '2025-02-03 20:33:37', '2025-02-03 20:33:37', NULL, '82d786de-db49-472d-934e-11af973b131a'),
+(38, NULL, 'Admin', 'admin123@gmail.com', NULL, '$2y$12$9Zo8P6gTNNa46A8RmQU5XePy.QK5G3EPPlt49msJbIV2tZWSzAROq', NULL, '2025-07-02 04:45:43', '2025-07-02 04:45:43', NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_roles`
+--
+
+CREATE TABLE `user_roles` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `role_id` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `user_roles`
@@ -8992,6 +9714,29 @@ INSERT INTO `user_roles` (`id`, `user_id`, `role_id`, `created_at`, `updated_at`
 (31, 32, 2, NULL, NULL),
 (38, 37, 1, '2025-02-03 20:33:37', '2025-02-03 20:33:37');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vendors`
+--
+
+CREATE TABLE `vendors` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `address_1` varchar(255) NOT NULL,
+  `address_2` varchar(255) DEFAULT NULL,
+  `city` varchar(255) DEFAULT NULL,
+  `tel_no_1` varchar(255) DEFAULT NULL,
+  `tel_no_2` varchar(255) DEFAULT NULL,
+  `contact_person` varchar(255) DEFAULT NULL,
+  `mobile_number` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `url` varchar(255) DEFAULT NULL,
+  `remarks` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Dumping data for table `vendors`
 --
@@ -9012,10 +9757,630 @@ INSERT INTO `vendors` (`id`, `name`, `address_1`, `address_2`, `city`, `tel_no_1
 (23, 'Canva, Inc.', 'N/A', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'https://canva.com', NULL, '2024-08-06 06:55:18', '2024-08-06 06:55:18'),
 (24, 'Octagon', 'SM Lipa', NULL, 'Lipa City', '724-1439', NULL, 'Ticnap Notnac', '09177212114', 'inquiries@octagon.com', 'octagon.com.ph', 'For hardware', '2024-08-15 05:06:19', '2024-08-15 05:06:19'),
 (26, 'Kindle', 'Silicon Valley', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'kindle.com', NULL, '2024-08-15 05:18:32', '2024-08-15 05:18:32'),
-(27, 'Dell Inc.', '123 Dell Way', '', 'Round Rock', '1234567890', '', 'Jane Smith', '9876543210', 'jane@dell.com', 'www.dell.com', 'Preferred vendor', '2024-09-16 07:51:45', '2024-09-16 07:51:45'),
+(27, 'Dell Inc.', '123 Dell Way', 'Building A', 'Austin', '1-800-DELL', NULL, 'Jane Smith', '555-1234', 'jane@dell.com', 'www.dell.com', 'Preferred hardware supplier', '2024-09-16 07:51:45', '2025-07-03 04:30:27'),
 (28, 'Logitech Inc.', '7700 Gateway Blvd', '', 'Newark', '5105795000', '', 'Sarah Brown', '9876543210', 'sarah@logitech.com', 'www.logitech.com', 'Peripheral supplier', '2024-09-16 07:51:45', '2024-09-16 07:51:45'),
 (33, 'Maxwell Hensley', '66 Fabien Street', 'Maxime est dolor nulla doloremque ut cupidatat ex odio minus veniam esse', 'Ut odio hic exercitation porro perspiciatis dolor quis nemo fugit consectetur nesciunt voluptatem aute', '198-7289', '531-4032', 'Reprehenderit dolores qui culpa quas minus veritatis iure quo ad aperiam quis aut est aut nulla ea animi sed eos', '588', 'nuwive@mailinator.com', 'www.botivuvokohe.co.uk', 'Itaque labore et aut', '2025-01-06 22:12:02', '2025-01-06 22:12:02');
-SET FOREIGN_KEY_CHECKS=1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `assets`
+--
+ALTER TABLE `assets`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `assets_tag_number_unique` (`tag_number`),
+  ADD KEY `assets_asset_status_foreign` (`asset_status`);
+
+--
+-- Indexes for table `asset_statuses`
+--
+ALTER TABLE `asset_statuses`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `asset_statuses_color_id_foreign` (`color_id`);
+
+--
+-- Indexes for table `assignments`
+--
+ALTER TABLE `assignments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `assignments_asset_id_foreign` (`asset_id`),
+  ADD KEY `assignments_assignment_status_foreign` (`assignment_status`);
+
+--
+-- Indexes for table `assignment_statuses`
+--
+ALTER TABLE `assignment_statuses`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `assignment_statuses_color_id_foreign` (`color_id`);
+
+--
+-- Indexes for table `brands`
+--
+ALTER TABLE `brands`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `brands_name_unique` (`name`);
+
+--
+-- Indexes for table `cache`
+--
+ALTER TABLE `cache`
+  ADD PRIMARY KEY (`key`);
+
+--
+-- Indexes for table `cache_locks`
+--
+ALTER TABLE `cache_locks`
+  ADD PRIMARY KEY (`key`);
+
+--
+-- Indexes for table `colors`
+--
+ALTER TABLE `colors`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `colors_name_unique` (`name`);
+
+--
+-- Indexes for table `cost_codes`
+--
+ALTER TABLE `cost_codes`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `divisions`
+--
+ALTER TABLE `divisions`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `employees`
+--
+ALTER TABLE `employees`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `failed_jobs`
+--
+ALTER TABLE `failed_jobs`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`);
+
+--
+-- Indexes for table `hardware`
+--
+ALTER TABLE `hardware`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `hardware_asset_id_foreign` (`asset_id`),
+  ADD KEY `hardware_pc_name_id_foreign` (`pc_name_id`);
+
+--
+-- Indexes for table `hardware_software`
+--
+ALTER TABLE `hardware_software`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `hardware_software_hardware_asset_id_software_asset_id_unique` (`hardware_asset_id`,`software_asset_id`),
+  ADD KEY `hardware_software_software_asset_id_foreign` (`software_asset_id`);
+
+--
+-- Indexes for table `hardware_types`
+--
+ALTER TABLE `hardware_types`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `import_batches`
+--
+ALTER TABLE `import_batches`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `import_logs`
+--
+ALTER TABLE `import_logs`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `import_mapping_preferences`
+--
+ALTER TABLE `import_mapping_preferences`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `jobs`
+--
+ALTER TABLE `jobs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `jobs_queue_index` (`queue`);
+
+--
+-- Indexes for table `job_batches`
+--
+ALTER TABLE `job_batches`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `license_types`
+--
+ALTER TABLE `license_types`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `lifecycles`
+--
+ALTER TABLE `lifecycles`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `lifecycles_asset_id_foreign` (`asset_id`);
+
+--
+-- Indexes for table `lifecycle_renewals`
+--
+ALTER TABLE `lifecycle_renewals`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `lifecycle_renewals_user_id_foreign` (`user_id`),
+  ADD KEY `lifecycle_renewals_lifecycle_id_created_at_index` (`lifecycle_id`,`created_at`);
+
+--
+-- Indexes for table `migrations`
+--
+ALTER TABLE `migrations`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `models`
+--
+ALTER TABLE `models`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `models_brand_id_foreign` (`brand_id`);
+
+--
+-- Indexes for table `model_has_permissions`
+--
+ALTER TABLE `model_has_permissions`
+  ADD PRIMARY KEY (`permission_id`,`model_id`,`model_type`),
+  ADD KEY `model_has_permissions_model_id_model_type_index` (`model_id`,`model_type`);
+
+--
+-- Indexes for table `model_has_roles`
+--
+ALTER TABLE `model_has_roles`
+  ADD PRIMARY KEY (`role_id`,`model_id`,`model_type`),
+  ADD KEY `model_has_roles_model_id_model_type_index` (`model_id`,`model_type`);
+
+--
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `notifications_notifiable_type_notifiable_id_index` (`notifiable_type`,`notifiable_id`);
+
+--
+-- Indexes for table `option_to_buy`
+--
+ALTER TABLE `option_to_buy`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `option_to_buy_assignment_id_foreign` (`assignment_id`),
+  ADD KEY `option_to_buy_option_to_buy_status_foreign` (`option_to_buy_status`);
+
+--
+-- Indexes for table `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  ADD PRIMARY KEY (`email`);
+
+--
+-- Indexes for table `pc_names`
+--
+ALTER TABLE `pc_names`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `peripherals`
+--
+ALTER TABLE `peripherals`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `peripherals_asset_id_foreign` (`asset_id`);
+
+--
+-- Indexes for table `peripherals_types`
+--
+ALTER TABLE `peripherals_types`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `permissions`
+--
+ALTER TABLE `permissions`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `permissions_name_guard_name_unique` (`name`,`guard_name`);
+
+--
+-- Indexes for table `projects`
+--
+ALTER TABLE `projects`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `purchases`
+--
+ALTER TABLE `purchases`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `purchases_vendor_id_foreign` (`vendor_id`),
+  ADD KEY `purchases_asset_id_foreign` (`asset_id`);
+
+--
+-- Indexes for table `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `roles_name_guard_name_unique` (`name`,`guard_name`);
+
+--
+-- Indexes for table `role_has_permissions`
+--
+ALTER TABLE `role_has_permissions`
+  ADD PRIMARY KEY (`permission_id`,`role_id`),
+  ADD KEY `role_has_permissions_role_id_foreign` (`role_id`);
+
+--
+-- Indexes for table `sessions`
+--
+ALTER TABLE `sessions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `sessions_user_id_index` (`user_id`),
+  ADD KEY `sessions_last_activity_index` (`last_activity`);
+
+--
+-- Indexes for table `software`
+--
+ALTER TABLE `software`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `software_asset_id_foreign` (`asset_id`),
+  ADD KEY `software_license_type_foreign` (`license_type`),
+  ADD KEY `software_pc_name_id_foreign` (`pc_name_id`);
+
+--
+-- Indexes for table `software_types`
+--
+ALTER TABLE `software_types`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `transfers`
+--
+ALTER TABLE `transfers`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `transfers_assignment_id_foreign` (`assignment_id`),
+  ADD KEY `transfers_status_foreign` (`status`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `users_email_unique` (`email`),
+  ADD UNIQUE KEY `users_microsoft_id_unique` (`microsoft_id`);
+
+--
+-- Indexes for table `user_roles`
+--
+ALTER TABLE `user_roles`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_roles_user_id_role_id_unique` (`user_id`,`role_id`),
+  ADD KEY `user_roles_role_id_foreign` (`role_id`);
+
+--
+-- Indexes for table `vendors`
+--
+ALTER TABLE `vendors`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `vendors_email_unique` (`email`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `assets`
+--
+ALTER TABLE `assets`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=399;
+
+--
+-- AUTO_INCREMENT for table `asset_statuses`
+--
+ALTER TABLE `asset_statuses`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT for table `assignments`
+--
+ALTER TABLE `assignments`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=201;
+
+--
+-- AUTO_INCREMENT for table `assignment_statuses`
+--
+ALTER TABLE `assignment_statuses`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `brands`
+--
+ALTER TABLE `brands`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+
+--
+-- AUTO_INCREMENT for table `colors`
+--
+ALTER TABLE `colors`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `cost_codes`
+--
+ALTER TABLE `cost_codes`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=447;
+
+--
+-- AUTO_INCREMENT for table `divisions`
+--
+ALTER TABLE `divisions`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+
+--
+-- AUTO_INCREMENT for table `employees`
+--
+ALTER TABLE `employees`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5223;
+
+--
+-- AUTO_INCREMENT for table `failed_jobs`
+--
+ALTER TABLE `failed_jobs`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `hardware`
+--
+ALTER TABLE `hardware`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=200;
+
+--
+-- AUTO_INCREMENT for table `hardware_software`
+--
+ALTER TABLE `hardware_software`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+
+--
+-- AUTO_INCREMENT for table `hardware_types`
+--
+ALTER TABLE `hardware_types`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+
+--
+-- AUTO_INCREMENT for table `import_batches`
+--
+ALTER TABLE `import_batches`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `import_logs`
+--
+ALTER TABLE `import_logs`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `import_mapping_preferences`
+--
+ALTER TABLE `import_mapping_preferences`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `jobs`
+--
+ALTER TABLE `jobs`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `license_types`
+--
+ALTER TABLE `license_types`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `lifecycles`
+--
+ALTER TABLE `lifecycles`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=271;
+
+--
+-- AUTO_INCREMENT for table `lifecycle_renewals`
+--
+ALTER TABLE `lifecycle_renewals`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
+-- AUTO_INCREMENT for table `migrations`
+--
+ALTER TABLE `migrations`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=153;
+
+--
+-- AUTO_INCREMENT for table `models`
+--
+ALTER TABLE `models`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
+
+--
+-- AUTO_INCREMENT for table `option_to_buy`
+--
+ALTER TABLE `option_to_buy`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT for table `pc_names`
+--
+ALTER TABLE `pc_names`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `peripherals`
+--
+ALTER TABLE `peripherals`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+
+--
+-- AUTO_INCREMENT for table `peripherals_types`
+--
+ALTER TABLE `peripherals_types`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `permissions`
+--
+ALTER TABLE `permissions`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=312;
+
+--
+-- AUTO_INCREMENT for table `projects`
+--
+ALTER TABLE `projects`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=953;
+
+--
+-- AUTO_INCREMENT for table `purchases`
+--
+ALTER TABLE `purchases`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=193;
+
+--
+-- AUTO_INCREMENT for table `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `software`
+--
+ALTER TABLE `software`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=108;
+
+--
+-- AUTO_INCREMENT for table `software_types`
+--
+ALTER TABLE `software_types`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
+-- AUTO_INCREMENT for table `transfers`
+--
+ALTER TABLE `transfers`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+
+--
+-- AUTO_INCREMENT for table `user_roles`
+--
+ALTER TABLE `user_roles`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+
+--
+-- AUTO_INCREMENT for table `vendors`
+--
+ALTER TABLE `vendors`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `asset_statuses`
+--
+ALTER TABLE `asset_statuses`
+  ADD CONSTRAINT `asset_statuses_color_id_foreign` FOREIGN KEY (`color_id`) REFERENCES `colors` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `assignments`
+--
+ALTER TABLE `assignments`
+  ADD CONSTRAINT `assignments_asset_id_foreign` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`id`),
+  ADD CONSTRAINT `assignments_assignment_status_foreign` FOREIGN KEY (`assignment_status`) REFERENCES `assignment_statuses` (`id`);
+
+--
+-- Constraints for table `assignment_statuses`
+--
+ALTER TABLE `assignment_statuses`
+  ADD CONSTRAINT `assignment_statuses_color_id_foreign` FOREIGN KEY (`color_id`) REFERENCES `colors` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `hardware`
+--
+ALTER TABLE `hardware`
+  ADD CONSTRAINT `hardware_pc_name_id_foreign` FOREIGN KEY (`pc_name_id`) REFERENCES `pc_names` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `hardware_software`
+--
+ALTER TABLE `hardware_software`
+  ADD CONSTRAINT `hardware_software_hardware_asset_id_foreign` FOREIGN KEY (`hardware_asset_id`) REFERENCES `hardware` (`asset_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `hardware_software_software_asset_id_foreign` FOREIGN KEY (`software_asset_id`) REFERENCES `software` (`asset_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `lifecycles`
+--
+ALTER TABLE `lifecycles`
+  ADD CONSTRAINT `lifecycles_asset_id_foreign` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `lifecycle_renewals`
+--
+ALTER TABLE `lifecycle_renewals`
+  ADD CONSTRAINT `lifecycle_renewals_lifecycle_id_foreign` FOREIGN KEY (`lifecycle_id`) REFERENCES `lifecycles` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `lifecycle_renewals_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `models`
+--
+ALTER TABLE `models`
+  ADD CONSTRAINT `models_brand_id_foreign` FOREIGN KEY (`brand_id`) REFERENCES `brands` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `model_has_permissions`
+--
+ALTER TABLE `model_has_permissions`
+  ADD CONSTRAINT `model_has_permissions_permission_id_foreign` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `model_has_roles`
+--
+ALTER TABLE `model_has_roles`
+  ADD CONSTRAINT `model_has_roles_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `purchases`
+--
+ALTER TABLE `purchases`
+  ADD CONSTRAINT `purchases_asset_id_foreign` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `role_has_permissions`
+--
+ALTER TABLE `role_has_permissions`
+  ADD CONSTRAINT `role_has_permissions_permission_id_foreign` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `role_has_permissions_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `software`
+--
+ALTER TABLE `software`
+  ADD CONSTRAINT `software_pc_name_id_foreign` FOREIGN KEY (`pc_name_id`) REFERENCES `pc_names` (`id`) ON DELETE SET NULL;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
