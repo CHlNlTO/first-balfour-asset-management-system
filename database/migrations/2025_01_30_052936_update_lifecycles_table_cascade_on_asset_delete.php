@@ -12,14 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('lifecycles', function (Blueprint $table) {
-            // Drop the existing index
-            $table->dropIndex('lifecycle_asset_id_foreign');
-
-            // Add the foreign key constraint with ON DELETE CASCADE
-            $table->foreign('asset_id')
-                ->references('id')
-                ->on('assets')
-                ->onDelete('cascade');
+            // First drop the existing foreign key
+            $table->dropForeign(['asset_id']);
+            
+            // Then add the new one with cascade delete
+            $table->foreign('asset_id')->references('id')->on('assets')->onDelete('cascade');
         });
     }
 
@@ -29,11 +26,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('lifecycles', function (Blueprint $table) {
-            // Drop the foreign key constraint
+            // Drop the cascade delete foreign key
             $table->dropForeign(['asset_id']);
-
-            // Re-add the original index
-            $table->index('asset_id', 'lifecycle_asset_id_foreign');
+            
+            // Add back the original foreign key without cascade delete
+            $table->foreign('asset_id')->references('id')->on('assets');
         });
     }
 };

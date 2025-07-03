@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // First drop the existing table if it exists
+        Schema::dropIfExists('purchases');
+
+        // Then create the new table with the desired structure
         Schema::create('purchases', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('asset_id');
@@ -22,7 +26,6 @@ return new class extends Migration
             $table->string('requestor', 255)->nullable();
             $table->string('remarks', 255)->nullable();
             $table->timestamps();
-
             $table->foreign('asset_id')->references('id')->on('assets')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('vendor_id')->references('id')->on('vendors');
         });
