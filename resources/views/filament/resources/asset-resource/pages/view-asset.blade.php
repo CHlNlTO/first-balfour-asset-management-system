@@ -41,7 +41,7 @@
                         [
                             'icon' => 'building-office',
                             'label' => 'Cost Code',
-                            'value' => $record->costCode->name,
+                            'value' => $record->costCode?->name ?? 'Not Available',
                         ],
                         [
                             'icon' => 'calendar',
