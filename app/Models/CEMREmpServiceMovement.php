@@ -1,14 +1,14 @@
 <?php
-// File: app/Models/CEMREmpService.php
+// File: app/Models/CEMREmpServiceMovement.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CEMREmpService extends Model
+class CEMREmpServiceMovement extends Model
 {
     protected $connection = 'central_employeedb';
-    protected $table = 'emp_services';
+    protected $table = 'emp_services_movement';
 
     protected $fillable = [
         'user_id',
@@ -28,7 +28,7 @@ class CEMREmpService extends Model
         'project_hired_date' => 'date',
     ];
 
-    public function employees()
+    public function employee()
     {
         return $this->belongsTo(CEMREmployee::class, 'id_num', 'id_num');
     }
