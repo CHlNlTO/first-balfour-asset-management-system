@@ -12,11 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('purchases', function (Blueprint $table) {
-            // Ensure the foreign key does not already exist to avoid conflicts
+            // First drop the existing foreign key
+            $table->dropForeign(['asset_id']);
+        
+            // Then add the new one with cascade
             $table->foreign('asset_id')
                 ->references('id')
                 ->on('assets')
-                ->onDelete('cascade'); // Add cascade on delete
+                ->onDelete('cascade');
         });
     }
 

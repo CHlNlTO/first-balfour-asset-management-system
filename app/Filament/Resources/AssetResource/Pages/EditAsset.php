@@ -192,10 +192,10 @@ class EditAsset extends EditRecord
         $record->hardware()->updateOrCreate(
             ['asset_id' => $record->id],
             [
-                'hardware_type' => $data['hardware_type'],
-                'serial_number' => $data['serial_number'],
-                'specifications' => $data['specifications'],
-                'manufacturer' => $data['manufacturer'],
+                'hardware_type' => $data['hardware_type'] ?? null,
+                'serial_number' => $data['serial_number'] ?? null,
+                'specifications' => $data['specifications'] ?? null,
+                'manufacturer' => $data['manufacturer'] ?? null,
                 'mac_address' => $data['mac_address'] ?? null,
                 'accessories' => $data['accessories'] ?? null,
                 'pc_name_id' => $data['pc_name'] ?? null,
