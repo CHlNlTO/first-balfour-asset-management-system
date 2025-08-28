@@ -101,12 +101,12 @@ class AssignmentTable
                 ->tooltip('Click to copy')
                 ->placeholder('N/A'),
             TextColumn::make('start_date')
-                ->label('Start Date')
+                ->label('Receive Date')
                 ->date()
                 ->placeholder('N/A')
                 ->sortable(),
             TextColumn::make('end_date')
-                ->label('End Date')
+                ->label('Return Date')
                 ->date()
                 ->placeholder('N/A')
                 ->sortable(),

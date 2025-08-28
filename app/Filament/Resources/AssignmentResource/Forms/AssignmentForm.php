@@ -129,8 +129,8 @@ class AssignmentForm
                         Grid::make(1)
                             ->schema([
                                 DatePicker::make('start_date')
-                                    ->label('Start Date')
-                                    ->placeholder('Select start date')
+                                    ->label('Receive Date')
+                                    ->placeholder('Select receive date')
                                     ->native()
                                     ->default(Carbon::now())
                                     ->closeOnDateSelection()
@@ -138,8 +138,8 @@ class AssignmentForm
                                     ->inlineLabel(),
 
                                 DatePicker::make('end_date')
-                                    ->label('End Date')
-                                    ->placeholder('Select end date')
+                                    ->label('Return Date')
+                                    ->placeholder('Select return date')
                                     ->native()
                                     ->closeOnDateSelection()
                                     ->minDate(fn($get) => $get('start_date'))

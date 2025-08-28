@@ -41,6 +41,8 @@ class CreateSoftwareAsset extends CreateRecord
                 // Main content column (left side)
                 Group::make()
                     ->schema([
+                        CommonFormComponents::getEmployeeAssignmentSection(),
+
                         CommonFormComponents::getBasicDetailsSection($this->assetType, $this->brandPlaceholder, $this->modelPlaceholder),
 
                         Section::make('Software Details')
@@ -165,8 +167,6 @@ class CreateSoftwareAsset extends CreateRecord
             ]);
 
 
-            Log:
-            Log::info("Hardware here in CreateSoftwareAsset!", $data['hardware']);
 
             // Attach software if selected
             if (!empty($data['hardware'])) {
@@ -204,11 +204,22 @@ class CreateSoftwareAsset extends CreateRecord
                 'asset_id' => $asset->id,
                 'purchase_order_no' => $data['purchase_order_no'],
                 'sales_invoice_no' => $data['sales_invoice_no'],
-                'purchase_order_date' => $data['purchase_order_date'],
+                'purchase_order_date' => $data['acquisition_date'],
                 'purchase_order_amount' => $data['purchase_order_amount'],
                 'vendor_id' => $data['vendor_id'],
                 'requestor' => $data['requestor'] ?? null,
             ]);
+
+            // Create assignment if employee is selected
+            if (!empty($data['employee_id'])) {
+                \App\Models\Assignment::create([
+                    'asset_id' => $asset->id,
+                    'employee_id' => $data['employee_id'],
+                    'assignment_status' => 3, // Active status
+                    'start_date' => $data['acquisition_date'],
+                    'end_date' => null, // No end date for immediate assignment
+                ]);
+            }
 
             return $asset;
         });
@@ -222,7 +233,7 @@ class CreateSoftwareAsset extends CreateRecord
 
     protected function getCreatedNotification(): ?Notification
     {
-        $recipient = auth()->user();
+        $recipient = \Filament\Facades\Filament::auth()->user();
 
         return Notification::make()
             ->success()

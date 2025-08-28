@@ -66,7 +66,7 @@ class EditAsset extends EditRecord
             'vendor_id' => $this->record->purchases()->first()->vendor_id ?? null,
             'purchase_order_no' => $this->record->purchases()->first()->purchase_order_no ?? null,
             'sales_invoice_no' => $this->record->purchases()->first()->sales_invoice_no ?? null,
-            'purchase_order_date' => $this->record->purchases()->first()->purchase_order_date ?? null,
+            'purchase_order_date' => $this->record->lifecycle?->acquisition_date ?? null,
             'purchase_order_amount' => $this->record->purchases()->first()->purchase_order_amount ?? null,
             'requestor' => $this->record->purchases()->first()->requestor ?? null,
         ]);
@@ -84,7 +84,7 @@ class EditAsset extends EditRecord
             $data['accessories'] = $hardware->accessories;
             $data['mac_address'] = $hardware->mac_address;
             $data['pc_name'] = $hardware->pc_name_id;
-            $data['warranty_expiration'] = $hardware->warranty_expiration;
+            $data['warranty_expiration'] = $this->record->lifecycle?->retirement_date ?? null;
         }
 
         return $data;
@@ -111,10 +111,9 @@ class EditAsset extends EditRecord
 
         if ($peripheral) {
             $data['peripherals_type'] = $peripheral->peripherals_type;
-            $data['serial_number'] = $peripheral->serial_number;
             $data['manufacturer'] = $peripheral->manufacturer;
             $data['specifications'] = $peripheral->specifications;
-            $data['warranty_expiration'] = $peripheral->warranty_expiration;
+            $data['warranty_expiration'] = $this->record->lifecycle?->retirement_date ?? null;
         }
 
         return $data;
@@ -127,7 +126,7 @@ class EditAsset extends EditRecord
         if ($purchase) {
             $data['purchase_order_no'] = $purchase->purchase_order_no;
             $data['sales_invoice_no'] = $purchase->sales_invoice_no;
-            $data['purchase_order_date'] = $purchase->purchase_order_date;
+            $data['purchase_order_date'] = $this->record->lifecycle?->acquisition_date;
             $data['purchase_order_amount'] = $purchase->purchase_order_amount;
             $data['requestor'] = $purchase->requestor;
         }
@@ -176,7 +175,7 @@ class EditAsset extends EditRecord
                 [
                     'purchase_order_no' => $data['purchase_order_no'],
                     'sales_invoice_no' => $data['sales_invoice_no'],
-                    'purchase_order_date' => $data['purchase_order_date'],
+                    'purchase_order_date' => $data['acquisition_date'],
                     'purchase_order_amount' => $data['purchase_order_amount'],
                     'vendor_id' => $data['vendor_id'],
                     'requestor' => $data['requestor'] ?? null,
@@ -199,7 +198,7 @@ class EditAsset extends EditRecord
                 'mac_address' => $data['mac_address'] ?? null,
                 'accessories' => $data['accessories'] ?? null,
                 'pc_name_id' => $data['pc_name'] ?? null,
-                'warranty_expiration' => $data['warranty_expiration'] ?? null,
+                'warranty_expiration' => $data['retirement_date'] ?? null,
             ]
         );
 
@@ -262,10 +261,9 @@ class EditAsset extends EditRecord
             ['asset_id' => $record->id],
             [
                 'peripherals_type' => $data['peripherals_type'],
-                'serial_number' => $data['serial_number'],
                 'specifications' => $data['specifications'],
                 'manufacturer' => $data['manufacturer'],
-                'warranty_expiration' => $data['warranty_expiration'] ?? null,
+                'warranty_expiration' => $data['retirement_date'] ?? null,
             ]
         );
     }

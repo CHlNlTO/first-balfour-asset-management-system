@@ -76,12 +76,12 @@ class EditAssignment extends EditRecord
                                 Grid::make(1)
                                     ->schema([
                                         Forms\Components\DatePicker::make('start_date')
-                                            ->label('Start Date')
+                                            ->label('Receive Date')
                                             ->native()
                                             ->closeOnDateSelection()
                                             ->required(),
                                         Forms\Components\DatePicker::make('end_date')
-                                            ->label('End Date')
+                                            ->label('Return Date')
                                             ->native()
                                             ->closeOnDateSelection(),
                                     ]),

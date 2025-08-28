@@ -130,7 +130,7 @@ class CommonFormComponents
                                             'description' => $data['description']
                                         ]);
 
-                                        $recipient = auth()->user();
+                                        $recipient = \Filament\Facades\Filament::auth()->user();
 
                                         Notification::make()
                                             ->title('Brand Created')
@@ -157,7 +157,7 @@ class CommonFormComponents
                                     'description' => $data['description']
                                 ]);
 
-                                $recipient = auth()->user();
+                                $recipient = \Filament\Facades\Filament::auth()->user();
 
                                 Notification::make()
                                     ->title('Model Created')
@@ -191,10 +191,10 @@ class CommonFormComponents
                         TextInput::make('tag_number')
                             ->label('Tag Number')
                             ->nullable()
-                            ->required($assetType == 'hardware' || $assetType == 'peripherals')
+                            ->required($assetType == 'hardware')
                             ->placeholder('#A21BQWXGA')
                             ->inlineLabel()
-                            ->visible($assetType == 'hardware' || $assetType == 'peripherals'),
+                            ->visible($assetType == 'hardware'),
                     ]),
             ]);
     }
@@ -215,11 +215,6 @@ class CommonFormComponents
                             ->label('Sales Invoice No.')
                             ->required()
                             ->placeholder('74920001')
-                            ->inlineLabel(),
-                        DatePicker::make('purchase_order_date')
-                            ->label('Purchase Date')
-                            ->required()
-                            ->default(now())
                             ->inlineLabel(),
                         TextInput::make('purchase_order_amount')
                             ->label('Purchase Cost')
@@ -395,5 +390,54 @@ class CommonFormComponents
             ->afterStateUpdated(fn(callable $set) => $set('hardware_type', 'hardware_type'))
             ->preload()
             ->inlineLabel();
+    }
+
+    public static function getEmployeeAssignmentSection(): Section
+    {
+        return Section::make('Employee Assignment')
+            ->icon('heroicon-o-user')
+            ->description('Optionally assign this asset to an employee immediately')
+            ->schema([
+                Grid::make(2)
+                    ->schema([
+                        Select::make('employee_id')
+                            ->label('Employee')
+                            ->placeholder('Search by ID or name')
+                            ->searchable()
+                            ->getSearchResultsUsing(function (string $search) {
+                                return \App\Models\CEMREmployee::query()
+                                    ->where(function ($query) use ($search) {
+                                        $searchTerms = explode(' ', $search);
+
+                                        foreach ($searchTerms as $term) {
+                                            $query->where(function ($query) use ($term) {
+                                                $query->where('id_num', 'like', "%{$term}%")
+                                                    ->orWhere('first_name', 'like', "%{$term}%")
+                                                    ->orWhere('last_name', 'like', "%{$term}%")
+                                                    ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$term}%"]);
+                                            });
+                                        }
+                                    })
+                                    ->limit(50)
+                                    ->get()
+                                    ->filter()
+                                    ->mapWithKeys(function ($employee) {
+                                        if (!$employee) return [];
+                                        return [$employee->id_num => "{$employee->id_num} {$employee->first_name} {$employee->last_name}"];
+                                    })
+                                    ->toArray();
+                            })
+                            ->getOptionLabelUsing(function ($value) {
+                                $employee = \App\Models\CEMREmployee::find($value);
+                                if (!$employee) return null;
+
+                                return "{$employee->id_num} {$employee->first_name} {$employee->last_name}";
+                            })
+                            ->nullable()
+                            ->inlineLabel(),
+                    ]),
+            ])
+            ->collapsible()
+            ->collapsed();
     }
 }

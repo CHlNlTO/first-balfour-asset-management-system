@@ -42,6 +42,8 @@ class CreateHardwareAsset extends CreateRecord
                 // Main content column (left side)
                 Group::make()
                     ->schema([
+                        CommonFormComponents::getEmployeeAssignmentSection(),
+
                         CommonFormComponents::getBasicDetailsSection($this->assetType, $this->brandPlaceholder, $this->modelPlaceholder),
 
                         Section::make('Hardware Details')
@@ -110,12 +112,6 @@ class CreateHardwareAsset extends CreateRecord
                                         TextInput::make('accessories')
                                             ->nullable()
                                             ->placeholder('Keyboard, Mouse, Monitor')
-                                            ->inlineLabel(),
-                                        DatePicker::make('warranty_expiration')
-                                            ->label('Warranty Exp.')
-                                            ->displayFormat('m/d/Y')
-                                            ->format('Y-m-d')
-                                            ->nullable()
                                             ->inlineLabel(),
                                     ]),
                                 Grid::make(2)
@@ -194,7 +190,7 @@ class CreateHardwareAsset extends CreateRecord
                     'manufacturer' => $data['manufacturer'] ?? null,
                     'mac_address' => $data['mac_address'] ?? null,
                     'pc_name_id' => $data['pc_name'] ?? null,
-                    'warranty_expiration' => $data['warranty_expiration'] ?? null,
+                    'warranty_expiration' => $data['retirement_date'] ?? null,
                 ]);
 
                 // Attach software if selected
@@ -223,11 +219,22 @@ class CreateHardwareAsset extends CreateRecord
                     'asset_id' => $asset->id,
                     'purchase_order_no' => $data['purchase_order_no'],
                     'sales_invoice_no' => $data['sales_invoice_no'],
-                    'purchase_order_date' => $data['purchase_order_date'],
+                    'purchase_order_date' => $data['acquisition_date'],
                     'purchase_order_amount' => $data['purchase_order_amount'],
                     'vendor_id' => $data['vendor_id'],
                     'requestor' => $data['requestor'],
                 ]);
+
+                // Create assignment if employee is selected
+                if (!empty($data['employee_id'])) {
+                    \App\Models\Assignment::create([
+                        'asset_id' => $asset->id,
+                        'employee_id' => $data['employee_id'],
+                        'assignment_status' => 3, // Active status
+                        'start_date' => $data['acquisition_date'],
+                        'end_date' => null, // No end date for immediate assignment
+                    ]);
+                }
 
                 return $asset;
             } catch (\Exception $e) {
@@ -239,7 +246,7 @@ class CreateHardwareAsset extends CreateRecord
 
     protected function getCreatedNotification(): ?Notification
     {
-        $recipient = auth()->user();
+        $recipient = \Filament\Facades\Filament::auth()->user();
 
         return Notification::make()
             ->success()

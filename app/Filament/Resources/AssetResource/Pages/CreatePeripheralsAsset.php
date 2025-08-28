@@ -40,6 +40,8 @@ class CreatePeripheralsAsset extends CreateRecord
                 // Main content column (left side)
                 Group::make()
                     ->schema([
+                        CommonFormComponents::getEmployeeAssignmentSection(),
+
                         CommonFormComponents::getBasicDetailsSection($this->assetType, $this->brandPlaceholder, $this->modelPlaceholder),
 
                         Section::make('Peripherals Details')
@@ -59,29 +61,15 @@ class CreatePeripheralsAsset extends CreateRecord
                                             ->reactive()
                                             ->searchable()
                                             ->inlineLabel(),
-                                        TextInput::make('serial_number')
-                                            ->label('Serial No.')
-                                            ->required()
-                                            ->placeholder('SN123456789')
-                                            ->inlineLabel(),
                                         TextInput::make('manufacturer')
                                             ->required()
                                             ->placeholder('Dell, HP')
                                             ->inlineLabel(),
-                                        DatePicker::make('warranty_expiration')
-                                            ->label('Warranty Exp.')
-                                            ->displayFormat('m/d/Y')
-                                            ->format('Y-m-d')
-                                            ->nullable()
-                                            ->inlineLabel(),
-                                    ]),
-                                Grid::make(1)
-                                    ->schema([
                                         Textarea::make('specifications')
                                             ->required()
                                             ->placeholder("27'' 4K Monitor, 144Hz refresh rate")
                                             ->inlineLabel(),
-                                    ]),
+                                    ])
                             ]),
                     ])
                     ->columnSpan(['lg' => 2]),
@@ -111,17 +99,15 @@ class CreatePeripheralsAsset extends CreateRecord
                 'asset_status' => $data['asset_status'],
                 'model_id' => $data['model'],
                 'cost_code' => $data['cost_code'],
-                'tag_number' => $data['tag_number'],
             ]);
 
             // Create the peripherals record
             Peripheral::create([
                 'asset_id' => $asset->id,
                 'peripherals_type' => $data['peripherals_type'],
-                'serial_number' => $data['serial_number'],
                 'specifications' => $data['specifications'],
                 'manufacturer' => $data['manufacturer'],
-                'warranty_expiration' => $data['warranty_expiration'] ?? null,
+                'warranty_expiration' => $data['retirement_date'] ?? null,
             ]);
 
             // Create lifecycle record
@@ -136,11 +122,22 @@ class CreatePeripheralsAsset extends CreateRecord
                 'asset_id' => $asset->id,
                 'purchase_order_no' => $data['purchase_order_no'],
                 'sales_invoice_no' => $data['sales_invoice_no'],
-                'purchase_order_date' => $data['purchase_order_date'],
+                'purchase_order_date' => $data['acquisition_date'],
                 'purchase_order_amount' => $data['purchase_order_amount'],
                 'vendor_id' => $data['vendor_id'],
                 'requestor' => $data['requestor'] ?? null,
             ]);
+
+            // Create assignment if employee is selected
+            if (!empty($data['employee_id'])) {
+                \App\Models\Assignment::create([
+                    'asset_id' => $asset->id,
+                    'employee_id' => $data['employee_id'],
+                    'assignment_status' => 3, // Active status
+                    'start_date' => $data['acquisition_date'],
+                    'end_date' => null, // No end date for immediate assignment
+                ]);
+            }
 
             return $asset;
         });
@@ -154,7 +151,7 @@ class CreatePeripheralsAsset extends CreateRecord
 
     protected function getCreatedNotification(): ?Notification
     {
-        $recipient = auth()->user();
+        $recipient = \Filament\Facades\Filament::auth()->user();
 
         return Notification::make()
             ->success()
