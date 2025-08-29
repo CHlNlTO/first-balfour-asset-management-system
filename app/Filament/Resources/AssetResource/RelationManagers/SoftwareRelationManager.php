@@ -37,11 +37,11 @@ class SoftwareRelationManager extends RelationManager
                     ->copyMessage('Copied!')
                     ->tooltip('Click to copy')
                     ->placeholder('N/A'),
-                TextColumn::make('asset.brand')
+                TextColumn::make('asset.model.brand.name')
                     ->label('Brand')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('asset.model')
+                TextColumn::make('asset.model.name')
                     ->label('Model')
                     ->searchable()
                     ->sortable(),

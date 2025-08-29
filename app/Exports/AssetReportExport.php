@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Illuminate\Support\Facades\Log;
 
 class AssetReportExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
@@ -19,17 +20,12 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
             return Assignment::with([
                 'employee',
                 'asset',
-                'asset.hardware',
-                'asset.software',
-                'asset.peripherals',
-                'asset.costCode',
                 'asset.model.brand',
-                'asset.lifecycle',
-                'asset.purchases.vendor',
+                'asset.costCode',
                 'status'
             ])->get();
         } catch (\Exception $e) {
-            // Return empty collection if there's an error
+            Log::error('Error in AssetReportExport collection: ' . $e->getMessage());
             return collect([]);
         }
     }
@@ -37,221 +33,314 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
     public function headings(): array
     {
         return [
+            // Employee Information
             'Employee ID',
             'Employee Full Name',
+
+            // Asset Basic Information
             'Tag Number',
-            'Asset Name (Brand and Model)',
-            'Assignment Status',
+            'Asset Type',
+            'Asset Name',
+            'Brand',
+            'Model',
             'Cost Code',
-            'Hardware/Software/Peripherals Details',
-            'Attached Software or Hardware Attached To',
-            'Lifecycle Information',
-            'Purchase Details',
-            'Vendor Details'
+            'Assignment Status',
+            'Assignment Receive Date',
+            'Assignment Return Date',
+
+            // Hardware Details
+            'Hardware Type',
+            'Hardware Serial Number',
+            'Hardware Specifications',
+            'Hardware Manufacturer',
+            'Hardware MAC Address',
+            'Hardware Accessories',
+            'Hardware PC Name',
+
+            // Software Details
+            'Software Type',
+            'Software Version',
+            'Software License Key',
+            'Software License Type',
+            'Software PC Name',
+
+            // Peripheral Details
+            'Peripheral Type',
+            'Peripheral Specifications',
+            'Peripheral Manufacturer',
+
+            // Lifecycle Information
+            'Acquisition Date',
+            'Retirement Date',
+            'Lifecycle Status',
+
+            // Purchase Information
+            'Purchase Order Number',
+            'Sales Invoice Number',
+            'Purchase Order Date',
+            'Purchase Cost',
+            'Purchase Order Amount',
+            'Requestor',
+
+            // Vendor Information
+            'Vendor Name',
+            'Vendor Address 1',
+            'Vendor Address 2',
+            'Vendor City',
+            'Vendor Telephone 1',
+            'Vendor Telephone 2',
+            'Vendor Contact Person',
+            'Vendor Mobile Number',
+            'Vendor Email',
+            'Vendor URL',
+            'Vendor Remarks',
+
+            // Attached Items
+            'Attached Software',
+            'Attached Hardware'
         ];
     }
 
-        public function map($assignment): array
+    public function map($assignment): array
     {
         try {
             $asset = $assignment->asset;
             $employee = $assignment->employee;
+
+            if (!$asset) {
+                Log::warning('Assignment ' . $assignment->id . ' has no asset');
+                return $this->getEmptyRow();
+            }
 
             // Get asset details based on type
             $assetDetails = $this->getAssetDetails($asset);
             $attachedItems = $this->getAttachedItems($asset);
 
             return [
+                // Employee Information
                 $employee ? $employee->id_num : 'N/A',
                 $employee ? $employee->full_name : 'N/A',
-                $asset ? $asset->tag_number : 'N/A',
+
+                // Asset Basic Information
+                $asset->tag_number ?? 'N/A',
+                $asset->asset_type ?? 'N/A',
                 $assetDetails['name'] ?? 'N/A',
-                $assignment->status ? $assignment->status->assignment_status : 'N/A',
+                $assetDetails['brand'] ?? 'N/A',
+                $assetDetails['model'] ?? 'N/A',
                 $asset && $asset->costCode ? $asset->costCode->name : 'N/A',
-                $assetDetails['details'] ?? 'N/A',
-                $attachedItems,
-                $this->getLifecycleInfo($asset),
-                $this->getPurchaseDetails($asset),
-                $this->getVendorDetails($asset)
+                $assignment->status ? $assignment->status->assignment_status : 'N/A',
+                $assignment->start_date ? \Carbon\Carbon::parse($assignment->start_date)->toDateString() : 'N/A',
+                $assignment->end_date ?? 'N/A',
+
+                // Hardware Details
+                $assetDetails['hardware_type'] ?? 'N/A',
+                $assetDetails['hardware_serial_number'] ?? 'N/A',
+                $assetDetails['hardware_specifications'] ?? 'N/A',
+                $assetDetails['hardware_manufacturer'] ?? 'N/A',
+                $assetDetails['hardware_mac_address'] ?? 'N/A',
+                $assetDetails['hardware_accessories'] ?? 'N/A',
+                $assetDetails['hardware_pc_name'] ?? 'N/A',
+
+                // Software Details
+                $assetDetails['software_type'] ?? 'N/A',
+                $assetDetails['software_version'] ?? 'N/A',
+                $assetDetails['software_license_key'] ?? 'N/A',
+                $assetDetails['software_license_type'] ?? 'N/A',
+                $assetDetails['software_pc_name'] ?? 'N/A',
+
+                // Peripheral Details
+                $assetDetails['peripheral_type'] ?? 'N/A',
+                $assetDetails['peripheral_specifications'] ?? 'N/A',
+                $assetDetails['peripheral_manufacturer'] ?? 'N/A',
+
+                // Lifecycle Information
+                $assetDetails['acquisition_date'] ?? 'N/A',
+                $assetDetails['retirement_date'] ?? 'N/A',
+                $assetDetails['lifecycle_status'] ?? 'N/A',
+
+                // Purchase Information
+                $assetDetails['purchase_order_no'] ?? 'N/A',
+                $assetDetails['sales_invoice_no'] ?? 'N/A',
+                $assetDetails['purchase_order_date'] ?? 'N/A',
+                $assetDetails['purchase_cost'] ?? 'N/A',
+                $assetDetails['purchase_order_amount'] ?? 'N/A',
+                $assetDetails['requestor'] ?? 'N/A',
+
+                // Vendor Information
+                $assetDetails['vendor_name'] ?? 'N/A',
+                $assetDetails['vendor_address_1'] ?? 'N/A',
+                $assetDetails['vendor_address_2'] ?? 'N/A',
+                $assetDetails['vendor_city'] ?? 'N/A',
+                $assetDetails['vendor_tel_no_1'] ?? 'N/A',
+                $assetDetails['vendor_tel_no_2'] ?? 'N/A',
+                $assetDetails['vendor_contact_person'] ?? 'N/A',
+                $assetDetails['vendor_mobile_number'] ?? 'N/A',
+                $assetDetails['vendor_email'] ?? 'N/A',
+                $assetDetails['vendor_url'] ?? 'N/A',
+                $assetDetails['vendor_remarks'] ?? 'N/A',
+
+                // Attached Items
+                $attachedItems['software'] ?? 'N/A',
+                $attachedItems['hardware'] ?? 'N/A'
             ];
         } catch (\Exception $e) {
-            // Return array with error information if mapping fails
-            return [
-                'Error',
-                'Error',
-                'Error',
-                'Error',
-                'Error',
-                'Error',
-                'Error',
-                'Error',
-                'Error',
-                'Error',
-                'Error'
-            ];
+            Log::error('Error mapping assignment ' . ($assignment->id ?? 'unknown') . ': ' . $e->getMessage());
+            return $this->getEmptyRow();
         }
     }
 
     private function getAssetDetails($asset)
     {
-        if (!$asset) return ['name' => 'N/A', 'details' => 'N/A'];
+        if (!$asset) return [];
 
-                if ($asset->hardware) {
-            $hardware = $asset->hardware;
-            $model = $asset->model;
-            $brand = $model ? $model->brand : null;
+        $details = [
+            'name' => 'N/A',
+            'brand' => 'N/A',
+            'model' => 'N/A'
+        ];
 
-            return [
-                'name' => ($brand ? $brand->name . ' ' : '') . ($model ? $model->name : ''),
-                'details' => $this->formatHardwareDetails($hardware)
-            ];
-        }
-
-        if ($asset->software) {
-            $software = $asset->software;
-            $model = $asset->model;
-            $brand = $model ? $model->brand : null;
-
-            return [
-                'name' => ($brand ? $brand->name . ' ' : '') . ($model ? $model->name : ''),
-                'details' => $this->formatSoftwareDetails($software)
-            ];
-        }
-
-                if ($asset->peripherals) {
-            $peripheral = $asset->peripherals;
-            $model = $asset->model;
-            $brand = $model ? $model->brand : null;
-
-            return [
-                'name' => ($brand ? $brand->name . ' ' : '') . ($model ? $model->name : ''),
-                'details' => $this->formatPeripheralDetails($peripheral)
-            ];
-        }
-
-        return ['name' => 'N/A', 'details' => 'N/A'];
-    }
-
-    private function formatHardwareDetails($hardware)
-    {
-        $details = [];
-        if ($hardware->serial_number) $details[] = "SN: {$hardware->serial_number}";
-        if ($hardware->specifications) $details[] = "Specs: {$hardware->specifications}";
-        if ($hardware->manufacturer) $details[] = "Manufacturer: {$hardware->manufacturer}";
-        if ($hardware->mac_address) $details[] = "MAC: {$hardware->mac_address}";
-        if ($hardware->accessories) $details[] = "Accessories: {$hardware->accessories}";
-        if ($hardware->warranty_expiration) $details[] = "Warranty: {$hardware->warranty_expiration}";
-
-        return implode(', ', $details);
-    }
-
-    private function formatSoftwareDetails($software)
-    {
-        $details = [];
-        if ($software->version) $details[] = "Version: {$software->version}";
-        if ($software->license_key) $details[] = "License: {$software->license_key}";
-        if ($software->softwareType) $details[] = "Type: {$software->softwareType->software_type}";
-        if ($software->licenseType) $details[] = "License Type: {$software->licenseType->license_type}";
-
-        return implode(', ', $details);
-    }
-
-    private function formatPeripheralDetails($peripheral)
-    {
-        $details = [];
-        if ($peripheral->serial_number) $details[] = "SN: {$peripheral->serial_number}";
-        if ($peripheral->specifications) $details[] = "Specs: {$peripheral->specifications}";
-        if ($peripheral->manufacturer) $details[] = "Manufacturer: {$peripheral->manufacturer}";
-        if ($peripheral->peripheralType) $details[] = "Type: {$peripheral->peripheralType->peripheral_type}";
-
-        return implode(', ', $details);
-    }
-
-    private function getAttachedItems($asset)
-    {
-        if (!$asset) return 'N/A';
-
-        $attached = [];
-
-                if ($asset->hardware) {
-            // Get software attached to this hardware
-            $attachedSoftware = HardwareSoftware::where('hardware_asset_id', $asset->id)
-                ->with('software.model.brand')
-                ->get();
-
-            foreach ($attachedSoftware as $hwSw) {
-                if ($hwSw->software) {
-                    $brand = $hwSw->software->model ? $hwSw->software->model->brand : null;
-                    $model = $hwSw->software->model;
-                    $name = ($brand ? $brand->name . ' ' : '') . ($model ? $model->name : '');
-                    $attached[] = "Software: {$name}";
+        try {
+            // Get brand and model information
+            if ($asset->model) {
+                $details['model'] = $asset->model->name ?? 'N/A';
+                if ($asset->model->brand) {
+                    $details['brand'] = $asset->model->brand->name ?? 'N/A';
+                    $details['name'] = ($asset->model->brand->name ?? '') . ' ' . ($asset->model->name ?? '');
                 }
             }
-        }
 
-        if ($asset->software) {
-            // Get hardware this software is attached to
-            $attachedHardware = HardwareSoftware::where('software_asset_id', $asset->id)
-                ->with('hardware.model.brand')
-                ->get();
-
-            foreach ($attachedHardware as $hwSw) {
-                if ($hwSw->hardware) {
-                    $brand = $hwSw->hardware->model ? $hwSw->hardware->model->brand : null;
-                    $model = $hwSw->hardware->model;
-                    $name = ($brand ? $brand->name . ' ' : '') . ($model ? $model->name : '');
-                    $attached[] = "Hardware: {$name}";
-                }
+            // Hardware details
+            if ($asset->hardware) {
+                $hardware = $asset->hardware;
+                $details['hardware_type'] = $hardware->hardwareType ? $hardware->hardwareType->hardware_type : 'N/A';
+                $details['hardware_serial_number'] = $hardware->serial_number ?? 'N/A';
+                $details['hardware_specifications'] = $hardware->specifications ?? 'N/A';
+                $details['hardware_manufacturer'] = $hardware->manufacturer ?? 'N/A';
+                $details['hardware_mac_address'] = $hardware->mac_address ?? 'N/A';
+                $details['hardware_accessories'] = $hardware->accessories ?? 'N/A';
+                $details['hardware_pc_name'] = $hardware->pcName->name ?? 'N/A';
             }
+
+            // Software details
+            if ($asset->software) {
+                $software = $asset->software;
+                $details['software_type'] = $software->softwareType ? $software->softwareType->software_type : 'N/A';
+                $details['software_version'] = $software->version ?? 'N/A';
+                $details['software_license_key'] = $software->license_key ?? 'N/A';
+                $details['software_license_type'] = $software->licenseType ? $software->licenseType->license_type : 'N/A';
+                $details['software_pc_name'] = $software->pcName->name ?? 'N/A';
+            }
+
+            // Peripheral details
+            if ($asset->peripherals) {
+                $peripheral = $asset->peripherals;
+                $details['peripheral_type'] = $peripheral->peripheralsType->peripherals_type ?? 'N/A';
+                $details['peripheral_specifications'] = $peripheral->specifications ?? 'N/A';
+                $details['peripheral_manufacturer'] = $peripheral->manufacturer ?? 'N/A';
+            }
+
+            // Lifecycle details
+            if ($asset->lifecycle) {
+                $lifecycle = $asset->lifecycle;
+                $details['acquisition_date'] = \Carbon\Carbon::parse($lifecycle->acquisition_date)->toDateString() ?? 'N/A';
+                $details['retirement_date'] = \Carbon\Carbon::parse($lifecycle->retirement_date)->toDateString() ?? 'N/A';
+                $details['lifecycle_status'] = $lifecycle->getLifecycleStatus() ?? 'N/A';
+            }
+
+            // Purchase details
+            if ($asset->purchases && $asset->purchases->isNotEmpty()) {
+                $purchase = $asset->purchases->first();
+                $details['purchase_order_no'] = $purchase->purchase_order_no ?? 'N/A';
+                $details['sales_invoice_no'] = $purchase->sales_invoice_no ?? 'N/A';
+                $details['purchase_order_date'] = $purchase->purchase_order_date ?? 'N/A';
+                $details['purchase_cost'] = $purchase->purchase_cost ?? 'N/A';
+                $details['purchase_order_amount'] = $purchase->purchase_order_amount ?? 'N/A';
+                $details['requestor'] = $purchase->requestor ?? 'N/A';
+
+                // Vendor details
+                if ($purchase->vendor) {
+                    $vendor = $purchase->vendor;
+                    $details['vendor_name'] = $vendor->name ?? 'N/A';
+                    $details['vendor_address_1'] = $vendor->address_1 ?? 'N/A';
+                    $details['vendor_address_2'] = $vendor->address_2 ?? 'N/A';
+                    $details['vendor_city'] = $vendor->city ?? 'N/A';
+                    $details['vendor_tel_no_1'] = $vendor->tel_no_1 ?? 'N/A';
+                    $details['vendor_tel_no_2'] = $vendor->tel_no_2 ?? 'N/A';
+                    $details['vendor_contact_person'] = $vendor->contact_person ?? 'N/A';
+                    $details['vendor_mobile_number'] = $vendor->mobile_number ?? 'N/A';
+                    $details['vendor_email'] = $vendor->email ?? 'N/A';
+                    $details['vendor_url'] = $vendor->url ?? 'N/A';
+                    $details['vendor_remarks'] = $vendor->remarks ?? 'N/A';
+                } else {
+                    Log::info('Asset ' . $asset->id . ' has no vendor information');
+                }
+            } else {
+                Log::info('Asset ' . $asset->id . ' has no purchase information');
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Error getting asset details for asset ' . $asset->id . ': ' . $e->getMessage());
         }
 
-        return empty($attached) ? 'None' : implode('; ', $attached);
+        return $details;
     }
 
-    private function getLifecycleInfo($asset)
+            private function getAttachedItems($asset)
     {
-        if (!$asset || !$asset->lifecycle) return 'N/A';
+        if (!$asset) return ['software' => 'N/A', 'hardware' => 'N/A'];
 
-        $lifecycle = $asset->lifecycle;
-        $info = [];
+        $attachedSoftware = collect([]);
+        $attachedHardware = collect([]);
 
-        if ($lifecycle->acquisition_date) $info[] = "Acquired: {$lifecycle->acquisition_date}";
-        if ($lifecycle->retirement_date) $info[] = "Retires: {$lifecycle->retirement_date}";
-        if ($lifecycle->lifecycle_status) $info[] = "Status: {$lifecycle->lifecycle_status}";
+        try {
+            if ($asset->hardware) {
+                // Get software attached to this hardware through the relationship
+                $attachedSoftware = $asset->hardware->software()
+                    ->with('model.brand')
+                    ->get()
+                    ->map(function ($software) {
+                        $brand = $software->model ? $software->model->brand : null;
+                        $model = $software->model;
+                        $name = ($brand ? $brand->name . ' ' : '') . ($model ? $model->name : '');
+                        return $name;
+                    })
+                    ->filter()
+                    ->values();
 
-        return implode(', ', $info);
+                Log::info('Hardware asset ' . $asset->id . ' has ' . $attachedSoftware->count() . ' attached software items');
+            }
+
+            if ($asset->software) {
+                // Get hardware this software is attached to through the relationship
+                $attachedHardware = $asset->software->hardware()
+                    ->with('model.brand')
+                    ->get()
+                    ->map(function ($hardware) {
+                        $brand = $hardware->model ? $hardware->model->brand : null;
+                        $model = $hardware->model;
+                        $name = ($brand ? $brand->name . ' ' : '') . ($model ? $model->name : '');
+                        return $name;
+                    })
+                    ->filter()
+                    ->values();
+
+                Log::info('Software asset ' . $asset->id . ' has ' . $attachedHardware->count() . ' attached hardware items');
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Error getting attached items for asset ' . $asset->id . ': ' . $e->getMessage());
+        }
+
+        return [
+            'software' => $attachedSoftware->isEmpty() ? 'None' : $attachedSoftware->implode('; '),
+            'hardware' => $attachedHardware->isEmpty() ? 'None' : $attachedHardware->implode('; ')
+        ];
     }
 
-        private function getPurchaseDetails($asset)
+    private function getEmptyRow()
     {
-        if (!$asset || !$asset->purchases || $asset->purchases->isEmpty()) return 'N/A';
-
-        $purchase = $asset->purchases->first();
-        $details = [];
-
-        if ($purchase->purchase_order_no) $details[] = "PO: {$purchase->purchase_order_no}";
-        if ($purchase->sales_invoice_no) $details[] = "Invoice: {$purchase->sales_invoice_no}";
-        if ($purchase->purchase_order_date) $details[] = "Date: {$purchase->purchase_order_date}";
-        if ($purchase->purchase_order_amount) $details[] = "Amount: {$purchase->purchase_order_amount}";
-        if ($purchase->requestor) $details[] = "Requestor: {$purchase->requestor}";
-
-        return implode(', ', $details);
-    }
-
-    private function getVendorDetails($asset)
-    {
-        if (!$asset || !$asset->purchases || $asset->purchases->isEmpty() || !$asset->purchases->first()->vendor) return 'N/A';
-
-        $vendor = $asset->purchases->first()->vendor;
-        $details = [];
-
-        if ($vendor->vendor_name) $details[] = "Name: {$vendor->vendor_name}";
-        if ($vendor->vendor_address_1) $details[] = "Address: {$vendor->vendor_address_1}";
-        if ($vendor->vendor_city) $details[] = "City: {$vendor->vendor_city}";
-        if ($vendor->vendor_tel_no_1) $details[] = "Tel: {$vendor->vendor_tel_no_1}";
-        if ($vendor->vendor_email) $details[] = "Email: {$vendor->vendor_email}";
-
-        return implode(', ', $details);
+        $columns = 52; // Total number of columns (removed 5 columns: peripheral warranty, auto renewal, renewal progress, lifecycle remarks, hardware warranty)
+        return array_fill(0, $columns, 'N/A');
     }
 
     public function styles(Worksheet $sheet)
