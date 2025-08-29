@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SocialiteController;
+use App\Http\Controllers\ExportController;
 
 Route::view('/', 'welcome');
 
@@ -12,6 +13,11 @@ Route::view('dashboard', 'dashboard')
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
+
+// Export routes
+Route::get('/export/asset-report', [ExportController::class, 'exportAssetReport'])
+    ->middleware(['auth', 'verified'])
+    ->name('export.asset-report');
 
 // Admin panel Socialite auth routes
 Route::get('/admin/auth/{provider}/redirect', [SocialiteController::class, 'redirect'])

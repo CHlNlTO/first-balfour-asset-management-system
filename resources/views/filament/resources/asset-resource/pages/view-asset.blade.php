@@ -98,7 +98,7 @@
                                 <span class="text-sm font-medium text-blue-400">PC Name</span>
                                 <div
                                     class="p-3 mt-2 font-mono text-blue-800 border border-blue-100 rounded-lg bg-blue-50">
-                                    {{ displayText($record->software?->pcName->name, 'Unassigned') }}
+                                    {{ displayText($record->software?->pcName?->name, 'Unassigned') }}
                                 </div>
                             </div>
                             <div class="flex flex-col">

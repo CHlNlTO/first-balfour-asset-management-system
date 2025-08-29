@@ -21,6 +21,7 @@
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.4",
         "livewire/volt": "^1.0",
+        "maatwebsite/excel": "^3.1",
         "nunomaduro/termwind": "^2.0",
         "socialiteproviders/microsoft-azure": "^5.2"
     },
