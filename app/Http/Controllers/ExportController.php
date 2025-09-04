@@ -10,7 +10,7 @@ class ExportController extends Controller
 {
     public function exportAssetReport()
     {
-        $filename = 'asset_report_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $filename = 'asset_assignment_report_' . date('Y-m-d_H-i-s') . '.xlsx';
 
         return Excel::download(new AssetReportExport(), $filename);
     }
