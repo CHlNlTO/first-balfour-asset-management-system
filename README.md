@@ -81,6 +81,13 @@ The **Asset Management System** is a web application developed for **First Balfo
     php artisan migrate --seed
     ```
 
+5. **Run worker:**
+
+    ```bash
+    php artisan queue:table
+    php artisan queue:work --sleep=0 --tries=1 --timeout=120 --stop-when-empty
+    ```
+
 5. **Serve the application:**
 
     ```bash
@@ -127,12 +134,12 @@ The **Asset Management System** is a web application developed for **First Balfo
 
 ## Contact
 
-**Clark Wayne Abutal**  
-4th Year Student Web Developer  
+**Clark Wayne Abutal**
+4th Year Student Web Developer
 [LinkedIn](https://www.linkedin.com/in/clark-wayne-abutal-1005001aa/) | Email: clark.wayne023@gmail.com
 
-**First Balfour, Inc.**  
-First Balfour Building, 106 Valero St., Salcedo Village, Makati City, Philippines  
+**First Balfour, Inc.**
+First Balfour Building, 106 Valero St., Salcedo Village, Makati City, Philippines
 [Website](https://www.firstbalfour.com)
 
 ## License

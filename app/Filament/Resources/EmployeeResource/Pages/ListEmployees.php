@@ -4,10 +4,16 @@
 namespace App\Filament\Resources\EmployeeResource\Pages;
 
 use App\Filament\Resources\EmployeeResource;
+use App\Imports\CEMREmployeesImport;
+use Filament\Forms;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Components\Tab;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Notifications\Notification;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ListEmployees extends ListRecords
 {
@@ -19,6 +25,55 @@ class ListEmployees extends ListRecords
             Actions\CreateAction::make()
                 ->label('New Employee')
                 ->icon('heroicon-o-plus'),
+
+            Actions\Action::make('importEmployees')
+                ->label('Import Employees')
+                ->icon('heroicon-o-arrow-up-tray')
+                ->color('primary')
+                ->modalHeading('Import Employees from Excel/CSV')
+                ->modalSubmitActionLabel('Start Import')
+                ->form([
+                    Forms\Components\FileUpload::make('file')
+                        ->label('Upload file (.xlsx, .xls, .csv)')
+                        ->required()
+                        ->disk('local')
+                        ->directory('imports/employees')
+                        ->preserveFilenames()
+                        ->acceptedFileTypes([
+                            'text/csv',
+                            'application/vnd.ms-excel',
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        ]),
+                ])
+                ->action(function (array $data) {
+                    try {
+                        // Queue the import for background processing; falls back to sync if queue driver is sync
+                        $userId = Auth::id();
+                        Log::info('[Employees Import] Queuing import', [
+                            'user_id' => $userId,
+                            'file' => $data['file'] ?? null,
+                            'disk' => 'local',
+                            'queue_driver' => config('queue.default'),
+                        ]);
+                        Excel::queueImport(new CEMREmployeesImport($userId, $data['file']), $data['file'], 'local');
+
+                        Notification::make()
+                            ->title('Employee import started')
+                            ->body('Your file has been accepted and will be processed shortly. Queue driver: ' . config('queue.default'))
+                            ->success()
+                            ->send();
+                    } catch (\Throwable $e) {
+                        Log::error('[Employees Import] Failed to start import', [
+                            'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString(),
+                        ]);
+                        Notification::make()
+                            ->title('Employee import failed to start')
+                            ->body($e->getMessage())
+                            ->danger()
+                            ->send();
+                    }
+                }),
         ];
     }
 
