@@ -1,4 +1,5 @@
 <?php
+// File: app/Imports/CEMREmployeesImport.php
 
 namespace App\Imports;
 
@@ -12,7 +13,6 @@ use App\Models\CEMRRank;
 use App\Models\CEMRStatus;
 use Illuminate\Bus\Queueable;
 use App\Models\User;
-use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -27,6 +27,8 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Row;
+use Filament\Notifications\Notification;
+use Filament\Notifications\DatabaseNotification;
 
 class CEMREmployeesImport implements OnEachRow, WithChunkReading, WithCustomCsvSettings, WithEvents, ShouldQueue
 {
@@ -322,61 +324,131 @@ class CEMREmployeesImport implements OnEachRow, WithChunkReading, WithCustomCsvS
     {
         return [
             AfterImport::class => function () {
-                // Read final state from cache to produce accurate summary
-                if ($this->filePath) {
-                    $state = Cache::get($this->cacheKey('state'));
-                    if (is_array($state)) {
-                        $this->processed = $state['processed'] ?? $this->processed;
-                        $this->createdEmployees = $state['createdEmployees'] ?? $this->createdEmployees;
-                        $this->skippedExisting = $state['skippedExisting'] ?? $this->skippedExisting;
-                        $this->lookupsCreated = $state['lookupsCreated'] ?? $this->lookupsCreated;
-                        $this->failures = $state['failures'] ?? $this->failures;
-                    }
-                }
-                if ($this->userId) {
-                    $user = User::find($this->userId);
-                    if ($user) {
-                        $body = "Processed: {$this->processed}\n" .
-                            "Created employees: {$this->createdEmployees}\n" .
-                            "Skipped existing: {$this->skippedExisting}\n" .
-                            "Lookups created - Ranks: {$this->lookupsCreated['ranks']}, Positions: {$this->lookupsCreated['positions']}, Cost Codes: {$this->lookupsCreated['cost_codes']}, Projects: {$this->lookupsCreated['projects']}, Divisions: {$this->lookupsCreated['divisions']}, Statuses: {$this->lookupsCreated['statuses']}\n" .
-                            (count($this->failures) ? ("Failures:\n" . implode("\n", $this->failures)) : '');
-
-                        Notification::make()
-                            ->title('Employee import completed')
-                            ->body($body)
-                            ->success()
-                            ->sendToDatabase($user);
-                        Log::info('[Employees Import] Completed', [
-                            'processed' => $this->processed,
-                            'created' => $this->createdEmployees,
-                            'skipped' => $this->skippedExisting,
-                            'lookupsCreated' => $this->lookupsCreated,
-                            'failures' => $this->failures,
-                        ]);
-                    }
-                }
-                // Clear persisted state after completion
-                if ($this->filePath) {
-                    Cache::forget($this->cacheKey('state'));
-                }
+                $this->handleImportCompletion();
             },
             ImportFailed::class => function (ImportFailed $event) {
-                if ($this->userId) {
-                    $user = User::find($this->userId);
-                    if ($user) {
-                        Notification::make()
-                            ->title('Employee import failed')
-                            ->body($event->getException()->getMessage())
-                            ->danger()
-                            ->sendToDatabase($user);
-                        Log::error('[Employees Import] Failed', [
-                            'error' => $event->getException()->getMessage(),
-                        ]);
-                    }
-                }
+                $this->handleImportFailure($event);
             },
         ];
+    }
+
+    protected function handleImportCompletion(): void
+    {
+        // Read final state from cache to produce accurate summary
+        if ($this->filePath) {
+            $state = Cache::get($this->cacheKey('state'));
+            if (is_array($state)) {
+                $this->processed = $state['processed'] ?? $this->processed;
+                $this->createdEmployees = $state['createdEmployees'] ?? $this->createdEmployees;
+                $this->skippedExisting = $state['skippedExisting'] ?? $this->skippedExisting;
+                $this->lookupsCreated = $state['lookupsCreated'] ?? $this->lookupsCreated;
+                $this->failures = $state['failures'] ?? $this->failures;
+            }
+        }
+
+        Log::info('[Employees Import] Completed', [
+            'processed' => $this->processed,
+            'created' => $this->createdEmployees,
+            'skipped' => $this->skippedExisting,
+            'lookupsCreated' => $this->lookupsCreated,
+            'failures_count' => count($this->failures),
+        ]);
+
+        if ($this->userId) {
+            $this->sendSuccessNotification();
+        }
+
+        // Clear persisted state after completion
+        if ($this->filePath) {
+            Cache::forget($this->cacheKey('state'));
+        }
+    }
+
+    protected function handleImportFailure(ImportFailed $event): void
+    {
+        Log::error('[Employees Import] Failed', [
+            'error' => $event->getException()->getMessage(),
+            'trace' => $event->getException()->getTraceAsString()
+        ]);
+
+        if ($this->userId) {
+            $this->sendFailureNotification($event->getException()->getMessage());
+        }
+
+        // Clear persisted state after failure
+        if ($this->filePath) {
+            Cache::forget($this->cacheKey('state'));
+        }
+    }
+
+    protected function sendSuccessNotification(): void
+    {
+        try {
+            $user = User::find($this->userId);
+            if (!$user) {
+                Log::warning('[Employees Import] User not found for notification', ['user_id' => $this->userId]);
+                return;
+            }
+
+            $summary = "Processed: {$this->processed}\n" .
+                "Created employees: {$this->createdEmployees}\n" .
+                "Skipped existing: {$this->skippedExisting}\n" .
+                "Lookups created - Ranks: {$this->lookupsCreated['ranks']}, Positions: {$this->lookupsCreated['positions']}, Cost Codes: {$this->lookupsCreated['cost_codes']}, Projects: {$this->lookupsCreated['projects']}, Divisions: {$this->lookupsCreated['divisions']}, Statuses: {$this->lookupsCreated['statuses']}\n" .
+                (count($this->failures) ? ("Failures:\n" . implode("\n", array_slice($this->failures, 0, 10))) : '');
+
+            // Use Filament's notification system with sendToDatabase
+            Notification::make()
+                ->title('Employee import completed')
+                ->body($summary)
+                ->success()
+                ->icon('heroicon-o-check-circle')
+                ->persistent()
+                ->sendToDatabase($user);
+
+            Log::info('[Employees Import] Success notification sent', [
+                'user_id' => $this->userId,
+                'summary_preview' => substr($summary, 0, 100)
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('[Employees Import] Failed to send success notification', [
+                'user_id' => $this->userId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    }
+
+    protected function sendFailureNotification(string $errorMessage): void
+    {
+        try {
+            $user = User::find($this->userId);
+            if (!$user) {
+                Log::warning('[Employees Import] User not found for failure notification', ['user_id' => $this->userId]);
+                return;
+            }
+
+            // Use Filament's notification system with sendToDatabase
+            Notification::make()
+                ->title('Employee import failed')
+                ->body($errorMessage)
+                ->danger()
+                ->icon('heroicon-o-x-circle')
+                ->persistent()
+                ->sendToDatabase($user);
+
+            Log::info('[Employees Import] Failure notification sent', [
+                'user_id' => $this->userId,
+                'error_preview' => substr($errorMessage, 0, 100)
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('[Employees Import] Failed to send failure notification', [
+                'user_id' => $this->userId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
     }
 
     protected function persistState(): void
