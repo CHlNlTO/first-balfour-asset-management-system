@@ -10,8 +10,8 @@ class HardwareType extends Model
     use HasFactory;
 
     protected $primaryKey = 'id';
-    public $incrementing = false;
-    protected $keyType = 'string';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = ['hardware_type'];
 

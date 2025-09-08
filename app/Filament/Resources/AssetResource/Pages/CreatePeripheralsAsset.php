@@ -61,10 +61,9 @@ class CreatePeripheralsAsset extends CreateRecord
                                             ->reactive()
                                             ->searchable()
                                             ->inlineLabel(),
-                                        TextInput::make('manufacturer')
-                                            ->required()
-                                            ->placeholder('Dell, HP')
-                                            ->inlineLabel(),
+                                        // TextInput::make('manufacturer')
+                                        //     ->placeholder('Dell, HP')
+                                        //     ->inlineLabel(),
                                         Textarea::make('specifications')
                                             ->required()
                                             ->placeholder("27'' 4K Monitor, 144Hz refresh rate")

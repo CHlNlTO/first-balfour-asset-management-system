@@ -10,7 +10,7 @@ class LicenseType extends Model
     use HasFactory;
 
     protected $primaryKey = 'id'; // Ensure this matches the actual primary key column name
-    public $incrementing = false;
+    public $incrementing = true;
     protected $keyType = 'int';
 
     protected $fillable = ['license_type'];
