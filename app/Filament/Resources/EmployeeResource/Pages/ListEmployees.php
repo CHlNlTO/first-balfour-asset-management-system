@@ -87,12 +87,12 @@ class ListEmployees extends ListRecords
             } else {
                 // Asynchronous processing - queue the import
                 Excel::queueImport($import, $filePath, 'local')
-                    ->onConnection(config('queue.default', 'database'))
-                    ->onQueue('imports');
+                    ->allOnConnection(config('queue.default', 'database'))
+                    ->allOnQueue('imports');
 
                 Notification::make()
                     ->title('Employee import started')
-                    ->body('Your file is being processed in the background. You will receive a notification when complete.')
+                    ->body('Your file is being processed in the background. Check your notification inbox once its done.')
                     ->info()
                     ->send();
             }

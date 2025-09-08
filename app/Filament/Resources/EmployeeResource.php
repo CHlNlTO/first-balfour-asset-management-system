@@ -508,7 +508,7 @@ class EmployeeResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('id_num')
                     ->label('Employee ID')
-                    ->searchable(isIndividual: true)
+                    ->searchable()
                     ->sortable()
                     ->copyable()
                     ->copyMessage('Employee ID copied!')
