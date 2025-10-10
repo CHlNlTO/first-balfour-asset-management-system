@@ -39,7 +39,14 @@ class ManageTransferAction
                 $transfer = static::getLatestTransfer($record);
                 $toEmployee = static::getToEmployee($transfer);
 
-                return "Transfer {$record->asset->model->brand->name} {$record->asset->model->name} to {$toEmployee->first_name} {$toEmployee->last_name}?";
+                $assetName = 'Unknown Asset';
+                if ($record->asset) {
+                    $brand = $record->asset->model?->brand?->name ?? 'Unknown Brand';
+                    $model = $record->asset->model?->name ?? 'Unknown Model';
+                    $assetName = "{$brand} {$model}";
+                }
+
+                return "Transfer {$assetName} to {$toEmployee->first_name} {$toEmployee->last_name}?";
             })
             ->modalAlignment(Alignment::Center)
             ->modalFooterActions([
@@ -172,7 +179,11 @@ class ManageTransferAction
         Notification::make()
             ->title('Asset for Approval')
             ->icon('heroicon-o-information-circle')
-            ->body(Str::markdown("The asset **{$record->asset->brand} {$record->asset->model}** is now available for your approval."))
+            ->body(function() use ($record) {
+                $brand = $record->asset->model?->brand?->name ?? 'Unknown Brand';
+                $model = $record->asset->model?->name ?? 'Unknown Model';
+                return Str::markdown("The asset **{$brand} {$model}** is now available for your approval.");
+            })
             ->info()
             ->sendToDatabase(User::where('id_num', $transfer->to_employee)->firstOrFail());
     }

@@ -49,6 +49,9 @@ class ViewAsset extends ViewRecord
                             ->schema([
                                 TextEntry::make('brand')
                                     ->label('Brand')
+                                    ->getStateUsing(function ($record) {
+                                        return $record->model?->brand?->name ?? 'N/A';
+                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
@@ -67,6 +70,9 @@ class ViewAsset extends ViewRecord
                                     }),
                                 TextEntry::make('model')
                                     ->label('Model')
+                                    ->getStateUsing(function ($record) {
+                                        return $record->model?->name ?? 'N/A';
+                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')
@@ -128,6 +134,9 @@ class ViewAsset extends ViewRecord
                                     }),
                                 TextEntry::make('cost_code')
                                     ->label('Department/Project Code')
+                                    ->getStateUsing(function ($record) {
+                                        return $record->costCode?->name ?? 'N/A';
+                                    })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')

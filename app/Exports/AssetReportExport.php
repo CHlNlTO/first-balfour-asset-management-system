@@ -62,7 +62,6 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
             'Software Version',
             'Software License Key',
             'Software License Type',
-            'Software PC Name',
 
             // Peripheral Details
             'Peripheral Type',
@@ -93,11 +92,7 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
             'Vendor Mobile Number',
             'Vendor Email',
             'Vendor URL',
-            'Vendor Remarks',
-
-            // Attached Items
-            'Attached Software',
-            'Attached Hardware'
+            'Vendor Remarks'
         ];
     }
 
@@ -114,7 +109,6 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
 
             // Get asset details based on type
             $assetDetails = $this->getAssetDetails($asset);
-            $attachedItems = $this->getAttachedItems($asset);
 
             return [
                 // Employee Information
@@ -146,7 +140,6 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
                 $assetDetails['software_version'] ?? 'N/A',
                 $assetDetails['software_license_key'] ?? 'N/A',
                 $assetDetails['software_license_type'] ?? 'N/A',
-                $assetDetails['software_pc_name'] ?? 'N/A',
 
                 // Peripheral Details
                 $assetDetails['peripheral_type'] ?? 'N/A',
@@ -177,11 +170,7 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
                 $assetDetails['vendor_mobile_number'] ?? 'N/A',
                 $assetDetails['vendor_email'] ?? 'N/A',
                 $assetDetails['vendor_url'] ?? 'N/A',
-                $assetDetails['vendor_remarks'] ?? 'N/A',
-
-                // Attached Items
-                $attachedItems['software'] ?? 'N/A',
-                $attachedItems['hardware'] ?? 'N/A'
+                $assetDetails['vendor_remarks'] ?? 'N/A'
             ];
         } catch (\Exception $e) {
             Log::error('Error mapping assignment ' . ($assignment->id ?? 'unknown') . ': ' . $e->getMessage());
@@ -228,7 +217,6 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
                 $details['software_version'] = $software->version ?? 'N/A';
                 $details['software_license_key'] = $software->license_key ?? 'N/A';
                 $details['software_license_type'] = $software->licenseType ? $software->licenseType->license_type : 'N/A';
-                $details['software_pc_name'] = $software->pcName->name ?? 'N/A';
             }
 
             // Peripheral details
@@ -285,61 +273,9 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
         return $details;
     }
 
-            private function getAttachedItems($asset)
-    {
-        if (!$asset) return ['software' => 'N/A', 'hardware' => 'N/A'];
-
-        $attachedSoftware = collect([]);
-        $attachedHardware = collect([]);
-
-        try {
-            if ($asset->hardware) {
-                // Get software attached to this hardware through the relationship
-                $attachedSoftware = $asset->hardware->software()
-                    ->with('model.brand')
-                    ->get()
-                    ->map(function ($software) {
-                        $brand = $software->model ? $software->model->brand : null;
-                        $model = $software->model;
-                        $name = ($brand ? $brand->name . ' ' : '') . ($model ? $model->name : '');
-                        return $name;
-                    })
-                    ->filter()
-                    ->values();
-
-                Log::info('Hardware asset ' . $asset->id . ' has ' . $attachedSoftware->count() . ' attached software items');
-            }
-
-            if ($asset->software) {
-                // Get hardware this software is attached to through the relationship
-                $attachedHardware = $asset->software->hardware()
-                    ->with('model.brand')
-                    ->get()
-                    ->map(function ($hardware) {
-                        $brand = $hardware->model ? $hardware->model->brand : null;
-                        $model = $hardware->model;
-                        $name = ($brand ? $brand->name . ' ' : '') . ($model ? $model->name : '');
-                        return $name;
-                    })
-                    ->filter()
-                    ->values();
-
-                Log::info('Software asset ' . $asset->id . ' has ' . $attachedHardware->count() . ' attached hardware items');
-            }
-
-        } catch (\Exception $e) {
-            Log::error('Error getting attached items for asset ' . $asset->id . ': ' . $e->getMessage());
-        }
-
-        return [
-            'software' => $attachedSoftware->isEmpty() ? 'None' : $attachedSoftware->implode('; '),
-            'hardware' => $attachedHardware->isEmpty() ? 'None' : $attachedHardware->implode('; ')
-        ];
-    }
-
     private function getEmptyRow()
     {
-        $columns = 52; // Total number of columns (removed 5 columns: peripheral warranty, auto renewal, renewal progress, lifecycle remarks, hardware warranty)
+        $columns = 45; // Total number of columns (removed software PC name and attached items)
         return array_fill(0, $columns, 'N/A');
     }
 

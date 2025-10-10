@@ -60,7 +60,11 @@ class AssignmentForm
                             ->label('Assets')
                             ->placeholder('Search assets')
                             ->options($availableAssets->mapWithKeys(function ($asset) {
-                                return [$asset->id => $asset->tag_number . ' - ' . $asset->model->brand->name . ' ' . $asset->model->name];
+                                $label = $asset->tag_number ?? 'No Tag';
+                                if ($asset->model?->brand?->name || $asset->model?->name) {
+                                    $label .= ' - ' . ($asset->model->brand->name ?? 'Unknown Brand') . ' ' . ($asset->model->name ?? 'Unknown Model');
+                                }
+                                return [$asset->id => $label];
                             })->toArray())
                             ->multiple()
                             ->required()

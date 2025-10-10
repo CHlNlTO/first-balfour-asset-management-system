@@ -119,8 +119,11 @@ class OptionToBuyResource extends Resource
                         });
                     })
                     ->getStateUsing(function (OptionToBuy $record): string {
-                        $asset = $record->assignment->asset->model->brand->name . ' ' . $record->assignment->asset->model->name;
-                        return $asset ? $asset : 'N/A';
+                        $asset = $record->assignment->asset ?? null;
+                        if (!$asset) return 'N/A';
+                        $brand = $asset->model?->brand?->name ?? 'Unknown Brand';
+                        $model = $asset->model?->name ?? 'Unknown Model';
+                        return "{$brand} {$model}";
                     })
                     ->url(fn(OptionToBuy $record): string => route('filament.admin.resources.assets.view', ['record' => $record->assignment->asset_id])),
                 Tables\Columns\TextColumn::make('asset_cost')

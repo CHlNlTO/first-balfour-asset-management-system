@@ -47,7 +47,10 @@ class PurchaseResource extends Resource
                     ->label('Asset Name')
                     ->getStateUsing(function (Purchase $record): string {
                         $asset = $record->asset;
-                        return $asset ? " {$asset->model->brand->name} {$asset->model->name}" : 'N/A';
+                        if (!$asset) return 'N/A';
+                        $brand = $asset->model?->brand?->name ?? 'Unknown Brand';
+                        $model = $asset->model?->name ?? 'Unknown Model';
+                        return "{$brand} {$model}";
                     })
                     ->searchable()
                     ->url(fn(Purchase $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
@@ -141,7 +144,6 @@ class PurchaseResource extends Resource
                     ->options(Vendor::pluck('name', 'id')->toArray()),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
@@ -163,7 +165,7 @@ class PurchaseResource extends Resource
             'index' => Pages\ListPurchases::route('/'),
             // 'create' => Pages\CreatePurchase::route('/create'),
             'view' => Pages\ViewPurchase::route('/{record}'),
-            'edit' => Pages\EditPurchase::route('/{record}/edit'),
+            // 'edit' => Pages\EditPurchase::route('/{record}/edit'),
         ];
     }
 }

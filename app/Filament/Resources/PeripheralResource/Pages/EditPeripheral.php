@@ -27,8 +27,8 @@ class EditPeripheral extends EditRecord
     {
         $data['asset_type'] = $this->record->asset->asset_type;
         $data['asset_status'] = $this->record->asset->asset_status;
-        $data['brand'] = $this->record->asset->brand;
-        $data['model'] = $this->record->asset->model;
+        $data['brand'] = $this->record->asset->model?->brand?->name ?? null;
+        $data['model'] = $this->record->asset->model?->name ?? null;
 
         $data['specifications'] = $this->record->specifications;
         $data['serial_number'] = $this->record->serial_number;

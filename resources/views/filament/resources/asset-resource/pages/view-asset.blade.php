@@ -12,7 +12,7 @@
                 <div class="w-full space-y-1">
                     <div class="flex items-center space-x-3">
                         <h1 class="text-3xl font-bold text-white">
-                            {{ displayText($record->model->brand->name . ' ' . $record->model->name, 'Untitled Asset') }}
+                            {{ displayText(($record->model?->brand?->name ?? '') . ' ' . ($record->model?->name ?? ''), 'Untitled Asset') }}
                         </h1>
                     </div>
                     <div class="flex items-start justify-between">
@@ -160,13 +160,6 @@
                                     {{ displayText($record->hardware?->specifications) }}
                                 </div>
                             </div>
-                            <div class="flex flex-col">
-                                <span class="text-sm font-medium text-blue-400">Manufacturer</span>
-                                <div
-                                    class="p-3 mt-2 font-mono text-blue-800 border border-blue-100 rounded-lg bg-blue-50">
-                                    {{ displayText($record->hardware?->manufacturer) }}
-                                </div>
-                            </div>
                         </div>
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div class="flex flex-col">
@@ -220,35 +213,10 @@
                                 </div>
                             </div>
                             <div class="flex flex-col">
-                                <span class="text-sm font-medium text-blue-400">Serial No.</span>
-                                <div
-                                    class="p-3 mt-2 font-mono text-blue-800 border border-blue-100 rounded-lg bg-blue-50">
-                                    {{ displayText($record->peripherals?->serial_number) }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                            <div class="flex flex-col">
                                 <span class="text-sm font-medium text-blue-400">Specifications</span>
                                 <div
                                     class="p-3 mt-2 font-mono text-blue-800 border border-blue-100 rounded-lg bg-blue-50">
                                     {{ displayText($record->peripherals?->specifications) }}
-                                </div>
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="text-sm font-medium text-blue-400">Manufacturer</span>
-                                <div
-                                    class="p-3 mt-2 font-mono text-blue-800 border border-blue-100 rounded-lg bg-blue-50">
-                                    {{ displayText($record->peripherals?->manufacturer) }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                            <div class="flex flex-col">
-                                <span class="text-sm font-medium text-blue-400">Warranty Expiration Date</span>
-                                <div
-                                    class="p-3 mt-2 font-mono text-blue-800 border border-blue-100 rounded-lg bg-blue-50">
-                                    {{ displayText($record->peripherals?->warranty_expiration) }}
                                 </div>
                             </div>
                         </div>

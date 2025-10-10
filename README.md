@@ -88,7 +88,14 @@ The **Asset Management System** is a web application developed for **First Balfo
     php artisan queue:work --sleep=0 --tries=1 --timeout=120 --stop-when-empty
     ```
 
-5. **Serve the application:**
+6. **Run Import/Export worker:**
+
+    ```bash
+    php artisan queue:work database --queue=imports,default --sleep=0
+    ```
+
+
+7. **Serve the application:**
 
     ```bash
     php artisan serve

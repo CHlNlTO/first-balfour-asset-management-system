@@ -58,6 +58,17 @@ class CreateSoftwareAsset extends CreateRecord
                                                     ->required()
                                                     ->placeholder('Operating System, Application'),
                                             ])
+                                            ->createOptionUsing(function ($data) {
+                                                $softwareType = SoftwareType::create(['software_type' => $data['software_type']]);
+
+                                                Notification::make()
+                                                    ->title('Record Created')
+                                                    ->body("Software Type {$softwareType->software_type} has been created.")
+                                                    ->success()
+                                                    ->send();
+
+                                                return $softwareType->id;
+                                            })
                                             ->reactive()
                                             ->inlineLabel(),
                                         Select::make('license_type')
@@ -68,6 +79,17 @@ class CreateSoftwareAsset extends CreateRecord
                                                     ->required()
                                                     ->placeholder('Perpetual, Subscription'),
                                             ])
+                                            ->createOptionUsing(function ($data) {
+                                                $licenseType = LicenseType::create(['license_type' => $data['license_type']]);
+
+                                                Notification::make()
+                                                    ->title('Record Created')
+                                                    ->body("License Type {$licenseType->license_type} has been created.")
+                                                    ->success()
+                                                    ->send();
+
+                                                return $licenseType->id;
+                                            })
                                             ->reactive()
                                             ->inlineLabel(),
                                         TextInput::make('version')
@@ -78,51 +100,8 @@ class CreateSoftwareAsset extends CreateRecord
                                             ->nullable()
                                             ->placeholder('XXXX-YYYY-ZZZZ')
                                             ->inlineLabel(),
-                                        Select::make('pc_name')
-                                            ->label('PC Name')
-                                            ->options(fn() => PCName::pluck('name', 'id'))
-                                            ->createOptionForm([
-                                                TextInput::make('name')
-                                                    ->required()
-                                                    ->placeholder('DESKTOP-ABC123'),
-                                                TextInput::make('description')
-                                                    ->nullable()
-                                                    ->placeholder('Main Office Desktop'),
-                                            ])
-                                            ->createOptionUsing(function ($data) {
-                                                $pcName = PCName::create(['name' => $data['name'], 'description' => $data['description']]);
-
-                                                Notification::make()
-                                                    ->title('Record Created')
-                                                    ->body("PC Name {$pcName->name} has been created.")
-                                                    ->success()
-                                                    ->send();
-
-                                                return $pcName->id;
-                                            })
-                                            ->searchable()
-                                            ->preload()
-                                            ->inlineLabel(),
                                     ]),
                             ]),
-                        // Section::make("Attach to Hardware")
-                        //     ->icon('heroicon-o-link')
-                        //     ->schema([
-                        //         Grid::make(2)
-                        //             ->schema([
-                        //                 Select::make('hardware')
-                        //                     ->label('Hardware')
-                        //                     ->options(function () {
-                        //                         return Asset::where('asset_type', 'hardware')
-                        //                             ->get()
-                        //                             ->pluck('asset', 'id');
-                        //                     })
-                        //                     ->searchable(['id', 'brand', 'model'])
-                        //                     ->multiple()
-                        //                     ->preload()
-                        //                     ->inlineLabel(),
-                        //             ]),
-                        //     ])
                     ])
                     ->columnSpan(['lg' => 2]),
 
@@ -148,9 +127,9 @@ class CreateSoftwareAsset extends CreateRecord
             // Create the main asset record
             $asset = Asset::create([
                 'asset_type' => $this->assetType,
-                'asset_status' => $data['asset_status'],
-                'model_id' => $data['model'],
-                'cost_code' => $data['cost_code'],
+                'asset_status' => $data['asset_status'] ?? null,
+                'model_id' => $data['model'] ?? null,
+                'cost_code' => $data['cost_code'] ?? null,
             ]);
 
             // Create the software record
@@ -160,34 +139,7 @@ class CreateSoftwareAsset extends CreateRecord
                 'license_type' => $data['license_type'] ?? null,
                 'version' => $data['version'] ?? null,
                 'license_key' => $data['license_key'] ?? null,
-                'pc_name_id' => $data['pc_name'] ?? null,
             ]);
-
-
-
-            // Attach software if selected
-            if (!empty($data['hardware'])) {
-                Log::info("Attaching software to hardware", $data['hardware']);
-
-                // Get the hardware records
-                $hardwareRecords = Hardware::whereIn('asset_id', $data['hardware'])
-                    ->pluck('asset_id');
-
-                if ($hardwareRecords->isNotEmpty()) {
-                    // Get the software record we just created
-                    $software = Software::where('asset_id', $asset->id)->first();
-
-                    // Attach hardware to software
-                    $software->hardware()->attach(
-                        $hardwareRecords->mapWithKeys(function ($hardwareAssetId) use ($asset) {
-                            return [$hardwareAssetId => [
-                                'hardware_asset_id' => $hardwareAssetId,
-                                'software_asset_id' => $asset->id
-                            ]];
-                        })->all()
-                    );
-                }
-            }
 
             // Create lifecycle record
             Lifecycle::create([
@@ -235,7 +187,15 @@ class CreateSoftwareAsset extends CreateRecord
         return Notification::make()
             ->success()
             ->title('Software Asset Created')
-            ->body(Str::markdown("{$this->record->model->brand->name} {$this->record->model->name} has been created"))
+            ->when(
+                ($this->record->model && $this->record->model->brand && $this->record->model->brand->name)
+                    || ($this->record->model && $this->record->model->name),
+                fn($notification) => $notification->body(
+                    Str::markdown(
+                        trim(($this->record->model->brand->name ?? '') . ' ' . ($this->record->model->name ?? '')) . ' has been created'
+                    )
+                )
+            )
             ->color('success')
             ->sendToDatabase($recipient);
     }

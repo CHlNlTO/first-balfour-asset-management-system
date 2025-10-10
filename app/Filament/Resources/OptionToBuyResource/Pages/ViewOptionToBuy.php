@@ -49,7 +49,13 @@ class ViewOptionToBuy extends ViewRecord
                             ->weight(FontWeight::Bold),
                         TextEntry::make('asset')
                             ->label('Asset')
-                            ->getStateUsing(fn($record) => $record->assignment->asset->model->brand->name . ' ' . $record->assignment->asset->model->name)
+                            ->getStateUsing(function($record) {
+                                $asset = $record->assignment->asset;
+                                if (!$asset) return 'N/A';
+                                $brand = $asset->model?->brand?->name ?? 'Unknown Brand';
+                                $model = $asset->model?->name ?? 'Unknown Model';
+                                return "{$brand} {$model}";
+                            })
                             ->url(fn($record) => route('filament.admin.resources.assets.view', ['record' => $record->assignment->asset_id]))
                             ->weight(FontWeight::Bold),
                         TextEntry::make('asset_cost')

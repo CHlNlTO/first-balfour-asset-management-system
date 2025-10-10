@@ -50,7 +50,10 @@ class ViewAssignment extends ViewRecord
                                     ->label('Asset')
                                     ->getStateUsing(function (Assignment $record): string {
                                         $asset = $record->asset;
-                                        return $asset ? "{$asset->model->brand->name} {$asset->model->name}" : 'N/A';
+                                        if (!$asset) return 'N/A';
+                                        $brand = $asset->model?->brand?->name ?? 'Unknown Brand';
+                                        $model = $asset->model?->name ?? 'Unknown Model';
+                                        return "{$brand} {$model}";
                                     })
                                     ->weight(FontWeight::Bold)
                                     ->copyable()

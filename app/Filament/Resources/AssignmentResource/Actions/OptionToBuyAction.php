@@ -51,7 +51,12 @@ class OptionToBuyAction
 
             TextInput::make('asset_display')
                 ->label('Assets')
-                ->default(fn(Model $record): string => "{$record->asset->id} - {$record->asset->brand} {$record->asset->model}")
+                ->default(function(Model $record): string {
+                    $asset = $record->asset;
+                    $brand = $asset->model?->brand?->name ?? 'Unknown Brand';
+                    $model = $asset->model?->name ?? 'Unknown Model';
+                    return "{$asset->id} - {$brand} {$model}";
+                })
                 ->disabled()
                 ->dehydrated(false),
 

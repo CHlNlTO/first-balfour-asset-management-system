@@ -120,13 +120,13 @@ class ImportAssetsAction extends Action
 
         // Define which columns are required for each asset type
         $requiredColumns = [
-            // asset_type, asset_status, brand, model, cost_code,
-            // acquisition_date, purchase_order_no, sales_invoice_no, purchase_order_amount, vendor_name
-            'common' => [0, 1, 2, 3, 4, 8, 10, 11, 12, 25],
+            // asset_type, acquisition_date, purchase_order_no, sales_invoice_no, purchase_order_amount, vendor_name
+            // Note: asset_status, brand, model, cost_code are now optional
+            'common' => [0, 8, 10, 11, 12, 25],
             // tag_number, hardware_type, serial_number, specifications
             'hardware' => [7, 14, 15, 16],
-            // version, license_key, software_type, license_type
-            'software' => [20, 21, 22, 23],
+            // All software fields are now optional (version, license_key, software_type, license_type)
+            'software' => [],
             // peripherals_type, serial_number, specifications
             'peripherals' => [24, 15, 16],
         ];
@@ -145,14 +145,14 @@ class ImportAssetsAction extends Action
                 'Desktop', 'SN12345', 'Intel Core i7, 16GB RAM, 512GB SSD',
                 '00:11:22:33:44:55', 'Mouse, Keyboard', 'DESKTOP-ABC123',
                 '', '', '', '',
-                'Dell Inc.', '123 Dell Way', '', 'Round Rock', '1234567890', '',
+                '', 'Dell Inc.', '123 Dell Way', '', 'Round Rock', '1234567890', '',
                 'Jane Smith', '9876543210', 'jane@dell.com', 'www.dell.com', 'Preferred vendor'
             ],
             // Software example
             [
                 'software', 'Active', 'Microsoft', 'Office 365', 'CC002', 'Project B', 'Division 2', '',
                 '2023-02-01', '2024-02-01', 'PO789', 'INV101', '300.00', 'Jane Smith',
-                '', '', '', '', '','DESKTOP-ABC123',
+                '', '', '', '', '',
                 '2021', 'XXXX-XXXX-XXXX-XXXX', 'Application', 'Subscription',
                 '', 'Microsoft Corporation', 'One Microsoft Way', '', 'Redmond', '4258828080', '',
                 'John Doe', '5551234567', 'support@microsoft.com', 'www.microsoft.com', 'Software vendor'
@@ -440,10 +440,10 @@ class ImportAssetsAction extends Action
     {
         $validator = Validator::make($data, [
             'asset_type' => 'required|in:hardware,software,peripherals',
-            'asset_status' => 'required|string|max:255',
-            'brand' => 'required|string|max:255',
-            'model' => 'required|string|max:255',
-            'cost_code' => 'required|string|max:255',
+            'asset_status' => 'nullable|string|max:255',
+            'brand' => 'nullable|string|max:255',
+            'model' => 'nullable|string|max:255',
+            'cost_code' => 'nullable|string|max:255',
             'project' => 'nullable|string|max:255',
             'division' => 'nullable|string|max:255',
             'acquisition_date' => 'required|date',
@@ -460,8 +460,14 @@ class ImportAssetsAction extends Action
         }
     }
 
-    protected function normalizeModel(array $data, int $rowNumber): int
+    protected function normalizeModel(array $data, int $rowNumber): ?int
     {
+        // Return null if brand or model is missing
+        if (empty($data['brand']) || empty($data['model'])) {
+            Log::info("Brand or model is empty, returning null");
+            return null;
+        }
+
         $brandName = trim($data['brand']);
         $modelName = trim($data['model']);
 
@@ -493,6 +499,16 @@ class ImportAssetsAction extends Action
 
     protected function normalizeCostCode(array $data, int $rowNumber): array
     {
+        // Return null values if cost code is not provided
+        if (empty($data['cost_code'])) {
+            Log::info("Cost code is empty, returning null values");
+            return [
+                'cost_code_id' => null,
+                'project_id' => null,
+                'division_id' => null,
+            ];
+        }
+
         $costCodeName = trim($data['cost_code']);
         $projectName = isset($data['project']) ? trim((string) $data['project']) : '';
         $divisionName = isset($data['division']) ? trim((string) $data['division']) : '';
@@ -514,7 +530,12 @@ class ImportAssetsAction extends Action
         // Cost code not found: we need at least a project, otherwise a division to create a project
         if ($projectName === '') {
             if ($divisionName === '') {
-                throw new \Exception("Cost code '{$costCodeName}' not found. Please provide project and/or division to create it.");
+                Log::warning("Cost code '{$costCodeName}' not found and no project/division provided. Skipping cost code.");
+                return [
+                    'cost_code_id' => null,
+                    'project_id' => null,
+                    'division_id' => null,
+                ];
             }
             // Ensure division exists
             $division = Division::firstOrCreate(
@@ -573,15 +594,22 @@ class ImportAssetsAction extends Action
         ];
     }
 
-    protected function normalizeAssetStatus(array $data, int $rowNumber): int
+    protected function normalizeAssetStatus(array $data, int $rowNumber): ?int
     {
+        // Return null if asset_status is not provided
+        if (empty($data['asset_status'])) {
+            Log::info("Asset status is empty, returning null");
+            return null;
+        }
+
         $assetStatusName = trim($data['asset_status']);
 
         // Find asset status by name (case insensitive)
         $assetStatus = AssetStatus::whereRaw('LOWER(asset_status) = ?', [strtolower($assetStatusName)])->first();
 
         if (!$assetStatus) {
-            throw new \Exception("Asset status '{$assetStatusName}' not found. Valid statuses are: Active, Inactive, Under Repair, In Transfer, Disposed, Lost, Stolen");
+            Log::warning("Asset status '{$assetStatusName}' not found. Returning null.");
+            return null;
         }
 
         Log::info("Normalized asset status: {$assetStatusName} (ID: {$assetStatus->id})");
@@ -675,11 +703,10 @@ class ImportAssetsAction extends Action
     protected function createSoftware(Asset $asset, array $data, int $rowNumber): void
     {
         $validator = Validator::make($data, [
-            'version' => 'required|string|max:255',
-            'license_key' => 'required|string|max:255',
+            'version' => 'nullable|string|max:255',
+            'license_key' => 'nullable|string|max:255',
             'software_type' => 'nullable|string|max:255',
             'license_type' => 'nullable|string|max:255',
-            'pc_name' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -706,26 +733,12 @@ class ImportAssetsAction extends Action
             $licenseTypeId = $licenseType->id;
         }
 
-        // Normalize PC name if provided
-        $pcNameId = null;
-        if (!empty($data['pc_name'])) {
-            $pcName = PCName::firstOrCreate(
-                ['name' => trim($data['pc_name'])],
-                [
-                    'name' => trim($data['pc_name']),
-                    'description' => "PC Name: " . trim($data['pc_name'])
-                ]
-            );
-            $pcNameId = $pcName->id;
-        }
-
         Software::create([
             'asset_id' => $asset->id,
-            'version' => $data['version'],
-            'license_key' => $data['license_key'],
+            'version' => $data['version'] ?? null,
+            'license_key' => $data['license_key'] ?? null,
             'software_type' => $softwareTypeId,
             'license_type' => $licenseTypeId,
-            'pc_name_id' => $pcNameId,
         ]);
 
         Log::info("Created software record for asset ID: {$asset->id}");

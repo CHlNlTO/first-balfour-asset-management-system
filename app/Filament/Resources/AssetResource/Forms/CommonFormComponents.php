@@ -38,15 +38,20 @@ class CommonFormComponents
                             ->label('Asset Status')
                             ->options(fn() => AssetStatus::pluck('asset_status', 'id'))
                             ->default(1)
-                            ->required()
                             ->createOptionForm([
                                 TextInput::make('asset_status')
                                     ->required()
                                     ->placeholder('Active, Inactive'),
+                                Select::make('color_id')
+                                    ->label('Color')
+                                    ->options(\App\Models\Color::pluck('name', 'id'))
+                                    ->required()
+                                    ->searchable(),
                             ])
-                            ->createOptionUsing(function ($data) {
+                            ->createOptionUsing(function (array $data) {
                                 $assetStatus = AssetStatus::create([
-                                    'asset_status' => $data['asset_status']
+                                    'asset_status' => $data['asset_status'],
+                                    'color_id' => $data['color_id'],
                                 ]);
 
                                 Notification::make()
@@ -85,7 +90,6 @@ class CommonFormComponents
 
                         // Model select with reactive brand updates
                         Select::make('model')
-                            ->required()
                             ->options(fn() => ProductModel::pluck('name', 'id'))
                             ->searchable()
                             ->preload()
@@ -172,7 +176,6 @@ class CommonFormComponents
                             ->inlineLabel(),
                         Select::make('cost_code')
                             ->relationship('costCode', 'name', fn($query) => $query->orderBy('name'))
-                            ->required()
                             ->createOptionForm(fn(Form $form) => CostCodeResource::form($form))
                             ->label('Cost Code')
                             ->getSearchResultsUsing(

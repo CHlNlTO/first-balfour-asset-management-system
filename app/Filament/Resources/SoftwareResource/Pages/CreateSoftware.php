@@ -54,8 +54,8 @@ class CreateSoftware extends CreateRecord
 
         $software = Software::create([
             'asset_id' => $asset->id,
-            'version' => $data['version'],
-            'license_key' => $data['license_key'],
+            'version' => $data['version'] ?? null,
+            'license_key' => $data['license_key'] ?? null,
             'software_type' => $data['software_type'] ?? null,
             'license_type' => $data['license_type'] ?? null,
         ]);

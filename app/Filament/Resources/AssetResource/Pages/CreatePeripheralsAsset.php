@@ -95,9 +95,9 @@ class CreatePeripheralsAsset extends CreateRecord
             // Create the main asset record
             $asset = Asset::create([
                 'asset_type' => $this->assetType,
-                'asset_status' => $data['asset_status'],
-                'model_id' => $data['model'],
-                'cost_code' => $data['cost_code'],
+                'asset_status' => $data['asset_status'] ?? null,
+                'model_id' => $data['model'] ?? null,
+                'cost_code' => $data['cost_code'] ?? null,
             ]);
 
             // Create the peripherals record
@@ -155,7 +155,15 @@ class CreatePeripheralsAsset extends CreateRecord
         return Notification::make()
             ->success()
             ->title('Peripheral Asset Created')
-            ->body(Str::markdown("{$this->record->model->brand->name} {$this->record->model->name} has been created"))
+            ->when(
+                ($this->record->model && $this->record->model->brand && $this->record->model->brand->name)
+                    || ($this->record->model && $this->record->model->name),
+                fn($notification) => $notification->body(
+                    Str::markdown(
+                        trim(($this->record->model->brand->name ?? '') . ' ' . ($this->record->model->name ?? '')) . ' has been created'
+                    )
+                )
+            )
             ->color('success')
             ->sendToDatabase($recipient);
     }

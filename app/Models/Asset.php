@@ -13,10 +13,11 @@ class Asset extends Model
 
     protected $with = ['hardware', 'software', 'peripherals', 'lifecycle', 'purchases', 'assetStatus', 'model']; // Eager load relationships
 
-    public function brand()
-    {
-        return $this->model->belongsTo(Brand::class, ProductModel::class);
-    }
+    // public function brand()
+    // {
+    //     // Access brand through model relationship
+    //     return $this->model?->brand;
+    // }
 
     public function model()
     {

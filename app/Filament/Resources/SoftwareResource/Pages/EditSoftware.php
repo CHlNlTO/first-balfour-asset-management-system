@@ -29,9 +29,9 @@ class EditSoftware extends EditRecord
         Log::info('Initial Record Data: ', $this->record->toArray());
 
         $data['asset_status'] = $this->record->asset->asset_status;
-        $data['brand'] = $this->record->asset->brand;
-        $data['model'] = $this->record->asset->model;
-        $data['cost_code'] = $this->record->asset->cost_code;
+        $data['brand'] = $this->record->asset->model?->brand?->name ?? null;
+        $data['model'] = $this->record->asset->model?->name ?? null;
+        $data['cost_code'] = $this->record->asset->costCode?->name ?? null;
 
         $data['version'] = $this->record->version;
         $data['license_key'] = $this->record->license_key;
@@ -58,8 +58,8 @@ class EditSoftware extends EditRecord
             $record->asset->update($assetData);
 
             $record->update([
-                'version' => $data['version'],
-                'license_key' => $data['license_key'],
+                'version' => $data['version'] ?? null,
+                'license_key' => $data['license_key'] ?? null,
                 'software_type' => $data['software_type'] ?? null,
                 'license_type' => $data['license_type'] ?? null,
                 'pc_name' => $data['pc_name'],

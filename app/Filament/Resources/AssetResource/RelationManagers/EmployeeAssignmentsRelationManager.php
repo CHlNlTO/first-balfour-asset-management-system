@@ -68,7 +68,10 @@ class EmployeeAssignmentsRelationManager extends RelationManager
                     ->searchable()
                     ->getStateUsing(function (Assignment $record): string {
                         $asset = $record->asset;
-                        return $asset ? " {$asset->brand} {$asset->model}" : 'N/A';
+                        if (!$asset) return 'N/A';
+                        $brand = $asset->model?->brand?->name ?? 'Unknown Brand';
+                        $model = $asset->model?->name ?? 'Unknown Model';
+                        return "{$brand} {$model}";
                     })
                     ->url(fn (Assignment $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
                 Tables\Columns\TextColumn::make('assignment_status')

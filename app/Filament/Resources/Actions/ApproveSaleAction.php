@@ -105,7 +105,12 @@ class ApproveSaleAction
 
             TextInput::make('asset_display')
                 ->label('Asset')
-                ->default(fn(Model $record): string => "{$record->asset->id} - {$record->asset->brand} {$record->asset->model}")
+                ->default(function(Model $record): string {
+                    $asset = $record->asset;
+                    $brand = $asset->model?->brand?->name ?? 'Unknown Brand';
+                    $model = $asset->model?->name ?? 'Unknown Model';
+                    return "{$asset->id} - {$brand} {$model}";
+                })
                 ->disabled()
                 ->dehydrated(false),
 
@@ -154,7 +159,12 @@ class ApproveSaleAction
 
             TextInput::make('asset_display')
                 ->label('Asset')
-                ->default(fn(Model $record): string => "{$record->assignment->asset->id} - {$record->assignment->asset->brand} {$record->assignment->asset->model}")
+                ->default(function(Model $record): string {
+                    $asset = $record->assignment->asset;
+                    $brand = $asset->model?->brand?->name ?? 'Unknown Brand';
+                    $model = $asset->model?->name ?? 'Unknown Model';
+                    return "{$asset->id} - {$brand} {$model}";
+                })
                 ->disabled()
                 ->dehydrated(false),
 

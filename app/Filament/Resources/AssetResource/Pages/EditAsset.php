@@ -56,10 +56,10 @@ class EditAsset extends EditRecord
         return array_merge($data, [
             'asset_type' => $this->record->asset_type ?? null,
             'asset_status' => $this->record->asset_status ?? null,
-            'brand' => $this->record->model->brand->name ?? null,
-            'brand_display' => $this->record->model->brand->name ?? null,
-            'model' => $this->record->model->id ?? null,
-            'cost_code' => $this->record->costCost->name ?? null,
+            'brand' => $this->record->model?->brand?->name ?? null,
+            'brand_display' => $this->record->model?->brand?->name ?? null,
+            'model' => $this->record->model?->id ?? null,
+            'cost_code' => $this->record->costCode?->id ?? null,
             'tag_number' => $this->record->tag_number ?? null,
             'acquisition_date' => $this->record->lifecycle?->acquisition_date ?? null,
             'retirement_date' => $this->record->lifecycle?->retirement_date ?? null,
@@ -79,7 +79,6 @@ class EditAsset extends EditRecord
         if ($hardware) {
             $data['hardware_type'] = $hardware->hardware_type;
             $data['serial_number'] = $hardware->serial_number;
-            $data['manufacturer'] = $hardware->manufacturer;
             $data['specifications'] = $hardware->specifications;
             $data['accessories'] = $hardware->accessories;
             $data['mac_address'] = $hardware->mac_address;
@@ -111,7 +110,6 @@ class EditAsset extends EditRecord
 
         if ($peripheral) {
             $data['peripherals_type'] = $peripheral->peripherals_type;
-            $data['manufacturer'] = $peripheral->manufacturer;
             $data['specifications'] = $peripheral->specifications;
             $data['warranty_expiration'] = $this->record->lifecycle?->retirement_date ?? null;
         }
@@ -141,8 +139,8 @@ class EditAsset extends EditRecord
         return DB::transaction(function () use ($record, $data) {
             // Update common asset fields
             $record->update([
-                'asset_status' => $data['asset_status'],
-                'model_id' => $data['model'],
+                'asset_status' => $data['asset_status'] ?? null,
+                'model_id' => $data['model'] ?? null,
                 'cost_code' => $data['cost_code'] ?? null,
                 'tag_number' => $data['tag_number'] ?? null,
             ]);
@@ -194,7 +192,6 @@ class EditAsset extends EditRecord
                 'hardware_type' => $data['hardware_type'] ?? null,
                 'serial_number' => $data['serial_number'] ?? null,
                 'specifications' => $data['specifications'] ?? null,
-                'manufacturer' => $data['manufacturer'] ?? null,
                 'mac_address' => $data['mac_address'] ?? null,
                 'accessories' => $data['accessories'] ?? null,
                 'pc_name_id' => $data['pc_name'] ?? null,
@@ -262,7 +259,6 @@ class EditAsset extends EditRecord
             [
                 'peripherals_type' => $data['peripherals_type'],
                 'specifications' => $data['specifications'],
-                'manufacturer' => $data['manufacturer'],
                 'warranty_expiration' => $data['retirement_date'] ?? null,
             ]
         );
