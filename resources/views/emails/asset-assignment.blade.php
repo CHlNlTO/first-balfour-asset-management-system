@@ -135,8 +135,14 @@
 
                 <div class="asset-row">
                     <div class="asset-label">Asset Name:&nbsp;</div>
-                    <div class="asset-value">{{ $assignment->asset->model?->brand?->name ?? 'Unknown Brand' }}
-                        {{ $assignment->asset->model?->name ?? 'Unknown Model' }}</div>
+                    <div class="asset-value">
+                        @if($assignment->asset->asset_type === 'software')
+                            {{ $assignment->asset->model?->brand?->name ?? 'Unknown Brand' }}
+                        @else
+                            {{ $assignment->asset->model?->brand?->name ?? 'Unknown Brand' }}
+                            {{ $assignment->asset->model?->name ?? 'Unknown Model' }}
+                        @endif
+                    </div>
                 </div>
 
                 @if ($assignment->asset->tag_number)

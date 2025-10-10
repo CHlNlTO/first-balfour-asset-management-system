@@ -53,7 +53,15 @@ class EditAssignment extends EditRecord
                                     ->getOptionLabelFromRecordUsing(function(Asset $record) {
                                         $label = $record->id;
                                         if ($record->model?->brand?->name || $record->model?->name) {
-                                            $label .= ' - ' . ($record->model->brand->name ?? 'Unknown Brand') . ' ' . ($record->model->name ?? 'Unknown Model');
+                                            $brand = $record->model->brand->name ?? 'Unknown Brand';
+                                            // For software, only show brand
+                                            if ($record->asset_type === 'software') {
+                                                $label .= ' - ' . $brand;
+                                            } else {
+                                                // For hardware/peripherals, show brand + model
+                                                $model = $record->model->name ?? 'Unknown Model';
+                                                $label .= ' - ' . $brand . ' ' . $model;
+                                            }
                                         }
                                         return $label;
                                     }),

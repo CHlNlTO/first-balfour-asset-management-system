@@ -98,8 +98,10 @@ class EditAsset extends EditRecord
             $data['license_type'] = $software->license_type;
             $data['version'] = $software->version;
             $data['license_key'] = $software->license_key;
-            $data['pc_name'] = $software->pc_name_id;
         }
+
+        // For software, set the brand name directly (not the model)
+        $data['software_brand'] = $this->record->model?->brand?->name ?? null;
 
         return $data;
     }
@@ -137,10 +139,16 @@ class EditAsset extends EditRecord
         Log::info('Update Data Before Processing:', $data);
 
         return DB::transaction(function () use ($record, $data) {
+            // For software assets, handle the software_brand field
+            $modelId = $data['model'] ?? null;
+            if ($record->asset_type === 'software' && !empty($data['software_brand'])) {
+                $modelId = $this->createSoftwareBrandModel($data['software_brand']);
+            }
+
             // Update common asset fields
             $record->update([
                 'asset_status' => $data['asset_status'] ?? null,
-                'model_id' => $data['model'] ?? null,
+                'model_id' => $modelId,
                 'cost_code' => $data['cost_code'] ?? null,
                 'tag_number' => $data['tag_number'] ?? null,
             ]);
@@ -262,6 +270,29 @@ class EditAsset extends EditRecord
                 'warranty_expiration' => $data['retirement_date'] ?? null,
             ]
         );
+    }
+
+    protected function createSoftwareBrandModel(string $brandName): int
+    {
+        // Find or create the brand
+        $brand = \App\Models\Brand::firstOrCreate(
+            ['name' => $brandName],
+            ['name' => $brandName, 'description' => "Software brand: {$brandName}"]
+        );
+
+        // Create a model with the same name as the brand for software
+        $model = \App\Models\ProductModel::firstOrCreate(
+            ['brand_id' => $brand->id, 'name' => $brandName],
+            ['brand_id' => $brand->id, 'name' => $brandName, 'description' => $brandName]
+        );
+
+        Log::info("Created/found brand and model for software", [
+            'brand' => $brand->name,
+            'model' => $model->name,
+            'model_id' => $model->id
+        ]);
+
+        return $model->id;
     }
 
     public function form(Form $form): Form

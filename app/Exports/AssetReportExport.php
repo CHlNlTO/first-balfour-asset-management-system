@@ -194,7 +194,15 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
                 $details['model'] = $asset->model->name ?? 'N/A';
                 if ($asset->model->brand) {
                     $details['brand'] = $asset->model->brand->name ?? 'N/A';
-                    $details['name'] = ($asset->model->brand->name ?? '') . ' ' . ($asset->model->name ?? '');
+
+                    // For software, only show brand (model name = brand name)
+                    if ($asset->asset_type === 'software') {
+                        $details['name'] = $asset->model->brand->name ?? '';
+                        $details['model'] = 'N/A'; // Don't show model for software
+                    } else {
+                        // For hardware/peripherals, show brand + model
+                        $details['name'] = ($asset->model->brand->name ?? '') . ' ' . ($asset->model->name ?? '');
+                    }
                 }
             }
 

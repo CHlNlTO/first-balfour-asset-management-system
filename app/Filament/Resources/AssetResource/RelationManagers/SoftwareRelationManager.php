@@ -41,10 +41,6 @@ class SoftwareRelationManager extends RelationManager
                     ->label('Brand')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('asset.model.name')
-                    ->label('Model')
-                    ->searchable()
-                    ->sortable(),
                 TextColumn::make('asset.asset_status')
                     ->label('Asset Status')
                     ->sortable()
@@ -58,7 +54,6 @@ class SoftwareRelationManager extends RelationManager
                     ->copyMessage('Copied!')
                     ->tooltip('Click to copy')
                     ->placeholder('N/A'),
-
                 TextColumn::make('version')
                     ->label('Version')
                     ->searchable()

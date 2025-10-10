@@ -62,7 +62,15 @@ class AssignmentForm
                             ->options($availableAssets->mapWithKeys(function ($asset) {
                                 $label = $asset->tag_number ?? 'No Tag';
                                 if ($asset->model?->brand?->name || $asset->model?->name) {
-                                    $label .= ' - ' . ($asset->model->brand->name ?? 'Unknown Brand') . ' ' . ($asset->model->name ?? 'Unknown Model');
+                                    $brand = $asset->model->brand->name ?? 'Unknown Brand';
+                                    // For software, only show brand (model = brand name)
+                                    if ($asset->asset_type === 'software') {
+                                        $label .= ' - ' . $brand;
+                                    } else {
+                                        // For hardware/peripherals, show brand + model
+                                        $model = $asset->model->name ?? 'Unknown Model';
+                                        $label .= ' - ' . $brand . ' ' . $model;
+                                    }
                                 }
                                 return [$asset->id => $label];
                             })->toArray())

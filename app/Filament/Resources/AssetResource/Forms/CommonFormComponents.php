@@ -24,6 +24,12 @@ class CommonFormComponents
 {
     public static function getBasicDetailsSection($assetType, $brandPlaceholder, $modelPlaceholder): Section
     {
+        // For software, use a simpler brand-only workflow
+        if ($assetType === 'software') {
+            return static::getSoftwareBrandSection($brandPlaceholder);
+        }
+
+        // For hardware and peripherals, use the standard brand+model workflow
         return Section::make('Asset Details')
             ->icon('heroicon-o-clipboard-document-list')
             ->schema([
@@ -442,5 +448,74 @@ class CommonFormComponents
             ])
             ->collapsible()
             ->collapsed();
+    }
+
+    public static function getSoftwareBrandSection($brandPlaceholder): Section
+    {
+        return Section::make('Asset Details')
+            ->icon('heroicon-o-clipboard-document-list')
+            ->schema([
+                Grid::make(2)
+                    ->schema([
+                        TextInput::make('asset_type')
+                            ->required()
+                            ->default('software')
+                            ->disabled()
+                            ->inlineLabel(),
+                        Select::make('asset_status')
+                            ->label('Asset Status')
+                            ->options(fn() => AssetStatus::pluck('asset_status', 'id'))
+                            ->default(1)
+                            ->createOptionForm([
+                                TextInput::make('asset_status')
+                                    ->required()
+                                    ->placeholder('Active, Inactive'),
+                                Select::make('color_id')
+                                    ->label('Color')
+                                    ->options(\App\Models\Color::pluck('name', 'id'))
+                                    ->required()
+                                    ->searchable(),
+                            ])
+                            ->createOptionUsing(function (array $data) {
+                                $assetStatus = AssetStatus::create([
+                                    'asset_status' => $data['asset_status'],
+                                    'color_id' => $data['color_id'],
+                                ]);
+
+                                Notification::make()
+                                    ->title('Record Created')
+                                    ->body("Asset Status {$assetStatus->asset_status} has been created.")
+                                    ->success()
+                                    ->send();
+
+                                return $assetStatus->id;
+                            })
+                            ->inlineLabel(),
+                    ]),
+                Grid::make(2)
+                    ->schema([
+                        TextInput::make('software_brand')
+                            ->label('Brand')
+                            ->placeholder($brandPlaceholder)
+                            ->inlineLabel(),
+                        Select::make('cost_code')
+                            ->relationship('costCode', 'name', fn($query) => $query->orderBy('name'))
+                            ->createOptionForm(fn(Form $form) => CostCodeResource::form($form))
+                            ->label('Cost Code')
+                            ->getSearchResultsUsing(
+                                fn(string $search) => CostCode::where('name', 'like', "%{$search}%")
+                                    ->limit(50)
+                                    ->pluck('name')
+                            )
+                            ->getOptionLabelUsing(fn($value): ?string => CostCode::where('id', $value)->first()?->name)
+                            ->createOptionUsing(function (array $data) {
+                                $costCode = CostCode::create($data);
+                                return $costCode->id;
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->inlineLabel(),
+                    ]),
+            ]);
     }
 }

@@ -53,6 +53,11 @@ class ViewOptionToBuy extends ViewRecord
                                 $asset = $record->assignment->asset;
                                 if (!$asset) return 'N/A';
                                 $brand = $asset->model?->brand?->name ?? 'Unknown Brand';
+                                // For software, only show brand
+                                if ($asset->asset_type === 'software') {
+                                    return $brand;
+                                }
+                                // For hardware/peripherals, show brand + model
                                 $model = $asset->model?->name ?? 'Unknown Model';
                                 return "{$brand} {$model}";
                             })

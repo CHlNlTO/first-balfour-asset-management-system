@@ -94,7 +94,7 @@ class EditHardware extends EditRecord
                 TextInput::make('brand')->label('Brand')->required(),
                 TextInput::make('model')->label('Model')->required(),
                 TextInput::make('asset.cost_code')
-                    ->label('Department/Project Code')
+                    ->label('Cost Code')
                     ->nullable(),
                 Fieldset::make('Hardware Details')
                     ->schema([

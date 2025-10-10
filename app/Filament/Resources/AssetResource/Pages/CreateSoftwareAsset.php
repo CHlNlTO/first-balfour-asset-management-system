@@ -124,11 +124,17 @@ class CreateSoftwareAsset extends CreateRecord
         Log::info("Creating Software Asset with data:", $data);
 
         return DB::transaction(function () use ($data) {
+            // Handle software brand - create a brand and model from the brand name
+            $modelId = null;
+            if (!empty($data['software_brand'])) {
+                $modelId = $this->createSoftwareBrandModel($data['software_brand']);
+            }
+
             // Create the main asset record
             $asset = Asset::create([
                 'asset_type' => $this->assetType,
                 'asset_status' => $data['asset_status'] ?? null,
-                'model_id' => $data['model'] ?? null,
+                'model_id' => $modelId,
                 'cost_code' => $data['cost_code'] ?? null,
             ]);
 
@@ -174,6 +180,29 @@ class CreateSoftwareAsset extends CreateRecord
         });
     }
 
+    protected function createSoftwareBrandModel(string $brandName): int
+    {
+        // Find or create the brand
+        $brand = \App\Models\Brand::firstOrCreate(
+            ['name' => $brandName],
+            ['name' => $brandName, 'description' => "Software brand: {$brandName}"]
+        );
+
+        // Create a model with the same name as the brand for software
+        $model = \App\Models\ProductModel::firstOrCreate(
+            ['brand_id' => $brand->id, 'name' => $brandName],
+            ['brand_id' => $brand->id, 'name' => $brandName, 'description' => $brandName]
+        );
+
+        Log::info("Created/found brand and model for software", [
+            'brand' => $brand->name,
+            'model' => $model->name,
+            'model_id' => $model->id
+        ]);
+
+        return $model->id;
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['asset_type'] = 'software';
@@ -188,11 +217,10 @@ class CreateSoftwareAsset extends CreateRecord
             ->success()
             ->title('Software Asset Created')
             ->when(
-                ($this->record->model && $this->record->model->brand && $this->record->model->brand->name)
-                    || ($this->record->model && $this->record->model->name),
+                $this->record->model?->brand?->name,
                 fn($notification) => $notification->body(
                     Str::markdown(
-                        trim(($this->record->model->brand->name ?? '') . ' ' . ($this->record->model->name ?? '')) . ' has been created'
+                        ($this->record->model->brand->name ?? 'Software') . ' has been created'
                     )
                 )
             )

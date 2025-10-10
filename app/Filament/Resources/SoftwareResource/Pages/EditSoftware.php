@@ -88,7 +88,7 @@ class EditSoftware extends EditRecord
                     ->default('active'),
                 TextInput::make('brand')->label('Brand')->required(),
                 TextInput::make('model')->label('Model')->required(),
-                TextInput::make('cost_code')->label('Department/Project Code'),
+                TextInput::make('cost_code')->label('Cost Code'),
                 Fieldset::make('Software Details')
                     ->schema([
                         TextInput::make('version')->label('Version'),

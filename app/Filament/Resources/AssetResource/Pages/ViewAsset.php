@@ -133,7 +133,7 @@ class ViewAsset extends ViewRecord
                                         return $state;
                                     }),
                                 TextEntry::make('cost_code')
-                                    ->label('Department/Project Code')
+                                    ->label('Cost Code')
                                     ->getStateUsing(function ($record) {
                                         return $record->costCode?->name ?? 'N/A';
                                     })

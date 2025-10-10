@@ -42,8 +42,14 @@ class ManageTransferAction
                 $assetName = 'Unknown Asset';
                 if ($record->asset) {
                     $brand = $record->asset->model?->brand?->name ?? 'Unknown Brand';
-                    $model = $record->asset->model?->name ?? 'Unknown Model';
-                    $assetName = "{$brand} {$model}";
+                    // For software, only show brand
+                    if ($record->asset->asset_type === 'software') {
+                        $assetName = $brand;
+                    } else {
+                        // For hardware/peripherals, show brand + model
+                        $model = $record->asset->model?->name ?? 'Unknown Model';
+                        $assetName = "{$brand} {$model}";
+                    }
                 }
 
                 return "Transfer {$assetName} to {$toEmployee->first_name} {$toEmployee->last_name}?";
@@ -181,8 +187,13 @@ class ManageTransferAction
             ->icon('heroicon-o-information-circle')
             ->body(function() use ($record) {
                 $brand = $record->asset->model?->brand?->name ?? 'Unknown Brand';
-                $model = $record->asset->model?->name ?? 'Unknown Model';
-                return Str::markdown("The asset **{$brand} {$model}** is now available for your approval.");
+                $assetName = $brand;
+                // For non-software, include model
+                if ($record->asset->asset_type !== 'software') {
+                    $model = $record->asset->model?->name ?? 'Unknown Model';
+                    $assetName = "{$brand} {$model}";
+                }
+                return Str::markdown("The asset **{$assetName}** is now available for your approval.");
             })
             ->info()
             ->sendToDatabase(User::where('id_num', $transfer->to_employee)->firstOrFail());

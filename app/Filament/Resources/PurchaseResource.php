@@ -49,13 +49,18 @@ class PurchaseResource extends Resource
                         $asset = $record->asset;
                         if (!$asset) return 'N/A';
                         $brand = $asset->model?->brand?->name ?? 'Unknown Brand';
+                        // For software, only show brand
+                        if ($asset->asset_type === 'software') {
+                            return $brand;
+                        }
+                        // For hardware/peripherals, show brand + model
                         $model = $asset->model?->name ?? 'Unknown Model';
                         return "{$brand} {$model}";
                     })
                     ->searchable()
                     ->url(fn(Purchase $record): string => route('filament.admin.resources.assets.view', ['record' => $record->asset_id])),
                 TextColumn::make('asset.costCode.name')
-                    ->label('Department/Project Code')
+                    ->label('Cost Code')
                     ->sortable()
                     ->searchable()
                     ->placeholder('N/A'),

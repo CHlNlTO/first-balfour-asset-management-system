@@ -73,14 +73,6 @@ class SoftwareResource extends Resource
                     ->copyMessage('Copied!')
                     ->tooltip('Click to copy')
                     ->placeholder('N/A'),
-                TextColumn::make('asset.model.name')
-                    ->searchable()
-                    ->sortable()
-                    ->label('Model')
-                    ->copyable()
-                    ->copyMessage('Copied!')
-                    ->tooltip('Click to copy')
-                    ->placeholder('N/A'),
                 TextColumn::make('version')
                     ->label('Version')
                     ->sortable()

@@ -54,6 +54,11 @@ class OptionToBuyAction
                 ->default(function(Model $record): string {
                     $asset = $record->asset;
                     $brand = $asset->model?->brand?->name ?? 'Unknown Brand';
+                    // For software, only show brand
+                    if ($asset->asset_type === 'software') {
+                        return "{$asset->id} - {$brand}";
+                    }
+                    // For hardware/peripherals, show brand + model
                     $model = $asset->model?->name ?? 'Unknown Model';
                     return "{$asset->id} - {$brand} {$model}";
                 })

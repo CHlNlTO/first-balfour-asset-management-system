@@ -106,6 +106,12 @@ class Asset extends Model
             return null;
         }
 
+        // For software, only show brand name (since model name = brand name)
+        if ($this->asset_type === 'software') {
+            return $this->model->brand->name;
+        }
+
+        // For hardware and peripherals, show brand + model
         return "{$this->model->brand->name} {$this->model->name}";
     }
 }
