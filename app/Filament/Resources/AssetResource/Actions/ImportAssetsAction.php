@@ -677,8 +677,8 @@ class ImportAssetsAction extends Action
         $validator = Validator::make($data, [
             'version' => 'required|string|max:255',
             'license_key' => 'required|string|max:255',
-            'software_type' => 'required|string|max:255',
-            'license_type' => 'required|string|max:255',
+            'software_type' => 'nullable|string|max:255',
+            'license_type' => 'nullable|string|max:255',
             'pc_name' => 'nullable|string|max:255',
         ]);
 
@@ -686,17 +686,25 @@ class ImportAssetsAction extends Action
             throw new \Exception('Software validation failed: ' . $validator->errors()->first());
         }
 
-        // Normalize software type
-        $softwareType = SoftwareType::firstOrCreate(
-            ['software_type' => trim($data['software_type'])],
-            ['software_type' => trim($data['software_type'])]
-        );
+        // Normalize software type if provided
+        $softwareTypeId = null;
+        if (!empty($data['software_type'])) {
+            $softwareType = SoftwareType::firstOrCreate(
+                ['software_type' => trim($data['software_type'])],
+                ['software_type' => trim($data['software_type'])]
+            );
+            $softwareTypeId = $softwareType->id;
+        }
 
-        // Normalize license type
-        $licenseType = LicenseType::firstOrCreate(
-            ['license_type' => trim($data['license_type'])],
-            ['license_type' => trim($data['license_type'])]
-        );
+        // Normalize license type if provided
+        $licenseTypeId = null;
+        if (!empty($data['license_type'])) {
+            $licenseType = LicenseType::firstOrCreate(
+                ['license_type' => trim($data['license_type'])],
+                ['license_type' => trim($data['license_type'])]
+            );
+            $licenseTypeId = $licenseType->id;
+        }
 
         // Normalize PC name if provided
         $pcNameId = null;
@@ -715,8 +723,8 @@ class ImportAssetsAction extends Action
             'asset_id' => $asset->id,
             'version' => $data['version'],
             'license_key' => $data['license_key'],
-            'software_type' => $softwareType->id,
-            'license_type' => $licenseType->id,
+            'software_type' => $softwareTypeId,
+            'license_type' => $licenseTypeId,
             'pc_name_id' => $pcNameId,
         ]);
 

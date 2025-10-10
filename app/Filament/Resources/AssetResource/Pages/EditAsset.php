@@ -222,11 +222,11 @@ class EditAsset extends EditRecord
         $record->software()->updateOrCreate(
             ['asset_id' => $record->id],
             [
-                'software_type' => $data['software_type'],
-                'license_type' => $data['license_type'],
+                'software_type' => $data['software_type'] ?? null,
+                'license_type' => $data['license_type'] ?? null,
                 'version' => $data['version'] ?? null,
                 'license_key' => $data['license_key'] ?? null,
-                'pc_name_id' => $data['pc_name'],
+                'pc_name_id' => $data['pc_name'] ?? null,
             ]
         );
 

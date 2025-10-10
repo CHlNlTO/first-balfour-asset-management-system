@@ -56,7 +56,8 @@ class CreateSoftware extends CreateRecord
             'asset_id' => $asset->id,
             'version' => $data['version'],
             'license_key' => $data['license_key'],
-            'license_type' => $data['license_type'],
+            'software_type' => $data['software_type'] ?? null,
+            'license_type' => $data['license_type'] ?? null,
         ]);
 
         if ($data['add_purchase_information'] === 'yes') {

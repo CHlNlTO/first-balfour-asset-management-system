@@ -154,8 +154,8 @@ class AssetResource extends Resource
     {
         return [
             AssignmentsRelationManager::class,
-            SoftwareRelationmanager::class,
-            HardwareRelationManager::class,
+            // SoftwareRelationmanager::class,
+            // HardwareRelationManager::class,
         ];
     }
 

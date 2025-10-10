@@ -53,7 +53,6 @@ class CreateSoftwareAsset extends CreateRecord
                                         Select::make('software_type')
                                             ->label('Software Type')
                                             ->options(SoftwareType::pluck('software_type', 'id'))
-                                            ->required()
                                             ->createOptionForm([
                                                 TextInput::make('software_type')
                                                     ->required()
@@ -64,7 +63,6 @@ class CreateSoftwareAsset extends CreateRecord
                                         Select::make('license_type')
                                             ->label('License Type')
                                             ->options(LicenseType::pluck('license_type', 'id'))
-                                            ->required()
                                             ->createOptionForm([
                                                 TextInput::make('license_type')
                                                     ->required()
@@ -107,25 +105,24 @@ class CreateSoftwareAsset extends CreateRecord
                                             ->inlineLabel(),
                                     ]),
                             ]),
-
-                        Section::make("Attach to Hardware")
-                            ->icon('heroicon-o-link')
-                            ->schema([
-                                Grid::make(2)
-                                    ->schema([
-                                        Select::make('hardware')
-                                            ->label('Hardware')
-                                            ->options(function () {
-                                                return Asset::where('asset_type', 'hardware')
-                                                    ->get()
-                                                    ->pluck('asset', 'id');
-                                            })
-                                            ->searchable(['id', 'brand', 'model'])
-                                            ->multiple()
-                                            ->preload()
-                                            ->inlineLabel(),
-                                    ]),
-                            ])
+                        // Section::make("Attach to Hardware")
+                        //     ->icon('heroicon-o-link')
+                        //     ->schema([
+                        //         Grid::make(2)
+                        //             ->schema([
+                        //                 Select::make('hardware')
+                        //                     ->label('Hardware')
+                        //                     ->options(function () {
+                        //                         return Asset::where('asset_type', 'hardware')
+                        //                             ->get()
+                        //                             ->pluck('asset', 'id');
+                        //                     })
+                        //                     ->searchable(['id', 'brand', 'model'])
+                        //                     ->multiple()
+                        //                     ->preload()
+                        //                     ->inlineLabel(),
+                        //             ]),
+                        //     ])
                     ])
                     ->columnSpan(['lg' => 2]),
 
@@ -159,8 +156,8 @@ class CreateSoftwareAsset extends CreateRecord
             // Create the software record
             Software::create([
                 'asset_id' => $asset->id,
-                'software_type' => $data['software_type'],
-                'license_type' => $data['license_type'],
+                'software_type' => $data['software_type'] ?? null,
+                'license_type' => $data['license_type'] ?? null,
                 'version' => $data['version'] ?? null,
                 'license_key' => $data['license_key'] ?? null,
                 'pc_name_id' => $data['pc_name'] ?? null,

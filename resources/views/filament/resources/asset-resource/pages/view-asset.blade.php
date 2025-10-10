@@ -470,14 +470,14 @@
     <!-- Tabs -->
     <x-filament::tabs>
         <!-- Assignments Tab -->
-        <x-filament::tabs.item :active="$activeTab === 'assignments'" wire:click="$set('activeTab', 'assignments')">
+    <x-filament::tabs.item :active="$activeTab === 'assignments'" wire:click="$set('activeTab', 'assignments')">
             <x-slot name="icon">
                 <x-heroicon-o-document class="w-4 h-4" />
             </x-slot>
             Assignments
         </x-filament::tabs.item>
 
-        @if ($record->asset_type === 'software')
+        {{-- @if ($record->asset_type === 'software')
             <!-- Installed On Hardware Tab -->
             <x-filament::tabs.item :active="$activeTab === 'installed on hardware'" wire:click="$set('activeTab', 'installed on hardware')">
                 <x-slot name="icon">
@@ -493,7 +493,7 @@
                 </x-slot>
                 Installed Software
             </x-filament::tabs.item>
-        @endif
+        @endif --}}
 
     </x-filament::tabs>
 
@@ -503,7 +503,7 @@
                 'ownerRecord' => $record,
                 'pageClass' => get_class($this),
             ])
-        @elseif ($activeTab === 'installed software' && $record->asset_type === 'hardware')
+        {{-- @elseif ($activeTab === 'installed software' && $record->asset_type === 'hardware')
             @livewire(App\Filament\Resources\AssetResource\RelationManagers\SoftwareRelationmanager::class, [
                 'ownerRecord' => $record,
                 'pageClass' => get_class($this),
@@ -512,7 +512,7 @@
             @livewire(App\Filament\Resources\AssetResource\RelationManagers\HardwareRelationmanager::class, [
                 'ownerRecord' => $record,
                 'pageClass' => get_class($this),
-            ])
+            ]) --}}
         @endif
     </div>
 </x-filament::page>

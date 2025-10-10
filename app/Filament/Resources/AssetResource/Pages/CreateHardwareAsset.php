@@ -122,24 +122,24 @@ class CreateHardwareAsset extends CreateRecord
                                             ->inlineLabel(),
                                     ]),
                             ]),
-                        Section::make("Attach Software")
-                            ->icon('heroicon-o-link')
-                            ->schema([
-                                Grid::make(2)
-                                    ->schema([
-                                        Select::make('software')
-                                            ->label('Software')
-                                            ->options(function () {
-                                                return Asset::where('asset_type', 'software')
-                                                    ->get()
-                                                    ->pluck('asset', 'id'); // Using the getAssetAttribute accessor you defined
-                                            })
-                                            ->searchable()
-                                            ->multiple() // Since it's many-to-many relationship
-                                            ->preload() // For better performance
-                                            ->inlineLabel()
-                                    ]),
-                            ])
+                        // Section::make("Attach Software")
+                        //     ->icon('heroicon-o-link')
+                        //     ->schema([
+                        //         Grid::make(2)
+                        //             ->schema([
+                        //                 Select::make('software')
+                        //                     ->label('Software')
+                        //                     ->options(function () {
+                        //                         return Asset::where('asset_type', 'software')
+                        //                             ->get()
+                        //                             ->pluck('asset', 'id'); // Using the getAssetAttribute accessor you defined
+                        //                     })
+                        //                     ->searchable()
+                        //                     ->multiple() // Since it's many-to-many relationship
+                        //                     ->preload() // For better performance
+                        //                     ->inlineLabel()
+                        //             ]),
+                        //     ])
                     ])
                     ->columnSpan(['lg' => 2]),
 

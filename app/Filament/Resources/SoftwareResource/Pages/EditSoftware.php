@@ -60,7 +60,8 @@ class EditSoftware extends EditRecord
             $record->update([
                 'version' => $data['version'],
                 'license_key' => $data['license_key'],
-                'license_type' => $data['license_type'],
+                'software_type' => $data['software_type'] ?? null,
+                'license_type' => $data['license_type'] ?? null,
                 'pc_name' => $data['pc_name'],
             ]);
 
@@ -90,10 +91,10 @@ class EditSoftware extends EditRecord
                 TextInput::make('cost_code')->label('Department/Project Code'),
                 Fieldset::make('Software Details')
                     ->schema([
-                        TextInput::make('version')->label('Version')->required(),
-                        TextInput::make('license_key')->label('License Key')->required(),
-                        TextInput::make('license_type')->label('License Type')->required(),
-                        TextInput::make('pc_name')->label('PC Name')->required(),
+                        TextInput::make('version')->label('Version'),
+                        TextInput::make('license_key')->label('License Key'),
+                        TextInput::make('license_type')->label('License Type'),
+                        TextInput::make('pc_name')->label('PC Name'),
                     ]),
             ]);
     }
