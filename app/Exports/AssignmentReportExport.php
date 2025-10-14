@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Illuminate\Support\Facades\Log;
 
-class AssetReportExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
+class AssignmentReportExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
     public function collection()
     {
@@ -25,7 +25,7 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
                 'status'
             ])->get();
         } catch (\Exception $e) {
-            Log::error('Error in AssetReportExport collection: ' . $e->getMessage());
+            Log::error('Error in AssignmentReportExport collection: ' . $e->getMessage());
             return collect([]);
         }
     }
