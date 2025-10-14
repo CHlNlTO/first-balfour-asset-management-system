@@ -20,7 +20,7 @@ class ListAssignments extends ListRecords
                 ->label('Export Assignments')
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('success')
-                ->url(route('export.asset-report'))
+                ->url(route('export.assignment-report'))
                 ->openUrlInNewTab()
                 ->extraAttributes([
                     'class' => 'bg-green-600 hover:bg-green-700'

@@ -18,6 +18,15 @@ class ListAssets extends ListRecords
         return [
             ImportAssetsAction::make(),
             Actions\CreateAction::make(),
+            Actions\Action::make('export_asset_report')
+                ->label('Export Assets')
+                ->icon('heroicon-o-document-arrow-down')
+                ->color('success')
+                ->url(route('export.asset-report'))
+                ->openUrlInNewTab()
+                ->extraAttributes([
+                    'class' => 'bg-green-600 hover:bg-green-700'
+                ])
         ];
     }
 

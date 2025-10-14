@@ -15,6 +15,10 @@ Route::view('profile', 'profile')
     ->name('profile');
 
 // Export routes
+Route::get('/export/assignment-report', [ExportController::class, 'exportAssignmentReport'])
+    ->middleware(['auth', 'verified'])
+    ->name('export.assignment-report');
+
 Route::get('/export/asset-report', [ExportController::class, 'exportAssetReport'])
     ->middleware(['auth', 'verified'])
     ->name('export.asset-report');
