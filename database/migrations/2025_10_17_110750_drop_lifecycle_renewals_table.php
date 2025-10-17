@@ -6,7 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::dropIfExists('lifecycle_renewals');
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
         Schema::create('lifecycle_renewals', function (Blueprint $table) {
             $table->id();
@@ -25,10 +36,5 @@ return new class extends Migration
             // Index for faster queries
             $table->index(['lifecycle_id', 'created_at']);
         });
-    }
-
-    public function down()
-    {
-        Schema::dropIfExists('lifecycle_renewals');
     }
 };
