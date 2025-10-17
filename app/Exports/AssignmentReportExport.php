@@ -22,6 +22,7 @@ class AssignmentReportExport implements FromCollection, WithHeadings, WithMappin
                 'asset',
                 'asset.model.brand',
                 'asset.costCode',
+                'asset.assetStatus',
                 'status'
             ])->get();
         } catch (\Exception $e) {
@@ -44,6 +45,7 @@ class AssignmentReportExport implements FromCollection, WithHeadings, WithMappin
             'Brand',
             'Model',
             'Cost Code',
+            'Asset Status',
             'Assignment Status',
             'Assignment Receive Date',
             'Assignment Return Date',
@@ -122,6 +124,7 @@ class AssignmentReportExport implements FromCollection, WithHeadings, WithMappin
                 $assetDetails['brand'] ?? 'N/A',
                 $assetDetails['model'] ?? 'N/A',
                 $asset && $asset->costCode ? $asset->costCode->name : 'N/A',
+                $asset && $asset->assetStatus ? $asset->assetStatus->asset_status : 'N/A',
                 $assignment->status ? $assignment->status->assignment_status : 'N/A',
                 $assignment->start_date ? \Carbon\Carbon::parse($assignment->start_date)->toDateString() : 'N/A',
                 $assignment->end_date ?? 'N/A',
@@ -283,7 +286,7 @@ class AssignmentReportExport implements FromCollection, WithHeadings, WithMappin
 
     private function getEmptyRow()
     {
-        $columns = 45; // Total number of columns (removed software PC name and attached items)
+        $columns = 46; // Total number of columns (added Asset Status column)
         return array_fill(0, $columns, 'N/A');
     }
 
