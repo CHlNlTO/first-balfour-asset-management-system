@@ -30,43 +30,36 @@ class ListAssignments extends ListRecords
 
     public function getTabs(): array
     {
-        return [
+        // Get all assignment statuses from the database
+        $assignmentStatuses = \App\Models\AssignmentStatus::all();
+
+        // Define the tabs we want to show (retain specific ones)
+        $retainedTabs = ['All', 'Active', 'Inactive', 'Defective', 'Pending Return', 'Asset Sold'];
+
+        $tabs = [
             'All' => Tab::make(),
-            'Active' => Tab::make()
-                ->modifyQueryUsing(
-                    fn(Builder $query) => $query
-                        ->whereHas('status', fn($q) => $q->where('assignment_status', 'Active'))
-                ),
-            'In Transfer' => Tab::make()
-                ->modifyQueryUsing(
-                    fn(Builder $query) => $query
-                        ->whereHas('status', fn($q) => $q->where('assignment_status', 'In Transfer'))
-                ),
-            'Inactive' => Tab::make()
-                ->modifyQueryUsing(
-                    fn(Builder $query) => $query
-                        ->whereHas('status', fn($q) => $q->where('assignment_status', 'Inactive'))
-                ),
-            'Pending Approval' => Tab::make()
-                ->modifyQueryUsing(
-                    fn(Builder $query) => $query
-                        ->whereHas('status', fn($q) => $q->where('assignment_status', 'Pending Approval'))
-                ),
-            'Pending Return' => Tab::make()
-                ->modifyQueryUsing(
-                    fn(Builder $query) => $query
-                        ->whereHas('status', fn($q) => $q->where('assignment_status', 'Pending Return'))
-                ),
-            'Option To Buy' => Tab::make()
-                ->modifyQueryUsing(
-                    fn(Builder $query) => $query
-                        ->whereHas('status', fn($q) => $q->where('assignment_status', 'Option to Buy'))
-                ),
-            'Asset Sold' => Tab::make()
-                ->modifyQueryUsing(
-                    fn(Builder $query) => $query
-                        ->whereHas('status', fn($q) => $q->where('assignment_status', 'Asset Sold'))
-                ),
         ];
+
+        // Build tabs dynamically for retained statuses
+        foreach ($retainedTabs as $tabName) {
+            if ($tabName === 'All') {
+                continue; // Already added above
+            }
+
+            // Find the matching assignment status in the database
+            $status = $assignmentStatuses->first(function ($status) use ($tabName) {
+                return $status->assignment_status === $tabName;
+            });
+
+            if ($status) {
+                $tabs[$tabName] = Tab::make()
+                    ->modifyQueryUsing(
+                        fn(Builder $query) => $query
+                            ->whereHas('status', fn($q) => $q->where('assignment_status', $status->assignment_status))
+                    );
+            }
+        }
+
+        return $tabs;
     }
 }
