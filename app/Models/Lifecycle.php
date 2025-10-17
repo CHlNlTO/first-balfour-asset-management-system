@@ -18,14 +18,10 @@ class Lifecycle extends Model
         'asset_id',
         'acquisition_date',
         'retirement_date',
-        'auto_renewal_enabled',
-        'renewal_in_progress',
         'remarks'
     ];
 
     protected $casts = [
-        'auto_renewal_enabled' => 'boolean',
-        'renewal_in_progress' => 'boolean',
         'retirement_date' => 'date',
     ];
 
@@ -120,86 +116,9 @@ class Lifecycle extends Model
         return 'Active';
     }
 
-    public function renewals(): HasMany
-    {
-        return $this->hasMany(LifecycleRenewal::class);
-    }
 
-    public function isDueForRenewal(): bool
-    {
-        // Check if it's a software asset with subscription license
-        if (
-            !$this->asset ||
-            $this->asset->asset_type !== 'software' ||
-            !$this->asset->software?->licenseType
-        ) {
-            return false;
-        }
 
-        $licenseType = $this->asset->software->licenseType->license_type;
-        if (!in_array($licenseType, ['Monthly Subscription', 'Annual Subscription'])) {
-            return false;
-        }
 
-        // Check if within 14 days of expiration and not already expired
-        $now = Carbon::now();
-        $retirementDate = $this->retirement_date ? Carbon::parse($this->retirement_date) : null;
-
-        return $retirementDate
-            && $now < $retirementDate
-            && $now->diffInDays($retirementDate, false) <= 14;
-    }
-
-    public function renewSubscription(?Carbon $newDate = null, ?string $remarks = null): void
-    {
-        Log::info('Renewing subscription for lifecycle ID: ' . $this->id);
-
-        // Start transaction
-        DB::beginTransaction();
-        try {
-            $oldDate = Carbon::parse($this->retirement_date);
-
-            // If no new date provided, calculate based on license type
-            if (!$newDate) {
-                $licenseType = $this->asset->software->licenseType->license_type;
-                $newDate = match ($licenseType) {
-                    'Monthly Subscription' => $this->calculateNextMonthDate($oldDate),
-                    'Annual Subscription' => $oldDate->copy()->addYear(),
-                    default => throw new \Exception('Invalid license type for renewal')
-                };
-            }
-
-            // Create renewal record
-            $this->renewals()->create([
-                'user_id' => auth()->id(), // Changed from auth()->user()
-                'old_retirement_date' => $oldDate,
-                'new_retirement_date' => $newDate,
-                'is_automatic' => false,
-                'remarks' => $remarks
-            ]);
-
-            // Update lifecycle
-            $this->update([
-                'retirement_date' => $newDate,
-                'remarks' => $remarks
-            ]);
-
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-    }
-
-    protected function calculateNextMonthDate(Carbon $currentDate): Carbon
-    {
-        // If it's the last day of the month, use the last day of the next month
-        if ($currentDate->copy()->endOfMonth()->isSameDay($currentDate)) {
-            return $currentDate->copy()->addMonth()->endOfMonth();
-        }
-
-        return $currentDate->copy()->addMonth();
-    }
 
     // Add this new scope method for lifecycle status filtering
     public function scopeWithLifecycleStatus(Builder $query, string $status): Builder

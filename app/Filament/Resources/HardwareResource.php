@@ -22,7 +22,7 @@ class HardwareResource extends Resource
 
     protected static ?string $navigationGroup = 'Manage Assets';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
 
     public static function table(Table $table): Table
     {

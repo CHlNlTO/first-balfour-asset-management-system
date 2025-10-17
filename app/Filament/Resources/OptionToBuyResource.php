@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\OptionToBuyResource\Pages;
-use App\Filament\Resources\Actions\ApproveSaleAction;
 use App\Models\OptionToBuy;
 use App\Models\Assignment;
 use App\Models\AssignmentStatus;
@@ -33,7 +32,7 @@ class OptionToBuyResource extends Resource
 
     protected static ?string $slug = "option-to-buy";
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
@@ -55,7 +54,10 @@ class OptionToBuyResource extends Resource
                 Forms\Components\Select::make('option_to_buy_status')
                     ->label('Status')
                     ->options(AssignmentStatus::all()->pluck('assignment_status', 'id'))
-                    ->default('10')
+                    ->default(function () {
+                        $assetSoldStatus = AssignmentStatus::where('assignment_status', 'Asset Sold')->first();
+                        return $assetSoldStatus ? $assetSoldStatus->id : null;
+                    })
                     ->required()
                     ->searchable(),
                 Forms\Components\FileUpload::make('document_path')
@@ -212,7 +214,6 @@ class OptionToBuyResource extends Resource
                     ->visible(fn(OptionToBuy $record): bool => $record->document_path !== null),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                ApproveSaleAction::makeForOptionToBuy(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\LifecycleResource\Actions\RenewSubscriptionAction;
 use App\Filament\Resources\LifecycleResource\Pages;
 use App\Models\Lifecycle;
 use Filament\Resources\Resource;
@@ -19,9 +18,9 @@ class LifecycleResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar';
 
-    protected static ?string $navigationGroup = 'Manage Lifecycle';
+    protected static ?string $navigationGroup = 'Manage Assets';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 5;
 
     public static function table(Table $table): Table
     {
@@ -110,14 +109,6 @@ class LifecycleResource extends Resource
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
 
-                TextColumn::make('auto_renewal_enabled')
-                    ->label('Auto Renewal')
-                    ->sortable()
-                    ->getStateUsing(fn(Lifecycle $record): string => $record->auto_renewal_enabled ? 'Enabled' : 'Disabled')
-                    ->color(fn(string $state): string => $state === 'Enabled' ? 'success' : 'danger')
-                    ->badge()
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
                     ->label('Created At')
@@ -155,7 +146,7 @@ class LifecycleResource extends Resource
 
             ])
             ->actions([
-                RenewSubscriptionAction::make(),
+                //
             ])
             ->bulkActions([
                 DeleteBulkAction::make(),
