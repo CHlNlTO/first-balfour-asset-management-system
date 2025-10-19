@@ -122,7 +122,54 @@ The **Asset Management System** is a web application developed for **First Balfo
     php artisan queue:work database --queue=imports,default --sleep=0
     ```
 
-9. **Serve the application:**
+9. **Set up the Task Scheduler (for automated asset status updates):**
+
+    The system includes an automated job that updates asset statuses to "Inactive" when they reach their retirement date. This runs daily at 2:00 AM.
+
+    **For Windows (XAMPP):**
+
+    a. Open **Task Scheduler** (search "Task Scheduler" in Start Menu)
+
+    b. Click **"Create Task..."** (not "Create Basic Task")
+
+    c. **General Tab:**
+       - Name: `Laravel Asset Management Scheduler`
+       - Description: `Runs Laravel scheduler every minute`
+       - Check "Run whether user is logged on or not" (Do not check when user password is unknown or user does not have privileges)
+       - Check "Run with highest privileges"
+
+    d. **Triggers Tab:**
+       - Click **New...**
+       - Begin the task: **"On a schedule"**
+       - Settings: **"Daily"**
+       - Start: Today's date and set time to 02:00 AM
+       - Recur every: **1 day**
+       - **Advanced settings:**
+         - Check "Repeat task every: **1 minute**"
+         - For a duration of: **"Indefinitely"**
+
+    e. **Actions Tab:**
+       - Click **New...**
+       - Action: **"Start a program"**
+       - Program/script: `C:\xampp\php\php.exe`
+       - Add arguments: `artisan schedule:run`
+       - Start in: `C:\xampp\htdocs\first-balfour-asset-management-system` (specify the specific repository path)
+
+    f. **Settings Tab:**
+       - Check "Allow task to be run on demand"
+       - Check "Run task as soon as possible after a scheduled start is missed"
+       - Check "If the running task does not end when requested, force it to stop"
+
+    g. Click **OK** and enter your Windows password when prompted
+
+    **For Linux/Unix (Production):**
+
+    Add this line to your crontab:
+    ```bash
+    * * * * * cd /path/to/your/project && php artisan schedule:run >> /dev/null 2>&1
+    ```
+
+10. **Serve the application:**
 
     ```bash
     php artisan serve
@@ -148,6 +195,70 @@ The **Asset Management System** is a web application developed for **First Balfo
 - **Super Admin**: Full system access and user management
 - **Admin**: Asset management and reporting capabilities
 - **User**: View assigned assets and basic operations
+
+## Task Scheduler Management
+
+### Monitoring the Scheduler
+
+The automated asset status update job runs daily at 2:00 AM. Here's how to monitor and manage it:
+
+#### **Check Scheduled Tasks**
+```bash
+# View all scheduled tasks
+php artisan schedule:list
+
+# Run scheduler manually (for testing, needs timing with the specified time to run)
+php artisan schedule:run
+```
+
+#### **Manual Asset Status Update**
+```bash
+# Dry run (see what would be updated without making changes, safe to run)
+php artisan assets:update-retired-status --dry-run --limit=5
+
+# Update specific number of assets
+php artisan assets:update-retired-status --limit=10
+
+# Update all eligible assets
+php artisan assets:update-retired-status
+```
+
+#### **Log Monitoring**
+```bash
+# Check scheduler execution logs
+type storage\logs\scheduler.log
+
+# Check detailed job logs
+findstr "UpdateRetiredAssetsStatus" storage\logs\laravel.log
+
+# Monitor logs in real-time
+# Windows: Use PowerShell or Command Prompt
+Get-Content storage\logs\laravel.log -Wait -Tail 20
+```
+
+#### **Troubleshooting**
+
+**If the scheduler isn't running:**
+1. Check Windows Task Scheduler for the task status
+2. Verify the task is enabled and running
+3. Check the "Last Run Time" and "Last Run Result" in Task Scheduler
+4. Ensure PHP path is correct in the task action
+
+**If assets aren't being updated:**
+1. Apache and MySQL should be running
+2. Check `storage/logs/laravel.log` for error messages
+3. Verify asset retirement dates are set correctly
+4. Ensure the "Inactive" asset status exists in the database
+5. Run the command manually to test: `php artisan assets:update-retired-status --limit=1`
+
+**If you see "No scheduled commands are ready to run":**
+- This is normal when it's not 2:00 AM yet
+- The scheduler checks every minute but only runs jobs at their scheduled times
+
+### **Log Locations**
+- **Scheduler Log**: `storage/logs/scheduler.log` - Basic execution info
+- **Application Log**: `storage/logs/laravel.log` - Detailed job execution and errors
+- **Email Notifications**: Sent to `clark.wayne023@gmail.com` on job failures
 
 ## Development
 
