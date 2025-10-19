@@ -9,7 +9,7 @@ class Kernel extends ConsoleKernel
 {
     protected function schedule(Schedule $schedule)
     {
-        //
+        // Scheduled tasks are managed in routes/console.php
     }
 
     protected $commands = [
