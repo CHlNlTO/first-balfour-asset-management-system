@@ -23,6 +23,11 @@ Route::get('/export/asset-report', [ExportController::class, 'exportAssetReport'
     ->middleware(['auth', 'verified'])
     ->name('export.asset-report');
 
+Route::get('/export/employee-report', [ExportController::class, 'exportEmployeeReport'])
+    ->middleware(['auth', 'verified'])
+    ->name('export.employee-report');
+
+
 // Admin panel Socialite auth routes
 Route::get('/admin/auth/{provider}/redirect', [SocialiteController::class, 'redirect'])
     ->name('admin.socialite.redirect')

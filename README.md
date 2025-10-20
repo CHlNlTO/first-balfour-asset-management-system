@@ -119,7 +119,7 @@ The **Asset Management System** is a web application developed for **First Balfo
 8. **Start the queue worker (for import/export functionality):**
 
     ```bash
-    php artisan queue:work database --queue=imports,default --sleep=0
+    php artisan queue:work database --queue=imports,exports,default --sleep=0
     ```
 
 9. **Set up the Task Scheduler (for automated asset status updates):**

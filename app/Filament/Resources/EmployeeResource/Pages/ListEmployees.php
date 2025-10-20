@@ -23,6 +23,14 @@ class ListEmployees extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('exportEmployees')
+                ->label('Export Employees')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('success')
+                ->action(function () {
+                    $this->handleEmployeeExport();
+                }),
+
             Actions\Action::make('importEmployees')
                 ->label('Import Employees')
                 ->icon('heroicon-o-arrow-up-tray')
@@ -117,6 +125,11 @@ class ListEmployees extends ListRecords
                 ->persistent()
                 ->send();
         }
+    }
+
+    protected function handleEmployeeExport()
+    {
+        return redirect()->route('export.employee-report');
     }
 
     public function getTabs(): array

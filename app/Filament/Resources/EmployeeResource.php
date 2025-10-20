@@ -507,7 +507,7 @@ class EmployeeResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id_num')
-                    ->label('Employee ID')
+                    ->label('ID Number')
                     ->searchable()
                     ->sortable()
                     ->copyable()
@@ -527,13 +527,19 @@ class EmployeeResource extends Resource
                     ->copyable()
                     ->copyMessage('Email copied!')
                     ->icon('heroicon-m-envelope')
-                    ->placeholder('No email'),
+                    ->placeholder('No email')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('empService.rank.name')
                     ->label('Rank')
                     ->placeholder('Not assigned')
                     ->badge()
                     ->color('info'),
+
+                Tables\Columns\TextColumn::make('empService.costCode.name')
+                    ->label('Cost Code')
+                    ->placeholder('Not assigned')
+                    ->wrap(),
 
                 Tables\Columns\TextColumn::make('empService.position.name')
                     ->label('Position')
@@ -565,6 +571,11 @@ class EmployeeResource extends Resource
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('gray'),
+
+                    Tables\Columns\TextColumn::make('empService.status.name')
+                    ->label('Employment Status')
+                    ->placeholder('Not assigned')
+                    ->wrap(),
 
                 Tables\Columns\TextColumn::make('original_hired_date')
                     ->label('Hire Date')
@@ -681,15 +692,5 @@ class EmployeeResource extends Resource
             'view' => Pages\ViewEmployee::route('/{record}'),
             'edit' => Pages\EditEmployee::route('/{record}/edit'),
         ];
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::where('active', true)->count();
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'success';
     }
 }
