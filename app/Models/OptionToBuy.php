@@ -19,6 +19,8 @@ class OptionToBuy extends Model
         'document_path',
     ];
 
+    protected $with = ['assignment.asset', 'status'];
+
     protected $appends = [
         'document_url',
     ];

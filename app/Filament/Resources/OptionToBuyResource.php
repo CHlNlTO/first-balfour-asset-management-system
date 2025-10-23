@@ -105,6 +105,14 @@ class OptionToBuyResource extends Resource
                         return $employee ? $employee : 'N/A';
                     })
                     ->url(fn(OptionToBuy $record): string => route('filament.admin.resources.employees.view', ['record' => $record->assignment->employee->id_num])),
+                Tables\Columns\TextColumn::make('assignment.asset.tag_number')
+                    ->label('Tag Number')
+                    ->sortable()
+                    ->searchable()
+                    ->placeholder('N/A')
+                    ->getStateUsing(function (OptionToBuy $record): ?string {
+                        return $record->assignment?->asset?->tag_number ?? 'N/A';
+                    }),
                 Tables\Columns\TextColumn::make('asset')
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->whereHas('assignment', function (Builder $query) use ($search) {
