@@ -82,7 +82,6 @@ class EditAsset extends EditRecord
             $data['specifications'] = $hardware->specifications;
             $data['accessories'] = $hardware->accessories;
             $data['mac_address'] = $hardware->mac_address;
-            $data['pc_name'] = $hardware->pc_name_id;
             $data['warranty_expiration'] = $this->record->lifecycle?->retirement_date ?? null;
         }
 
@@ -202,7 +201,6 @@ class EditAsset extends EditRecord
                 'specifications' => $data['specifications'] ?? null,
                 'mac_address' => $data['mac_address'] ?? null,
                 'accessories' => $data['accessories'] ?? null,
-                'pc_name_id' => $data['pc_name'] ?? null,
                 'warranty_expiration' => $data['retirement_date'] ?? null,
             ]
         );
@@ -231,7 +229,6 @@ class EditAsset extends EditRecord
                 'license_type' => $data['license_type'] ?? null,
                 'version' => $data['version'] ?? null,
                 'license_key' => $data['license_key'] ?? null,
-                'pc_name_id' => $data['pc_name'] ?? null,
             ]
         );
 

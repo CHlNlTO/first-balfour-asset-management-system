@@ -57,7 +57,6 @@ class AssignmentReportExport implements FromCollection, WithHeadings, WithMappin
             'Hardware Manufacturer',
             'Hardware MAC Address',
             'Hardware Accessories',
-            'Hardware PC Name',
 
             // Software Details
             'Software Type',
@@ -136,7 +135,6 @@ class AssignmentReportExport implements FromCollection, WithHeadings, WithMappin
                 $assetDetails['hardware_manufacturer'] ?? 'N/A',
                 $assetDetails['hardware_mac_address'] ?? 'N/A',
                 $assetDetails['hardware_accessories'] ?? 'N/A',
-                $assetDetails['hardware_pc_name'] ?? 'N/A',
 
                 // Software Details
                 $assetDetails['software_type'] ?? 'N/A',
@@ -218,7 +216,6 @@ class AssignmentReportExport implements FromCollection, WithHeadings, WithMappin
                 $details['hardware_manufacturer'] = $hardware->manufacturer ?? 'N/A';
                 $details['hardware_mac_address'] = $hardware->mac_address ?? 'N/A';
                 $details['hardware_accessories'] = $hardware->accessories ?? 'N/A';
-                $details['hardware_pc_name'] = $hardware->pcName->name ?? 'N/A';
             }
 
             // Software details
@@ -286,7 +283,7 @@ class AssignmentReportExport implements FromCollection, WithHeadings, WithMappin
 
     private function getEmptyRow()
     {
-        $columns = 46; // Total number of columns (added Asset Status column)
+        $columns = 45; // Total number of columns - PC Name removed
         return array_fill(0, $columns, 'N/A');
     }
 

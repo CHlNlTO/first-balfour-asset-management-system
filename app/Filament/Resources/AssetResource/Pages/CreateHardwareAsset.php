@@ -10,7 +10,6 @@ use App\Models\Hardware;
 use App\Models\HardwareSoftware;
 use App\Models\Purchase;
 use App\Models\Lifecycle;
-use App\Models\PCName;
 use App\Models\Software;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
@@ -74,31 +73,6 @@ class CreateHardwareAsset extends CreateRecord
                                             ->searchable()
                                             ->preload()
                                             ->inlineLabel(),
-                                        Select::make('pc_name')
-                                            ->label('PC Name')
-                                            ->options(fn() => PCName::pluck('name', 'id'))
-                                            ->createOptionForm([
-                                                TextInput::make('name')
-                                                    ->required()
-                                                    ->placeholder('DESKTOP-ABC123'),
-                                                TextInput::make('description')
-                                                    ->nullable()
-                                                    ->placeholder('Main Office Desktop'),
-                                            ])
-                                            ->createOptionUsing(function ($data) {
-                                                $pcName = PCName::create(['name' => $data['name'], 'description' => $data['description']]);
-
-                                                Notification::make()
-                                                    ->title('Record Created')
-                                                    ->body("PC Name {$pcName->name} has been created.")
-                                                    ->success()
-                                                    ->send();
-
-                                                return $pcName->id;
-                                            })
-                                            ->searchable()
-                                            ->preload()
-                                            ->inlineLabel(),
                                         TextInput::make('serial_number')
                                             ->label('Serial No.')
                                             ->required()
@@ -122,24 +96,6 @@ class CreateHardwareAsset extends CreateRecord
                                             ->inlineLabel(),
                                     ]),
                             ]),
-                        // Section::make("Attach Software")
-                        //     ->icon('heroicon-o-link')
-                        //     ->schema([
-                        //         Grid::make(2)
-                        //             ->schema([
-                        //                 Select::make('software')
-                        //                     ->label('Software')
-                        //                     ->options(function () {
-                        //                         return Asset::where('asset_type', 'software')
-                        //                             ->get()
-                        //                             ->pluck('asset', 'id'); // Using the getAssetAttribute accessor you defined
-                        //                     })
-                        //                     ->searchable()
-                        //                     ->multiple() // Since it's many-to-many relationship
-                        //                     ->preload() // For better performance
-                        //                     ->inlineLabel()
-                        //             ]),
-                        //     ])
                     ])
                     ->columnSpan(['lg' => 2]),
 
@@ -189,7 +145,6 @@ class CreateHardwareAsset extends CreateRecord
                     'accessories' => $data['accessories'] ?? null,
                     'manufacturer' => $data['manufacturer'] ?? null,
                     'mac_address' => $data['mac_address'] ?? null,
-                    'pc_name_id' => $data['pc_name'] ?? null,
                     'warranty_expiration' => $data['retirement_date'] ?? null,
                 ]);
 

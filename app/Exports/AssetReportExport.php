@@ -22,7 +22,6 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
                 'costCode',
                 'assetStatus',
                 'hardware.hardwareType',
-                'hardware.pcName',
                 'software.softwareType',
                 'software.licenseType',
                 'peripherals.peripheralsType',
@@ -79,7 +78,6 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
             'Hardware Specifications',
             'Hardware MAC Address',
             'Hardware Accessories',
-            'Hardware PC Name',
 
             // Software Details
             'Software Type',
@@ -155,7 +153,6 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
                 $assetDetails['hardware_specifications'] ?? 'N/A',
                 $assetDetails['hardware_mac_address'] ?? 'N/A',
                 $assetDetails['hardware_accessories'] ?? 'N/A',
-                $assetDetails['hardware_pc_name'] ?? 'N/A',
 
                 // Software Details
                 $assetDetails['software_type'] ?? 'N/A',
@@ -252,7 +249,6 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
                 $details['hardware_specifications'] = $hardware->specifications ?? 'N/A';
                 $details['hardware_mac_address'] = $hardware->mac_address ?? 'N/A';
                 $details['hardware_accessories'] = $hardware->accessories ?? 'N/A';
-                $details['hardware_pc_name'] = $hardware->pcName->name ?? 'N/A';
             }
 
             // Software details
@@ -319,7 +315,7 @@ class AssetReportExport implements FromCollection, WithHeadings, WithMapping, Sh
 
     private function getEmptyRow()
     {
-        $totalColumns = 51; // Fixed number of columns (46 asset columns + 5 assignment columns)
+        $totalColumns = 44; // Fixed number of columns (39 asset columns + 5 assignment columns) - PC Name removed
         return array_fill(0, $totalColumns, 'N/A');
     }
 

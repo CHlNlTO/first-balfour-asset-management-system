@@ -266,23 +266,6 @@ class ViewAsset extends ViewRecord
                                         }
                                         return $state;
                                     }),
-                                TextEntry::make('hardware.pc_name')
-                                    ->label('PC Name')
-                                    ->weight(FontWeight::Bold)
-                                    ->copyable()
-                                    ->copyMessage('Copied!')
-                                    ->copyMessageDuration(1000)
-                                    ->placeholder('N/A')
-                                    ->inlineLabel()
-                                    ->limit(20)
-                                    ->tooltip(function (TextEntry $component): ?string {
-                                        $state = $component->getState();
-
-                                        if (strlen($state) <= $component->getCharacterLimit()) {
-                                            return null;
-                                        }
-                                        return $state;
-                                    }),
                                 TextEntry::make('hardware.warranty_expiration')
                                     ->label('Warranty Expiration Date')
                                     ->date()
@@ -399,23 +382,6 @@ class ViewAsset extends ViewRecord
                                         $licenseType = LicenseType::find($software->license_type ?? null);
                                         return $licenseType ? $licenseType->license_type : 'N/A';
                                     })
-                                    ->weight(FontWeight::Bold)
-                                    ->copyable()
-                                    ->copyMessage('Copied!')
-                                    ->copyMessageDuration(1000)
-                                    ->placeholder('N/A')
-                                    ->inlineLabel()
-                                    ->limit(20)
-                                    ->tooltip(function (TextEntry $component): ?string {
-                                        $state = $component->getState();
-
-                                        if (strlen($state) <= $component->getCharacterLimit()) {
-                                            return null;
-                                        }
-                                        return $state;
-                                    }),
-                                TextEntry::make('software.pc_name')
-                                    ->label('PC Name')
                                     ->weight(FontWeight::Bold)
                                     ->copyable()
                                     ->copyMessage('Copied!')

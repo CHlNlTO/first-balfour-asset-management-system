@@ -11,16 +11,11 @@ class Hardware extends Model
 
     protected $primaryKey = 'asset_id'; // Specify the primary key if it's not the default 'id'
 
-    protected $fillable = ['asset_id', 'hardware_type', 'serial_number', 'specifications', 'manufacturer', 'warranty_expiration', 'mac_address', 'accessories', 'pc_name_id'];
+    protected $fillable = ['asset_id', 'hardware_type', 'serial_number', 'specifications', 'manufacturer', 'warranty_expiration', 'mac_address', 'accessories'];
 
     public function asset()
     {
         return $this->belongsTo(Asset::class, 'asset_id', 'id');
-    }
-
-    public function pcName()
-    {
-        return $this->belongsTo(PCName::class, 'pc_name_id', 'id');
     }
 
     public function software()

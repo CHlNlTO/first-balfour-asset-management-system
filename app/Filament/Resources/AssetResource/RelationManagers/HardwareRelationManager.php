@@ -69,14 +69,6 @@ class HardwareRelationManager extends RelationManager
                     ->label('Manufacturer')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('pc_name')
-                    ->label('PC Name')
-                    ->sortable()
-                    ->searchable()
-                    ->copyable()
-                    ->copyMessage('Copied!')
-                    ->tooltip('Click to copy')
-                    ->placeholder('N/A'),
                 TextColumn::make('mac_address')
                     ->label('MAC Address')
                     ->searchable()

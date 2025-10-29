@@ -11,16 +11,11 @@ class Software extends Model
 
     protected $primaryKey = 'asset_id'; // Specify the primary key if it's not the default 'id'
 
-    protected $fillable = ['asset_id', 'version', 'license_key', 'software_type', 'license_type', 'pc_name', 'pc_name_id'];
+    protected $fillable = ['asset_id', 'version', 'license_key', 'software_type', 'license_type'];
 
     public function asset()
     {
         return $this->belongsTo(Asset::class);
-    }
-
-    public function pcName()
-    {
-        return $this->belongsTo(PCName::class, 'pc_name_id', 'id');
     }
 
     public function hardware()

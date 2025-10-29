@@ -94,19 +94,9 @@ class SoftwareResource extends Resource
                 TextColumn::make('license_type')
                     ->label('License Type')
                     ->getStateUsing(function (Software $record): string {
-                        Log::info('License Type ID: ' . $record->license_type);
                         $licenseType = LicenseType::find($record->license_type);
-                        Log::info('Found License Type: ' . ($licenseType ? $licenseType->license_type : 'null'));
                         return $licenseType ? $licenseType->license_type : 'N/A';
                     })
-                    ->sortable()
-                    ->searchable()
-                    ->copyable()
-                    ->copyMessage('Copied!')
-                    ->tooltip('Click to copy')
-                    ->placeholder('N/A'),
-                TextColumn::make('pcName.name')
-                    ->label('PC Name')
                     ->sortable()
                     ->searchable()
                     ->copyable()
@@ -157,15 +147,8 @@ class SoftwareResource extends Resource
                         return LicenseType::whereNotNull('license_type')
                             ->pluck('license_type', 'id')
                             ->filter(fn($value) => !is_null($value))
-                            ->toArray();
-                    }),
-                SelectFilter::make('pc_name')
-                    ->label('Filter by PC Name')
-                    ->searchable()
-                    ->indicator('PC Name')
-                    ->options(function () {
-                        return Software::pluck('pc_name', 'pc_name')->filter(fn($value) => !is_null($value) && $value !== '')->unique()->toArray();
-                    }),
+                    ->toArray();
+                }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

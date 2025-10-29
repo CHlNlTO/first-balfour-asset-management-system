@@ -95,13 +95,6 @@
                     <div class="p-6 space-y-4">
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div class="flex flex-col">
-                                <span class="text-sm font-medium text-blue-400">PC Name</span>
-                                <div
-                                    class="p-3 mt-2 font-mono text-blue-800 border border-blue-100 rounded-lg bg-blue-50">
-                                    {{ displayText($record->software?->pcName?->name, 'Unassigned') }}
-                                </div>
-                            </div>
-                            <div class="flex flex-col">
                                 <span class="text-sm font-medium text-blue-400">Type</span>
                                 <div
                                     class="p-3 mt-2 font-mono text-blue-800 border border-blue-100 rounded-lg bg-blue-50">
@@ -167,13 +160,6 @@
                                 <div
                                     class="p-3 mt-2 font-mono text-blue-800 border border-blue-100 rounded-lg bg-blue-50">
                                     {{ displayText($record->hardware?->mac_address) }}
-                                </div>
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="text-sm font-medium text-blue-400">PC Name</span>
-                                <div
-                                    class="p-3 mt-2 font-mono text-blue-800 border border-blue-100 rounded-lg bg-blue-50">
-                                    {{ displayText($record->hardware?->pcName->name ?? 'Unassigned') }}
                                 </div>
                             </div>
                         </div>

@@ -36,7 +36,6 @@ class EditHardware extends EditRecord
         $data['manufacturer'] = $this->record->manufacturer;
         $data['mac_address'] = $this->record->mac_address;
         $data['accessories'] = $this->record->accessories;
-        $data['pc_name'] = $this->record->pc_name;
         $data['warranty_expiration'] = $this->record->warranty_expiration;
 
         return $data;
@@ -103,7 +102,6 @@ class EditHardware extends EditRecord
                         TextInput::make('manufacturer')->label('Manufacturer')->required(),
                         TextInput::make('mac_address')->label('MAC Address')->nullable(),
                         TextInput::make('accessories')->label('Accessories')->nullable(),
-                        TextInput::make('pc_name')->label('PC Name')->nullable(),
                         DatePicker::make('warranty_expiration')
                             ->label('Warranty Expiration')
                             ->displayFormat('m/d/Y')

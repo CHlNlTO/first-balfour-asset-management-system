@@ -36,7 +36,6 @@ class EditSoftware extends EditRecord
         $data['version'] = $this->record->version;
         $data['license_key'] = $this->record->license_key;
         $data['license_type'] = $this->record->license_type;
-        $data['pc_name'] = $this->record->pc_name;
 
         Log::info('Mutated Data Before Fill: ', $data);
 
@@ -62,7 +61,6 @@ class EditSoftware extends EditRecord
                 'license_key' => $data['license_key'] ?? null,
                 'software_type' => $data['software_type'] ?? null,
                 'license_type' => $data['license_type'] ?? null,
-                'pc_name' => $data['pc_name'],
             ]);
 
             return $record;
@@ -94,7 +92,6 @@ class EditSoftware extends EditRecord
                         TextInput::make('version')->label('Version'),
                         TextInput::make('license_key')->label('License Key'),
                         TextInput::make('license_type')->label('License Type'),
-                        TextInput::make('pc_name')->label('PC Name'),
                     ]),
             ]);
     }

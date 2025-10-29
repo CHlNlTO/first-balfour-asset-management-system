@@ -61,14 +61,6 @@ class SoftwareRelationManager extends RelationManager
                 TextColumn::make('license_key')
                     ->label('License Key')
                     ->searchable(),
-                TextColumn::make('pc_name')
-                    ->label('PC Name')
-                    ->sortable()
-                    ->searchable()
-                    ->copyable()
-                    ->copyMessage('Copied!')
-                    ->tooltip('Click to copy')
-                    ->placeholder('N/A'),
                 TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()

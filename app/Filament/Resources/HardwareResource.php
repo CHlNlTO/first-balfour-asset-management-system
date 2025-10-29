@@ -3,8 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\HardwareResource\Pages;
-use App\Models\Asset;
-use App\Models\AssetStatus;
 use App\Models\Hardware;
 use App\Models\HardwareType;
 use Filament\Resources\Resource;
@@ -12,7 +10,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Support\Facades\Log;
 
 class HardwareResource extends Resource
 {
@@ -124,14 +121,6 @@ class HardwareResource extends Resource
                     ->tooltip('Click to copy')
                     ->limit(20)
                     ->placeholder('N/A'),
-                TextColumn::make('pcName.name')
-                    ->searchable()
-                    ->sortable()
-                    ->label('PC Name')
-                    ->copyable()
-                    ->copyMessage('Copied!')
-                    ->tooltip('Click to copy')
-                    ->placeholder('N/A'),
                 TextColumn::make('warranty_expiration')
                     ->sortable()
                     ->searchable()
@@ -174,12 +163,6 @@ class HardwareResource extends Resource
                             ->filter(fn($value) => !is_null($value))
                             ->toArray();
                     }),
-                SelectFilter::make('pcName.name')
-                    ->label('Filter by PC Name')
-                    ->searchable()
-                    ->indicator('PC Name')
-                    ->relationship('pcName', 'name')
-                    ->preload(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

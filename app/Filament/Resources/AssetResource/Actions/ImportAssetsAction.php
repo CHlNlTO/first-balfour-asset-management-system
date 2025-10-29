@@ -17,7 +17,6 @@ use App\Models\HardwareType;
 use App\Models\SoftwareType;
 use App\Models\LicenseType;
 use App\Models\PeripheralType;
-use App\Models\PCName;
 use App\Models\Division;
 use App\Models\Project;
 use Filament\Actions\Action;
@@ -96,7 +95,6 @@ class ImportAssetsAction extends Action
             'specifications',
             'mac_address',
             'accessories',
-            'pc_name',
             // Software specific
             'version',
             'license_key',
@@ -122,13 +120,13 @@ class ImportAssetsAction extends Action
         $requiredColumns = [
             // asset_type, acquisition_date, purchase_order_no, sales_invoice_no, purchase_order_amount, vendor_name
             // Note: asset_status, brand, model, cost_code are now optional
-            'common' => [0, 8, 10, 11, 12, 25],
+            'common' => [0, 8, 10, 11, 12, 24],
             // tag_number, hardware_type, serial_number, specifications
             'hardware' => [7, 14, 15, 16],
             // All software fields are now optional (version, license_key, software_type, license_type)
             'software' => [],
             // peripherals_type, serial_number, specifications
-            'peripherals' => [24, 15, 16],
+            'peripherals' => [23, 15, 16],
         ];
 
         // Set headers
@@ -142,8 +140,7 @@ class ImportAssetsAction extends Action
             [
                 'hardware', 'Active', 'Dell', 'Optiplex 7010', 'CC001', 'Project A', 'Division 1', 'FB-HW-001',
                 '2023-01-01', '2028-01-01', 'PO123', 'INV456', '1500.00', 'John Doe',
-                'Desktop', 'SN12345', 'Intel Core i7, 16GB RAM, 512GB SSD',
-                '00:11:22:33:44:55', 'Mouse, Keyboard', 'DESKTOP-ABC123',
+                'Desktop', 'SN12345', 'Intel Core i7, 16GB RAM, 512GB SSD', '00:11:22:33:44:55', 'Mouse, Keyboard',
                 '', '', '', '',
                 '', 'Dell Inc.', '123 Dell Way', '', 'Round Rock', '1234567890', '',
                 'Jane Smith', '9876543210', 'jane@dell.com', 'www.dell.com', 'Preferred vendor'
@@ -161,7 +158,7 @@ class ImportAssetsAction extends Action
             [
                 'peripherals', 'Active', 'Logitech', 'Wireless Mouse', 'CC003', 'Project C', 'Division 3', '',
                 '2023-03-01', '2026-03-01', 'PO202', 'INV303', '100.00', 'Bob Johnson',
-                '', 'LGT123456', 'Wireless Mouse', '', '', '',
+                '', 'LGT123456', 'Wireless Mouse', '', '',
                 '', '', '', '',
                 'Monitor', 'Logitech Inc.', '7700 Gateway Blvd', '', 'Newark', '5105795000', '',
                 'Sarah Brown', '9876543210', 'sarah@logitech.com', 'www.logitech.com', 'Peripheral supplier'
@@ -310,7 +307,16 @@ class ImportAssetsAction extends Action
                     Log::info("Successfully processed row {$rowNumber}");
                 } catch (\Exception $e) {
                     $failedRows++;
-                    $errorMessage = "Row {$rowNumber}: " . $e->getMessage();
+
+                    // Check if it's a duplicate entry error
+                    if ($e->getCode() == '23000' || str_contains($e->getMessage(), 'Duplicate entry')) {
+                        // Extract tag number from the error or data
+                        $tagNumber = $record['tag_number'] ?? 'N/A';
+                        $errorMessage = "Row {$rowNumber}: Tag '{$tagNumber}' already exists";
+                    } else {
+                        $errorMessage = "Row {$rowNumber}: " . $e->getMessage();
+                    }
+
                     $errors[] = $errorMessage;
                     Log::error("Failed to process row {$rowNumber}", [
                         'error' => $e->getMessage(),
@@ -660,7 +666,6 @@ class ImportAssetsAction extends Action
             'specifications' => 'required|string',
             'mac_address' => 'nullable|string|max:255',
             'accessories' => 'nullable|string|max:255',
-            'pc_name' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -673,19 +678,6 @@ class ImportAssetsAction extends Action
             ['hardware_type' => trim($data['hardware_type'])]
         );
 
-        // Normalize PC name if provided
-        $pcNameId = null;
-        if (!empty($data['pc_name'])) {
-            $pcName = PCName::firstOrCreate(
-                ['name' => trim($data['pc_name'])],
-                [
-                    'name' => trim($data['pc_name']),
-                    'description' => "PC Name: " . trim($data['pc_name'])
-                ]
-            );
-            $pcNameId = $pcName->id;
-        }
-
         Hardware::create([
             'asset_id' => $asset->id,
             'hardware_type' => $hardwareType->id,
@@ -694,7 +686,6 @@ class ImportAssetsAction extends Action
             'warranty_expiration' => $data['retirement_date'] ?? null, // Use retirement_date for warranty_expiration
             'mac_address' => $data['mac_address'] ?? null,
             'accessories' => $data['accessories'] ?? null,
-            'pc_name_id' => $pcNameId,
         ]);
 
         Log::info("Created hardware record for asset ID: {$asset->id}");
