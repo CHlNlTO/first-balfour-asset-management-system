@@ -73,9 +73,11 @@ class SalesService
      */
     public static function createOptionToBuy(Assignment $assignment, array $data): OptionToBuy
     {
+        $optionToBuyStatusId = AssignmentStatus::where('assignment_status', 'Option to Buy')->value('id');
+
         return OptionToBuy::create([
             'assignment_id' => $assignment->id,
-            'option_to_buy_status' => 10, // Initial status (Option to Buy)
+            'option_to_buy_status' => $optionToBuyStatusId, // Initial status (Option to Buy)
             'asset_cost' => $data['asset_cost'],
             'document_path' => $data['document_path'] ?? null, // Include document if provided
         ]);

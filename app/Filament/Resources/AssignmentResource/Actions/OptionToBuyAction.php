@@ -4,7 +4,7 @@ namespace App\Filament\Resources\AssignmentResource\Actions;
 
 use App\Models\Assignment;
 use App\Models\AssignmentStatus;
-use App\Models\OptionToBuy;
+use App\Helpers\StatusSynchronizationHelper;
 use App\Services\SalesService;
 use Carbon\Carbon;
 use Filament\Forms\Components\Hidden;
@@ -27,10 +27,6 @@ class OptionToBuyAction
             ->action(function (Assignment $record, array $data): void {
                 static::handleOptionToBuy($record, $data);
             })
-            ->visible(
-                fn(Assignment $record): bool =>
-                $record->assignment_status === AssignmentStatus::where('assignment_status', 'Active')->first()->id
-            )
             ->icon('heroicon-o-banknotes')
             ->requiresConfirmation()
             ->modalHeading('Option to Buy Asset')
@@ -76,7 +72,9 @@ class OptionToBuyAction
                 ->dehydrated(false),
 
             Hidden::make('assignment_status')
-                ->default('10')
+                ->default(function (): int {
+                    return AssignmentStatus::where('assignment_status', 'Asset Sold')->value('id');
+                })
                 ->required(),
 
             TextInput::make('assignment_status_display')
@@ -120,6 +118,9 @@ class OptionToBuyAction
             static::updateAssignment($record, $data);
             SalesService::createOptionToBuy($record, $data);
 
+            // Sync Asset Status with the updated Assignment Status (most recent only)
+            StatusSynchronizationHelper::syncAssetStatusFromAssignment($record);
+
             DB::commit();
             static::sendSuccessNotification();
         } catch (\Exception $e) {
@@ -130,10 +131,12 @@ class OptionToBuyAction
 
     protected static function updateAssignment(Assignment $record, array $data): void
     {
+        $optionToBuyStatusId = AssignmentStatus::where('assignment_status', 'Option to Buy')->value('id');
+
         $record->update([
             'asset_id' => $data['asset_id'] ?? $record->asset_id,
             'employee_id' => $data['from_employee_id'],
-            'assignment_status' => 10, // Option to Buy status
+            'assignment_status' => $optionToBuyStatusId, // Option to Buy status
             'start_date' => $data['old_start_date'],
         ]);
     }

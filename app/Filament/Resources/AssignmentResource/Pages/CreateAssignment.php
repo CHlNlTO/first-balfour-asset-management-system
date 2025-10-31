@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\AssignmentResource\Pages;
 
 use App\Filament\App\Resources\AssignmentResource\Actions\ManageApprovalAction;
+use App\Helpers\StatusSynchronizationHelper;
 use App\Mail\AssetAssignmentNotification;
 use App\Models\Assignment;
 use App\Filament\Resources\AssignmentResource;
@@ -62,13 +63,18 @@ class CreateAssignment extends CreateRecord
 
     protected function createSingleAssignment(array $data): Assignment
     {
-        return Assignment::create([
+        $assignment = Assignment::create([
             'asset_id' => $data['asset_id'],
             'employee_id' => $data['employee_id'],
             'assignment_status' => $data['assignment_status'],
             'start_date' => $data['start_date'],
             'end_date' => $data['end_date'],
         ]);
+
+        // Sync Asset Status with Assignment Status for the most recent assignment
+        StatusSynchronizationHelper::syncAssetStatusFromAssignment($assignment);
+
+        return $assignment;
     }
 
     protected function getRedirectUrl(): string

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\AssignmentResource\Actions;
 
 use App\Filament\Resources\AssignmentResource;
+use App\Helpers\StatusSynchronizationHelper;
 use App\Models\Assignment;
 use App\Models\AssignmentStatus;
 use Carbon\Carbon;
@@ -188,7 +189,7 @@ class TransferAction
     {
         $activeStatus = AssignmentStatus::where('assignment_status', 'Active')->first();
 
-        Assignment::create([
+        $assignment = Assignment::create([
             'asset_id' => $data['asset_id'],
             'employee_id' => $data['employee_id'],
             'assignment_status' => $activeStatus->id,
@@ -197,6 +198,9 @@ class TransferAction
                 ? Carbon::parse($data['end_date'])->format('Y-m-d')
                 : null,
         ]);
+
+        // Sync Asset Status with Assignment Status for the new assignment
+        StatusSynchronizationHelper::syncAssetStatusFromAssignment($assignment);
 
         Log::info("Created new active assignment", [
             'to_employee' => $data['employee_id'],

@@ -104,6 +104,11 @@ class CEMREmployee extends Model
         return $this->belongsTo(CEMRStatus::class, 'emp_stat_id');
     }
 
+    public function assignments()
+    {
+        return $this->hasMany(Assignment::class, 'employee_id', 'id_num');
+    }
+
     public function getFullNameAttribute()
     {
         return trim(

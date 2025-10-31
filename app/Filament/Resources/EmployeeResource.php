@@ -4,6 +4,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\EmployeeResource\Pages;
+use App\Filament\Resources\EmployeeResource\RelationManagers;
 use App\Models\CEMREmployee;
 use App\Models\CEMRRank;
 use App\Models\CEMRStatus;
@@ -680,7 +681,7 @@ class EmployeeResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // Add relation managers here if needed
+            RelationManagers\AssignmentsRelationManager::class,
         ];
     }
 

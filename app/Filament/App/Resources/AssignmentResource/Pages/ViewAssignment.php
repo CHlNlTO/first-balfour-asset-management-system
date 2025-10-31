@@ -3,22 +3,12 @@
 namespace App\Filament\App\Resources\AssignmentResource\Pages;
 
 use App\Filament\App\Resources\AssignmentResource;
-use App\Filament\App\Resources\AssignmentResource\Actions\ViewApprovalAction;
-use App\Models\AssetStatus;
-use App\Models\Assignment;
-use App\Models\AssignmentStatus;
-use App\Models\HardwareType;
-use App\Models\LicenseType;
-use App\Models\Lifecycle;
-use App\Models\PeripheralType;
-use App\Models\SoftwareType;
 use Filament\Infolists\Components\Group;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Carbon;
 use Filament\Support\Enums\FontWeight;
 
 class ViewAssignment extends ViewRecord
@@ -325,7 +315,6 @@ class ViewAssignment extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            ViewApprovalAction::make(),
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\AssetResource\Pages;
 
 use App\Filament\Resources\AssetResource;
 use App\Filament\Resources\AssetResource\Forms\CommonFormComponents;
+use App\Helpers\StatusSynchronizationHelper;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Section;
@@ -11,7 +12,6 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\DatePicker;
 use App\Models\PeripheralType;
 use Filament\Forms\Components\Group;
 use App\Models\Asset;
@@ -129,13 +129,26 @@ class CreatePeripheralsAsset extends CreateRecord
 
             // Create assignment if employee is selected
             if (!empty($data['employee_id'])) {
-                \App\Models\Assignment::create([
+                // Get Assignment Status by matching Asset Status value
+                $assignmentStatusId = null;
+                if (!empty($data['asset_status'])) {
+                    $assignmentStatusId = StatusSynchronizationHelper::findOrCreateAssignmentStatusByAssetStatus($data['asset_status']);
+                } else {
+                    // Fallback to "Active" status if no asset_status is set
+                    $activeStatus = \App\Models\AssignmentStatus::where('assignment_status', 'Active')->first();
+                    $assignmentStatusId = $activeStatus ? $activeStatus->id : 3;
+                }
+
+                $assignment = \App\Models\Assignment::create([
                     'asset_id' => $asset->id,
                     'employee_id' => $data['employee_id'],
-                    'assignment_status' => 3, // Active status
+                    'assignment_status' => $assignmentStatusId,
                     'start_date' => $data['acquisition_date'],
                     'end_date' => null, // No end date for immediate assignment
                 ]);
+
+                // Sync Asset Status with Assignment Status for the most recent assignment
+                StatusSynchronizationHelper::syncAssetStatusFromAssignment($assignment);
             }
 
             return $asset;

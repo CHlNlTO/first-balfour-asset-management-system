@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use Filament\Forms\Components\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class Assignment extends Model
 {
     use HasFactory;
+
+    // Ensure Assignment always uses the default connection (fb_assets)
+    protected $connection = 'mysql';
 
     protected $fillable = [
         'asset_id',
@@ -40,10 +40,5 @@ class Assignment extends Model
     public function status(): BelongsTo
     {
         return $this->belongsTo(AssignmentStatus::class, 'assignment_status');
-    }
-
-    public function transfers()
-    {
-        return $this->hasMany(Transfer::class);
     }
 }

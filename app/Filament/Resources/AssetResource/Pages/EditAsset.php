@@ -3,13 +3,13 @@
 namespace App\Filament\Resources\AssetResource\Pages;
 
 use App\Filament\Resources\AssetResource;
+use App\Helpers\StatusSynchronizationHelper;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
 use App\Models\Hardware;
 use App\Models\HardwareSoftware;
 use App\Models\Software;
-use App\Models\Peripheral;
 use Filament\Forms\Form;
 use Illuminate\Support\Facades\Log;
 
@@ -138,6 +138,9 @@ class EditAsset extends EditRecord
         Log::info('Update Data Before Processing:', $data);
 
         return DB::transaction(function () use ($record, $data) {
+            // Capture original asset_status before update for comparison
+            $originalAssetStatus = $record->asset_status;
+
             // For software assets, handle the software_brand field
             $modelId = $data['model'] ?? null;
             if ($record->asset_type === 'software' && !empty($data['software_brand'])) {
@@ -186,6 +189,11 @@ class EditAsset extends EditRecord
                     'requestor' => $data['requestor'] ?? null,
                 ]
             );
+
+            // Sync Assignment Status with Asset Status for the most recent assignment if asset status changed
+            if (isset($data['asset_status']) && $data['asset_status'] !== $originalAssetStatus) {
+                StatusSynchronizationHelper::syncAssignmentStatusFromAsset($record->id, $data['asset_status']);
+            }
 
             return $record;
         });

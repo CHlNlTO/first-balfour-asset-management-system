@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\AssignmentResource\Pages;
 
 use App\Filament\Resources\AssignmentResource;
+use App\Helpers\StatusSynchronizationHelper;
 use Filament\Actions;
 use App\Models\Asset;
 use App\Models\AssignmentStatus;
@@ -13,8 +14,6 @@ use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Section;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 
 class EditAssignment extends EditRecord
 {
@@ -107,6 +106,12 @@ class EditAssignment extends EditRecord
                 'lg' => 3
             ])
             ->inlineLabel();
+    }
+
+    protected function afterSave(): void
+    {
+        // Sync Asset Status with Assignment Status if this is the most recent assignment
+        StatusSynchronizationHelper::syncAssetStatusFromAssignment($this->record);
     }
 
     protected function getRedirectUrl(): string
