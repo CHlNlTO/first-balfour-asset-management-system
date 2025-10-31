@@ -5,7 +5,6 @@ namespace App\Filament\Resources\AssignmentResource\Actions;
 use App\Filament\Resources\AssignmentResource;
 use App\Models\Assignment;
 use App\Models\AssignmentStatus;
-use App\Models\Transfer;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Group;
@@ -31,18 +30,13 @@ class TransferAction
                     ->schema([
                         ...static::getAssetSection(),
                         ...static::getEmployeeSection(),
-                        ...static::getStatusSection(),
                         ...static::getDatesSection(),
                     ]),
             ])
-            ->visible(
-                fn(Assignment $record): bool =>
-                $record->assignment_status === AssignmentStatus::where('assignment_status', 'Active')->first()->id
-            )
             ->requiresConfirmation()
             ->modalHeading('Transfer Asset')
-            ->modalDescription('This will initiate a transfer of the asset to another employee.')
-            ->modalButton('Transfer')
+            ->modalDescription('This will immediately transfer the asset to another employee. The current assignment will be set to Inactive and a new Active assignment will be created.')
+            ->modalSubmitActionLabel('Transfer')
             ->action(function (Assignment $record, array $data): void {
                 static::handleTransfer($record, $data);
             });
@@ -103,23 +97,6 @@ class TransferAction
         ];
     }
 
-    protected static function getStatusSection(): array
-    {
-        return [
-            Hidden::make('assignment_status')
-                ->default(
-                    fn(): int =>
-                    AssignmentStatus::where('assignment_status', 'Pending Approval')->first()->id
-                )
-                ->required(),
-
-            TextInput::make('assignment_status_display')
-                ->label('Assignment Status')
-                ->default('Pending Approval')
-                ->disabled()
-                ->dehydrated(false),
-        ];
-    }
 
     protected static function getDatesSection(): array
     {
@@ -169,7 +146,6 @@ class TransferAction
             static::validateTransferData($data);
             static::updateCurrentAssignment($record);
             static::createNewAssignment($data);
-            static::createTransferRecord($record, $data);
 
             DB::commit();
             static::sendSuccessNotification();
@@ -195,60 +171,44 @@ class TransferAction
 
     protected static function updateCurrentAssignment(Assignment $record): void
     {
-        $inTransferStatus = AssignmentStatus::where('assignment_status', 'Transferred')->first();
+        $inactiveStatus = AssignmentStatus::where('assignment_status', 'Inactive')->first();
 
         $record->update([
-            'assignment_status' => $inTransferStatus->id,
+            'assignment_status' => $inactiveStatus->id,
             'end_date' => now(),
         ]);
 
-        Log::info("Updated current assignment status to In Transfer", [
+        Log::info("Updated current assignment status to Inactive", [
             'assignment_id' => $record->id,
-            'status' => $inTransferStatus->assignment_status
+            'status' => $inactiveStatus->assignment_status
         ]);
     }
 
     protected static function createNewAssignment(array $data): void
     {
-        $pendingApprovalStatus = AssignmentStatus::where('assignment_status', 'Pending Approval')->first();
+        $activeStatus = AssignmentStatus::where('assignment_status', 'Active')->first();
 
         Assignment::create([
             'asset_id' => $data['asset_id'],
             'employee_id' => $data['employee_id'],
-            'assignment_status' => $pendingApprovalStatus->id,
+            'assignment_status' => $activeStatus->id,
             'start_date' => Carbon::parse($data['start_date'])->format('Y-m-d'),
             'end_date' => isset($data['end_date'])
                 ? Carbon::parse($data['end_date'])->format('Y-m-d')
                 : null,
         ]);
 
-        Log::info("Created new pending assignment", [
+        Log::info("Created new active assignment", [
             'to_employee' => $data['employee_id'],
             'start_date' => $data['start_date'],
-        ]);
-    }
-
-    protected static function createTransferRecord(Assignment $record, array $data): void
-    {
-        Transfer::create([
-            'assignment_id' => $record->id,
-            'from_employee' => $record->employee_id,
-            'to_employee' => $data['employee_id'],
-            'status' => AssignmentStatus::where('assignment_status', 'Pending Approval')->first()->id,
-            'transfer_date' => now(),
-        ]);
-
-        Log::info("Created transfer record", [
-            'from_employee' => $record->employee_id,
-            'to_employee' => $data['employee_id'],
         ]);
     }
 
     protected static function sendSuccessNotification(): void
     {
         Notification::make()
-            ->title('Transfer Initiated')
-            ->body('The asset transfer has been initiated and is awaiting approval.')
+            ->title('Transfer Completed')
+            ->body('The asset has been successfully transferred. The previous assignment is now Inactive and the new assignment is Active.')
             ->success()
             ->send();
     }

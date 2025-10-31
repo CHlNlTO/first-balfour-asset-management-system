@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\AssignmentResource\Tables;
 
 use App\Filament\Resources\Actions\ApproveSaleAction;
-use App\Filament\Resources\AssignmentResource\Actions\ManageTransferAction;
 use App\Filament\Resources\AssignmentResource\Actions\OptionToBuyAction;
 use App\Filament\Resources\AssignmentResource\Actions\TransferAction;
 use Filament\Tables\Actions\BulkActionGroup;
@@ -26,6 +25,21 @@ class AssignmentTable
     public static function make(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                // Get only the most recent assignment for each asset_id
+                // by finding the assignment with the maximum created_at for each asset
+                // If there are ties (same created_at), use the highest id
+                $query->whereIn('assignments.id', function ($subQuery) {
+                    $subQuery->select(DB::raw('MAX(id)'))
+                        ->from('assignments as a1')
+                        ->whereRaw('a1.created_at = (
+                            SELECT MAX(a2.created_at)
+                            FROM assignments as a2
+                            WHERE a2.asset_id = a1.asset_id
+                        )')
+                        ->groupBy('asset_id');
+                });
+            })
             ->columns(static::getColumns())
             ->filters(static::getFilters())
             ->actions(static::getActions())
@@ -168,7 +182,6 @@ class AssignmentTable
                 EditAction::make(),
                 DeleteAction::make(),
                 TransferAction::make(),
-                ManageTransferAction::make(),
                 OptionToBuyAction::make(),
                 ApproveSaleAction::makeForAssignment(),
             ])

@@ -2,27 +2,23 @@
 
 namespace App\Filament\App\Resources;
 
-use App\Filament\App\Resources\AssignmentResource\Actions\EmployeeTransferAction;
-use App\Filament\App\Resources\AssignmentResource\Actions\TableApprovalAction;
 use App\Filament\App\Resources\AssignmentResource\Pages;
 use App\Models\Assignment;
-use App\Models\AssignmentStatus;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ViewAction;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Database\Query\Builder as QueryBuilder;
-use Illuminate\Support\Facades\DB;
 
 class AssignmentResource extends Resource
 {
     protected static ?string $model = Assignment::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-duplicate';
+
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function table(Table $table): Table
     {
@@ -77,7 +73,7 @@ class AssignmentResource extends Resource
                     ->placeholder('N/A'),
                 Tables\Columns\TextColumn::make('remarks')
                     ->placeholder('N/A')
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()
@@ -91,23 +87,7 @@ class AssignmentResource extends Resource
                     ->placeholder('N/A')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                Filter::make('show_all')
-                    ->label('Show all records')
-                    ->query(
-                        fn(Builder $query): Builder =>
-                        $query->whereNotIn('assignments.id', function (QueryBuilder $subQuery) {
-                            return $subQuery
-                                ->select(DB::raw('MAX(assignments.id)'))
-                                ->from('assignments')
-                                ->join('assets', 'assignments.asset_id', '=', 'assets.id')
-                                ->where('assignments.employee_id', Auth::user()->id_num);
-                        })
-                    )
-            ])
             ->actions([
-                TableApprovalAction::make(),
-                EmployeeTransferAction::make(),
                 ViewAction::make(),
             ])
             ->bulkActions([

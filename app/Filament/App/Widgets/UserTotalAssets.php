@@ -41,10 +41,7 @@ class UserTotalAssets extends BaseWidget
 
         return [
             Stat::make('Approved Active Assignments', $activeToTotal)
-                ->icon('heroicon-o-check-circle')
-                ->description("{$pendingCount} pending approval")
-                ->descriptionColor('primary')
-                ->descriptionIcon('heroicon-o-clock'),
+                ->icon('heroicon-o-check-circle'),
             Stat::make('Total Accumulated Assets', $totalAssignments)
                 ->color('success'),
         ];

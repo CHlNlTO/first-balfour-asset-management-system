@@ -2,18 +2,16 @@
 
 namespace App\Providers\Filament;
 
-use App\Http\Middleware\CheckRole;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages;
 use App\Filament\App\Pages\Auth\Register;
+use App\Filament\App\Widgets\AssignmentsTable;
 use App\Filament\App\Widgets\UserTotalAssets;
 use App\Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -59,12 +57,11 @@ class AppPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
             ->pages([
                 Dashboard::class,
-                // Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             ->widgets([
-                // Widgets\AccountWidget::class,
                 UserTotalAssets::class,
+                AssignmentsTable::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -79,7 +76,6 @@ class AppPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                //     CheckRole::class . ':employee,manager',
             ])
             ->navigationGroups([
                 'Filament Shield',
